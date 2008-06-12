@@ -1,0 +1,39 @@
+Todo List
+---------
+
+Relation support
+================
+
+File/Image tests
+================
+
+Containment Structure Serialization
+===================================
+
+
+Lazy Asynchronous Synchronization
+=================================
+
+ - requires persistent utility
+
+
+Maybe Items
+-----------
+
+ - Disk File Support
+
+ - Workflow History ? does any one want this
+
+ - Content Versions ? or this
+
+
+
+Finished Items
+--------------
+
+Testing for transaction failure modes 
+
+Operation Filters
+=================
+- filter portal factory content
+
