@@ -1,0 +1,14 @@
+#summary Installation
+#labels Phase-Deploy
+
+= Introduction =
+
+
+= in buildout =
+
+ * add ore.contentmirror to your eggs section,
+ * create a pkg-include file in the instance home $INSTANCE/etc/package-includes 
+
+or zope 2.9
+
+load the ore.contentmirror configuration from a product's zcml file.
