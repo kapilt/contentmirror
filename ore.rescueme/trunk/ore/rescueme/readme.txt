@@ -296,6 +296,7 @@ Containment
   ...                ReferenceField('related', relationship='inkind'), 
   ...                DateTimeField('discovered_date')
   ...     ))          
+
   >>> loader.load( Folder )
   >>> metadata.create_all(checkfirst=True)
   >>> root = Folder('root', name="Root")
@@ -303,6 +304,9 @@ Containment
   >>> peer = interfaces.ISerializer( subfolder ).add()
   >>> peer.parent.name == "Root"
   True
+
+A caveat to using containment, is that filtering containers, will
+cause contained content to appear as orphans.
 
 References
 ----------

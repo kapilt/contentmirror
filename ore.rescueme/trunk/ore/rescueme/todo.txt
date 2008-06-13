@@ -1,31 +1,24 @@
+---------
 Todo List
 ---------
-
-Relation support
-================
 
 File/Image tests
 ================
 
-Containment Structure Serialization
-===================================
-
-
 Lazy Asynchronous Synchronization
 =================================
 
- - requires persistent utility
+ - requires persistent utility (rename pkg before this
 
 
 Maybe Items
 -----------
 
- - Disk File Support
+ - Files on Disk Support
 
  - Workflow History ? does any one want this
 
  - Content Versions ? or this
-
 
 
 Finished Items
@@ -36,4 +29,11 @@ Testing for transaction failure modes
 Operation Filters
 =================
 - filter portal factory content
+
+Relation support
+================
+
+Containment Structure Serialization
+===================================
+
 

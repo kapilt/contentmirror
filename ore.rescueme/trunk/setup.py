@@ -1,4 +1,8 @@
+import os
 from setuptools import setup, find_packages
+
+def read(*rnames):
+    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 setup(
     name="ore.rescueme",
@@ -17,6 +21,7 @@ setup(
     author='Kapil Thangavelu',
     author_email='kapil.foss@gmail.com',
     description="Deploy/Rescue Content from Plone to a Relational Database",
+    long_description=read("ore","rescueme","readme.txt"),
     license='GPL',
     keywords="plone zope zope3",
     )

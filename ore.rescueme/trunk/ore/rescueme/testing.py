@@ -64,9 +64,6 @@ class BaseContent( object ):
     def UID( self ):
         return self.uid
         
-    def getReferences( self ):
-        pass
-
     def getParentNode( self ):
         return self.container
     
@@ -82,7 +79,6 @@ class Schema( object ):
         for f in self._fields:
             if f.__name__ == name:
                 return True
-        return False
 
 class DateTime( object ):
     # mock zope2 datetime
