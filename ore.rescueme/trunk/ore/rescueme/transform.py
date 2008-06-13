@@ -186,5 +186,23 @@ class ReferenceTransform( object ):
         return
         
     def copy( self, instance, peer ):
-        pass
-    
+        value = self.context.getAccessor( instance )()
+
+        if not value:
+            return
+        
+        if not isinstance( value, (list, tuple)):
+            value= [ value ]
+        
+        session = Session()
+        for ob in value:
+            peer_ob = schema.fromUID( ob.UID() )
+            if peer_ob is None:
+                serializer = interfaces.ISerializer( ob, None )
+                if serializer is None: continue
+                peer_ob = serializer.add()
+
+            relation = schema.Relation( peer,
+                                        peer_ob,
+                                        self.context.relationship )
+            session.save( relation )

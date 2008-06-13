@@ -48,14 +48,15 @@ class BaseContent( object ):
     portal_type = ""
     schema = None
     
-    def __init__( self, id, **kw ):
+    def __init__( self, id, container=None, **kw ):
         self.id = id
         self.uid = make_uuid(id)
         
         for k,v in kw.items():
             if k in self.schema:
                 setattr(self,k,v)
-        
+                
+        self.container = container
         
     def Schema( self ):
         return self.schema
@@ -65,7 +66,10 @@ class BaseContent( object ):
         
     def getReferences( self ):
         pass
-        
+
+    def getParentNode( self ):
+        return self.container
+    
 class Schema( object ):
 
     def __init__(self, fields ):

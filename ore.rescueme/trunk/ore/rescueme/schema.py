@@ -39,7 +39,8 @@ content = rdb.Table(
    rdb.Column( "uid", rdb.String(36), nullable=False ),
    rdb.Column( "portal_type", rdb.String(64) ),
    rdb.Column( "status", rdb.Unicode(64) ),   
-   rdb.Column( "type", rdb.String(64) ),      
+   rdb.Column( "type", rdb.String(64) ),
+   rdb.Column( "container_id", rdb.Integer, rdb.ForeignKey('content.content_id') ),
    # dublin core
    rdb.Column( "title", rdb.UnicodeText ),
    rdb.Column( "description", rdb.UnicodeText ),
@@ -63,13 +64,20 @@ class Content( object ):
 
 orm.mapper( Content, content, 
             polymorphic_on=content.c.type,
-            polymorphic_identity='content' )
+            polymorphic_identity='content',
+            properties = { 'children':orm.relation(Content,
+                    backref=orm.backref('parent', remote_side=[content.c.content_id])) }
+    )           
+
+#class Node( object ): pass   
+#orm.mapper( Node, content,
+
             
 #def fromId( content_id ):
 #    return Session().query( Content ).get( content_id )
     
 def fromUID( content_uid ):
-    return Session().query( Content ).filter( Content.c.uid == content_uid ).first()
+    return Session().query( Content ).autoflush(False).filter( Content.c.uid == content_uid ).first()
                 
 relations = rdb.Table(
    "relations",
@@ -78,9 +86,27 @@ relations = rdb.Table(
                primary_key=True ),
    rdb.Column( "target_id", rdb.Integer, rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
                primary_key=True),
-   rdb.Column( "type", rdb.Unicode(128), primary_key=True )
+   rdb.Column( "relationship", rdb.Unicode(128), primary_key=True )
    )
 
+
+class Relation( object ):
+
+    def __init__( self, source=None, target=None, relation=None):
+        self.source = source
+        self.target = target
+        self.relationship = relation
+   
+orm.mapper( Relation, relations,
+            properties = {
+                'source': orm.relation(Content, uselist=False, backref='relations',
+                                       primaryjoin=content.c.content_id==relations.c.source_id ),
+                'target': orm.relation(Content, uselist=False,
+                                       primaryjoin=content.c.content_id==relations.c.target_id ),
+                }
+            )
+
+   
 
     
 

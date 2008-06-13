@@ -175,6 +175,11 @@ Alternatively if the transaction is aborted, all operations are discarded.
   >>> list(operation.get_buffer())
   []
 
+Let's go ahead and process an update operation for test coverage...
+
+  >>> ops.update()
+  >>> transaction.get().commit()
+
 Let's also exercise the delete operation to reset the database state
 for other tests.
 
@@ -245,6 +250,9 @@ database.
 We can directly check the database to see the serialized content there.
 
   >>> import sqlalchemy as rdb
+  >>> from ore.alchemist import Session
+  >>> session = Session()
+  >>> session.flush()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
   [(1, u'Miracle Cures for Scaling')]
 
@@ -257,6 +265,7 @@ Serializers are also responsible for updating database respresentations.
 
 and deleting them.
 
+  >>> session.flush()
   >>> content_serializer.delete()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
   []
@@ -270,6 +279,81 @@ non existent content shouldn't cause an exception.
 or attempting to update content which does not exist, should in turn add it.
 
   >>> peer = content_serializer.update()
+  >>> session.flush()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
   [(1, u'Find a home in the clouds')]
+
+
+Containment
+-----------
+
+  >>> class Folder( BaseContent ):
+  ...     portal_type = 'Simple Folder'
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...                StringField('name'),   
+  ...                StringField('slug', required=True),   
+  ...                ReferenceField('related', relationship='inkind'), 
+  ...                DateTimeField('discovered_date')
+  ...     ))          
+  >>> loader.load( Folder )
+  >>> metadata.create_all(checkfirst=True)
+  >>> root = Folder('root', name="Root")
+  >>> subfolder = Folder('subfolder', name="SubOne", container=root)
+  >>> peer = interfaces.ISerializer( subfolder ).add()
+  >>> peer.parent.name == "Root"
+  True
+
+References
+----------
+
+Archetypes references are a topic onto themselves
+
+  >>> class MyAsset( BaseContent ):
+  ...     portal_type = "My Asset"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...                StringField('name'),   
+  ...                StringField('slug', required=True),   
+  ...                ReferenceField('related', relationship='inkind'), 
+  ...                DateTimeField('discovered_date')
+  ...     ))
+
+And setup the peers and database tables for our new content class.
+
+  >>> loader.load( MyAsset )
+  >>> metadata.create_all(checkfirst=True)
+  >>> table = component.getUtility( interfaces.IPeerRegistry )[ MyAsset ].transformer.table
+  >>> for column in table.columns: print column, column.type
+    myasset.content_id Integer()
+    myasset.name Text(length=None, convert_unicode=False, assert_unicode=None)
+    myasset.slug Text(length=None, convert_unicode=False, assert_unicode=None)
+    myasset.discovered_date DateTime(timezone=False)
+
+
+Let's create some related content.
+
+  >>> xo_image = MyAsset('xo-image', name="Icon")
+  >>> logo = MyAsset('logo', name="Logo")
+  >>> xo_article = MyAsset('xo-article', name='Article', related=xo_image )
+  >>> home_page = MyAsset( 'home-page', related=[xo_article, logo] )  
+
+And serialze the content
+
+  >>> peer = interfaces.ISerializer( home_page ).add()
+
+Related objects are accessible from the peer as the relations collection attribute. 
+
+  >>> for ob in peer.relations: print ob.target.name, ob.relationship
+    Article inkind
+    Logo inkind
+
+
+Files
+-----
+
+File content is automatically stored in the content class's table as a
+binary field by default, however custom FileTransform adapters can
+store content to the file system easily.
+
 
