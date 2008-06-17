@@ -14,23 +14,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
-
 """
-$Id: $
+Create the database structure for a content mirror and output to standard out.
 """
 
-import unittest
-import re
+from StringIO import StringIO
+from ore.rescueme import schema
+import sqlalchemy as rdb
+import sys
 
-from zope.testing import doctest, renormalizing
-#from zope.app.testing import placelesssetup
+HELP = "zopectl|instance run ddl.py database_type" 
 
-def test_suite():
-    import testing
-    return unittest.TestSuite((
-        doctest.DocFileSuite(
-            'readme.txt',
-            setUp=testing.setUp, tearDown=testing.tearDown,
-            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
-            globs=testing.doctest_ns
-            )))
+def main( ):
+    if not len( sys.argv ) == 2:
+        print HELP
+        sys.exit(1)
+
+    db_type = sys.argv[1].strip()
+    buf = StringIO()    
+
+    def write_statement( statement, parameters=''):
+        ddl = statement + parameters
+        buf.write( ddl.strip() + ';\n\n' )
+        
+    db = rdb.create_engine('%s://'%(db_type),
+                           strategy='mock',
+                           executor=write_statement )
+
+    schema.metadata.drop_all(db)
+    schema.metadata.create_all(db)
+    print buf.getvalue()
+    
+if __name__ == '__main__':
+    main()

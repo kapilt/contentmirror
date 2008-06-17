@@ -32,7 +32,6 @@ class Serializer( object ):
         self._copy( peer )
         session = Session()
         session.save( peer )
-        #session.flush()
         return peer
         
     def update( self ):
@@ -58,6 +57,7 @@ class Serializer( object ):
     def _copyPortalAttributes( self, peer ):
         peer.portal_type = self.context.portal_type
         peer.uid = self.context.UID()
+        peer.id  = self.context.id
         
     def _copyContainment( self, peer ):
         container = self.context.getParentNode()

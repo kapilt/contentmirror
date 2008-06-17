@@ -28,7 +28,6 @@ from ore.alchemist import Session
 from ore.rescueme import interfaces
 
 metadata =  rdb.MetaData()
-#metadata.bind = rdb.create_engine('postgres://localhost/rescueme')
 
 ContentSequence = rdb.Sequence('content_sequence')
 
@@ -36,6 +35,7 @@ content = rdb.Table(
    "content",
    metadata,
    rdb.Column( "content_id", rdb.Integer, ContentSequence, primary_key=True ),
+   rdb.Column( "id", rdb.String(256), nullable=False ),
    rdb.Column( "uid", rdb.String(36), nullable=False ),
    rdb.Column( "portal_type", rdb.String(64) ),
    rdb.Column( "status", rdb.Unicode(64) ),   
@@ -50,8 +50,8 @@ content = rdb.Table(
    rdb.Column( "creators", rdb.UnicodeText ),
    rdb.Column( "creation_date", rdb.DateTime ),
    rdb.Column( "modification_date", rdb.DateTime ),
-   rdb.Column( "effective_date", rdb.DateTime  ),
-   rdb.Column( "expiration_date", rdb.DateTime ),
+   rdb.Column( "effectiveDate", rdb.DateTime  ),
+   rdb.Column( "expirationDate", rdb.DateTime ),
    rdb.Column( "language", rdb.Unicode(32)  ),
    rdb.Column( "rights", rdb.UnicodeText ),
    )
@@ -70,21 +70,39 @@ orm.mapper( Content, content,
     )           
 
 #class Node( object ): pass   
-#orm.mapper( Node, content,
-
+#orm.mapper( Node, content )
             
-#def fromId( content_id ):
-#    return Session().query( Content ).get( content_id )
+class UIDFilter( object ):
+
+    __slots__ = ('uid',)
     
+    def __init__( self, uid ):
+        self.uid = uid
+        
+    def __call__( self, ob ):
+        if not interfaces.IContentPeer.providedBy( ob ):
+            return False
+        return ob.uid == self.uid
+
 def fromUID( content_uid ):
-    return Session().query( Content ).autoflush(False).filter( Content.c.uid == content_uid ).first()
+    """
+    fetch an object by uid, does not flush the session, and also checks 
+    against new objects in the sqlalchemy session.
+    """
+    session = Session()
+    peers = filter( UIDFilter( content_uid ), session.new)
+    if peers:
+        return peers.pop()
+    return session.query( Content ).autoflush(False).filter( Content.c.uid == content_uid ).first()
                 
 relations = rdb.Table(
    "relations",
    metadata,
-   rdb.Column( "source_id", rdb.Integer, rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
+   rdb.Column( "source_id", rdb.Integer, 
+               rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
                primary_key=True ),
-   rdb.Column( "target_id", rdb.Integer, rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
+   rdb.Column( "target_id", rdb.Integer, 
+               rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
                primary_key=True),
    rdb.Column( "relationship", rdb.Unicode(128), primary_key=True )
    )

@@ -70,7 +70,7 @@ More Complexity
 Complexity Measured
 -------------------
 
-"I have measured out my life in coffee spoons", The Love song of J Alrefd Prufrock, Tennyson
+"I have measured out my life in coffee spoons", The Love song of J Alrefd Prufrock, TS. Eliot
 
 (1m x 40r x 5d x 50w )/60 = 166h
 

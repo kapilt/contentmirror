@@ -60,7 +60,6 @@ class SchemaTransformer( object ):
         return not field.__name__ in interfaces.DUBLIN_CORE
 
     def columns( self):
-        
         yield rdb.Column( "content_id", 
                           rdb.Integer, 
                           rdb.ForeignKey('content.content_id', ondelete="CASCADE"), 
@@ -90,12 +89,13 @@ class BaseFieldTransformer( object ):
 
     def transform( self ):
         args, kw = self._extractDefaults()
-        
-        return rdb.Column( self.name, 
-                           self.column_type( *self.column_args ),  
-                           *args,
-                           **kw )
-
+        column = rdb.Column( self.name, 
+                             self.column_type( *self.column_args ),  
+                             *args,
+                             **kw )
+        self.transformer.properties[ self.context.__name__ ] = column
+        return column
+    
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
         value = accessor()
@@ -142,6 +142,14 @@ class LinesTransform( StringTransform ):
 class FileTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IFileField, interfaces.ISchemaTransformer )    
     column_type = rdb.Binary
+    
+    # def copy( self, instance, peer ):
+    #     accessor = self.context.getAccessor( instance )
+    #     value = accessor()
+    #     if not value:
+    #         return
+    #     setattr( peer, self.name, str(value))        
+
 
 class ImageTransform( FileTransform ):     
     component.adapts( interfaces.IImageField, interfaces.ISchemaTransformer )
@@ -195,7 +203,8 @@ class ReferenceTransform( object ):
             value= [ value ]
         
         session = Session()
-        for ob in value:
+        
+        for ob in value:            
             peer_ob = schema.fromUID( ob.UID() )
             if peer_ob is None:
                 serializer = interfaces.ISerializer( ob, None )

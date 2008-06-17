@@ -1,0 +1,51 @@
+------------
+Installation
+------------
+
+Buildout
+--------
+
+Install the Software
+====================
+
+The software can be installed via buildout by adding it to the eggs section of an instance. ie:
+
+ eggs =
+    ${plone:eggs}
+    ore.rescueme
+
+Configuring
+===========
+
+The following zcml snippet will configure the system:
+
+ <include package="ore.alchemist" file="meta.zcml"/>
+ <include package="ore.rescueme" file="meta.zcml"/>
+ <include package="ore.rescueme"/>
+
+  <configure xmlns:db="http://namespaces.objectrealms.net/rdb">
+   <db:engine url="postgres://localhost/contentmirror"
+	     name="mirror-db"
+             echo="True"/>
+   <db:bind engine="mirror-db"			 
+ 	   metadata="ore.rescueme.schema.metadata"
+ 	   />
+  </configure>
+
+and can be added to as a zcml slug ( $INSTANCE_HOME/etc/package-includes ) or directly
+from within a custom Product's configure.zcml file.
+
+Database Setup
+==============
+
+Next you'll need to generate the SQL DDL/Schema file for your target database. The package when installed creates a command line script that will generate the database schema. This script needs to be executed with the Zope environment loaded, in order to determine which content types
+
+if your running in a buildout you achieve that via the following.
+
+  $ ./bin/instance run ./bin/mirror-ddl mysql > mirror.sql
+  
+if your running as Plone in a standard zope instance, you can do the following
+
+  $ $INSTANCE_HOME/bin/zopectl run `which mirror-ddl` postgres > mirror.sql
+
+the mirror-ddl script takes one parameter, the name of the target database to deploy to, names are those available as SQLAlchemy database driver names.

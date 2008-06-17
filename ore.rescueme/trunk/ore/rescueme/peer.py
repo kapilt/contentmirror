@@ -36,7 +36,6 @@ class PeerFactory( object ):
         klass = type( self.name, (schema.Content,),
                       dict(transformer=self.transformer) )
 
-        #properties = { 'relations':
         orm.mapper( klass, 
                     self.transformer.table,
                     properties=dict(self.transformer.properties),

@@ -30,18 +30,27 @@ except:
 class IMetaData( interface.Interface ):
     """ marker interface for sqlalchemy metadata, to allow for use in adaptation """
 
-# Fields already covered by the base peer content class
-DUBLIN_CORE = ["title",
-               "description",
-               "subject",
-               "location",
-               "contributors",
-               "creators",
-               "creation_date",
-               "modification_date",
-               "effective_date",
-               "expiration_date",
-               "rights"]
+
+# Fields already covered by the base peer content class, common to all content
+DUBLIN_CORE= [
+    "id",
+    "contributors",
+    "creators",
+    "creation_date",    
+    "description",
+    "effectiveDate",
+    "expirationDate",    
+    "language",    
+    "location",
+    "modification_date",
+    "rights",    
+    "subject",
+    "title",
+    # the following aren't dublin core but are common to atct, we include
+    # them here to have them filtered by default from the peer table
+    "allowDiscussion",
+    "excludeFromNav",
+    ]
 
 # SQL Reserved words, for column translation
 RESTRICTED = ['end', 'begin']    
