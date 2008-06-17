@@ -24,4 +24,7 @@ setup(
     long_description=read("ore","rescueme","readme.txt"),
     license='GPL',
     keywords="plone zope zope3",
+    entry_points={
+     'console_scripts': ['mirror-ddl = ore.rescueme.ddl:main'],
+    }
     )
