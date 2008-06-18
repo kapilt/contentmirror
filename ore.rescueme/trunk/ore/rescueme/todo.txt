@@ -2,13 +2,9 @@
 Todo List
 ---------
 
-File/Image tests
-================
+- File/Image tests
 
-Lazy Asynchronous Synchronization
-=================================
-
- - requires persistent utility (rename pkg before this
+- CLI Entry point for DDL Script
 
 
 Maybe Items
@@ -20,20 +16,7 @@ Maybe Items
 
  - Content Versions ? or this
 
+ - Lazy Asynchronous Synchronization 
 
-Finished Items
---------------
-
-Testing for transaction failure modes 
-
-Operation Filters
-=================
-- filter portal factory content
-
-Relation support
-================
-
-Containment Structure Serialization
-===================================
 
 

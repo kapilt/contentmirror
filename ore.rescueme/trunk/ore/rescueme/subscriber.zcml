@@ -1,22 +1,24 @@
-<configure xmlns="http://namespaces.zope.org/zope">
+<configure xmlns:zcml="http://namespaces.zope.org/zcml"
+           xmlns="http://namespaces.zope.org/zope">
 
   <subscriber
+     zcml:condition="installed zope.lifecycleevent"
      for=".interfaces.IMirrored
           zope.lifecycleevent.IObjectModifiedEvent"
      handler=".subscriber.objectModified" 
-     trusted="true"
      />
 
+  <subscriber
+     zcml:condition="installed zope.lifecycleevent"      
+     for=".interfaces.IMirrored
+          zope.lifecycleevent.IObjectCopiedEvent"
+     handler=".subscriber.objectCloned"
+     />
+          
   <subscriber
      for=".interfaces.IMirrored
           zope.app.container.interfaces.IObjectAddedEvent"
      handler=".subscriber.objectAdded"
-     />
-
-  <subscriber
-     for=".interfaces.IMirrored
-          zope.lifecycleevent.IObjectCopiedEvent"
-     handler=".subscriber.objectCloned"
      />
      
   <subscriber
