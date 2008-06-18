@@ -11,7 +11,7 @@ are happening in Plone, and is integrated with the zope transaction
 machinery.
 
 It allows the access of content from your Plone site in a language
-and platform neutral manner.
+and platform neutral manner. 
 
 It generically handles any archetypes content, with support for all
 archetype field types, as well as serializing containment information.
@@ -20,14 +20,16 @@ Reference support does not support content or stateful based references objects.
 Features
 --------
 
- - Supports Any Archetypes Content ( including all Default Plone Content Types )
- - Completely Automated Mirroring, zero configuration required beyond initial db setup.
- - Supports Archetypes References, and Containment in the serialized database.
- - Frees content from Plone, useable by any syste
+ - Out of the Box support for Default Plone Content Types.
+ - Supports all builtin Archetypes Fields (including references )
+ - Supports Any 3rd Party / Custom Archetypes Content.
+ - Supports Capturing Containment / Content hierarchy in the serialized database. 
+ - Completely Automated Mirroring, zero configuration required beyond installation.
  - Easy customization via the Zope Component Architecture
  - Opensource ( GPLv3 )
  - Commercially Supported ( ObjectRealms )
- 
+ - Support for Plone 2.5, 3.0, and 3.1
+
 Installation
 ------------
 
@@ -314,9 +316,14 @@ or attempting to update content which does not exist, should in turn add it.
 Containment
 -----------
 
-Content in a plone portal is contained within the portal, and has explicit containment structure based on access (Acquisition). ie. Content is contained within folders, and folders are content. The contentmirror system captures this containment structure in the database serialization using the adjancey list support in SQLAlchemy.
+Content in a plone portal is contained within the portal, and has
+explicit containment structure based on access (Acquisition).
+ie. Content is contained within folders, and folders are content. The
+contentmirror system captures this containment structure in the
+database serialization using the adjancey list support in SQLAlchemy.
 
-To demonstrate, let's create a folderish content type and initialize it with the mirroring system.
+To demonstrate, let's create a folderish content type and initialize
+it with the mirroring system.
 
   >>> class Folder( BaseContent ):
   ...     portal_type = 'Simple Folder'
@@ -337,22 +344,34 @@ To demonstrate, let's create a folderish content type and initialize it with the
   True
   >>> transaction.abort()
   
-The content mirror automatically serializes a content's container if its not already serialized. Containment serialization is a recursive operation. In the course of normal operations, this has a nominal cost, as a 
-the container would already have been serialized. Nonetheless, a common scenario when starting to use content mirror on an existing system is that content will be added to a container thats not serialized. Additionally, the container will have have been the subject of an object modified event, when a content object is added to it, leading to redundant serialization operations. The content mirror automatically detects and handles this.
+The content mirror automatically serializes a content's container if
+its not already serialized. Containment serialization is a recursive
+operation. In the course of normal operations, this has a nominal
+cost, as a the container would already have been serialized.
+Nonetheless, a common scenario when starting to use content mirror on
+an existing system is that content will be added to a container thats
+not serialized. Additionally, the container will have have been the
+subject of an object modified event, when a content object is added to
+it, leading to redundant serialization operations. The content mirror
+automatically detects and handles this.
  
-Let's try loading this chain of objects through the operations factory, to demonstrate, with an additional update event for the container modification event.
+Let's try loading this chain of objects through the operations
+factory, to demonstrate, with an additional update event for the
+container modification event.
 
   >>> operation.OperationFactory( root ).update()
   >>> operation.OperationFactory( subfolder ).add()
   >>> transaction.commit()
   
-And let's load the subfolder peer from the database and verify its contained in the "root" folder
+And let's load the subfolder peer from the database and verify its
+contained in the "root" folder
 
   >>> from ore.rescueme import schema
   >>> schema.fromUID( subfolder.UID() ).parent.name
   u'Root'
 
-A caveat to using containment, is that filtering containers, will cause contained content to appear as orphans.
+A caveat to using containment, is that filtering containers, will
+cause contained content to appear as orphans.
 
 References
 ----------
@@ -410,10 +429,17 @@ Custom Types
 ------------
 
 Any custom archetypes can easily be added in via a zcml declaration, as an example
-this is the configuration to setup ATDocuments:
+this is the configuration to setup ATDocuments::
 
   <configure xmlns="http://namespaces.zope.org/zope"
-	   xmlns:ore="http://namespaces.objectrealms.net/mirror"> 
+             xmlns:ore="http://namespaces.objectrealms.net/mirror"> 
     <ore:mirror content="Products.ATContentTypes.content.document.ATDocument" />
   </configure>
+
+
+Commercial Support
+------------------
+
+The contentmirror system is designed to be useable out of the box, but if you need commercial support or installation assistance, ObjectRealms.
+
 

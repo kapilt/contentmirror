@@ -4,8 +4,9 @@ Todo List
 
 - File/Image tests
 
-- CLI Entry point for DDL Script
+- Bulk Serializer 
 
+- Test on a Plone 2.5 instance
 
 Maybe Items
 -----------

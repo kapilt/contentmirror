@@ -20,7 +20,10 @@ import loader
 
 from zope.configuration import fields
 from zope import interface
-from zope.component import zcml
+try:
+    from zope.component import zcml
+except ImportError:
+    from zope.app.component import metaconfigure as zcml
 
 import interfaces
 
