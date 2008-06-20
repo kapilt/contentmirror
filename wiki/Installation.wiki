@@ -4,9 +4,9 @@
 = Introduction =
 
 
-= in buildout =
+= In a Plone buildout.cfg File =
 
- * add ore.contentmirror to your eggs section,
+ * add `ore.contentmirror` to your eggs section
  * create a pkg-include file in the instance home $INSTANCE/etc/package-includes 
 
 or zope 2.9
