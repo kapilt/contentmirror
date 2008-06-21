@@ -124,7 +124,7 @@ class OperationBuffer( object ):
         self.ops = {}
         self.registered = False
         self.manager = None
-    
+
     def flush( self ):
         for op in self:
             op.process()

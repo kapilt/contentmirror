@@ -143,12 +143,12 @@ class FileTransform( BaseFieldTransformer ):
     component.adapts( interfaces.IFileField, interfaces.ISchemaTransformer )    
     column_type = rdb.Binary
     
-    # def copy( self, instance, peer ):
-    #     accessor = self.context.getAccessor( instance )
-    #     value = accessor()
-    #     if not value:
-    #         return
-    #     setattr( peer, self.name, str(value))        
+    def copy( self, instance, peer ):
+        accessor = self.context.getAccessor( instance )
+        value = accessor()
+        if not value:
+            return
+        setattr( peer, self.name, str(value))        
 
 
 class ImageTransform( FileTransform ):     

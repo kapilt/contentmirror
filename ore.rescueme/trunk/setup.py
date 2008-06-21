@@ -6,11 +6,12 @@ def read(*rnames):
 
 setup(
     name="ore.rescueme",
-    version="0.3.2",
-    install_requires=['setuptools',
-                      'zope.schema',
-                      'zope.app.container',
-                      'ore.alchemist'],
+    version="0.3.3",
+    # play the standard zope2 game to lie about our dependencies...
+    # actual would include 'zope.event', 'zope.schema', 'zope.component'
+    # plus 'zope.app.container', this last one ends up pulling most of
+    # zope3.
+    install_requires=['setuptools', 'ore.alchemist', 'zope.app.container'],
 
     packages=find_packages(exclude=["*.tests"]),
     namespace_packages=['ore'],

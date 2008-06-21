@@ -27,8 +27,9 @@ Features
  - Completely Automated Mirroring, zero configuration required beyond installation.
  - Easy customization via the Zope Component Architecture
  - Opensource ( GPLv3 )
- - Commercially Supported ( ObjectRealms )
+ - Elegant and Simple Design, less than 600 lines of code, 100% unit test coverage.
  - Support for Plone 2.5, 3.0, and 3.1
+ - Commercially Supported ( ObjectRealms )
 
 Installation
 ------------
@@ -440,6 +441,9 @@ this is the configuration to setup ATDocuments::
 Commercial Support
 ------------------
 
-The contentmirror system is designed to be useable out of the box, but if you need commercial support or installation assistance, ObjectRealms.
+The contentmirror system is designed to be useable out of the box, but
+if you need commercial support or installation assistance, please contact
+us at info@objectrealms.net
+
 
 

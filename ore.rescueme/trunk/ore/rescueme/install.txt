@@ -21,6 +21,19 @@ ie::
 Instance Home Installation
 --------------------------
 
+open a shell, and change your current directory to that of your zope instance.
+
+ $ cd $INSTANCE_HOME
+ 
+add the instance's lib/python directory to your python path. You can use any python-path specified in your zope.conf's path directive. $INSTANCE_HOME/lib/python is the default.
+ 
+ $ export PYTHONPATH=$PWD/lib/python
+
+Use easy_install from setuptools to install the packages into your instance.
+
+ $ easy_install -N -d lib/python -s bin ore.rescueme 
+ $ easy_install -N -d lib/python -s bin ore.alchemist
+ $ easy_install -N -d lib/python -s bin SQLAlchemy
 
 Configuring
 ------------
@@ -43,6 +56,11 @@ The following zcml snippet will configure the system::
 and can be added to as a zcml slug file in
 $INSTANCE_HOME/etc/package-includes or included directly from within a
 custom Product's configure.zcml file.
+
+for testing purposes you can add an echo="True" attribute to the db:engine
+zcml line, and the system will echo all database interaction to the console.
+zope needs to be started in the foreground for this to apply (./bin/instance fg
+or runzope or zopectl fg ).
 
 On Plone 2.5, you also need to include the following zcml line::
 

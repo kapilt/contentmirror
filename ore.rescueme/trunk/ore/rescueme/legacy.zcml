@@ -3,13 +3,13 @@
   <!-- Zope 2.9 Support -->
   <subscriber
      for=".interfaces.IMirrored
-          zope.app.events.interfaces.IObjectModifiedEvent"
+          zope.app.event.interfaces.IObjectModifiedEvent"
      handler=".subscriber.objectModified" 
      />
      
   <subscriber
      for=".interfaces.IMirrored
-          zope.app.events.interfaces.IObjectCopiedEvent"
+          zope.app.event.interfaces.IObjectCopiedEvent"
      handler=".subscriber.objectCloned" 
      />     
      

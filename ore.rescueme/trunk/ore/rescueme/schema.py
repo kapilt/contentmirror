@@ -93,7 +93,7 @@ def fromUID( content_uid ):
     peers = filter( UIDFilter( content_uid ), session.new)
     if peers:
         return peers.pop()
-    return session.query( Content ).autoflush(False).filter( Content.c.uid == content_uid ).first()
+    return session.query( Content ).autoflush(False).filter( content.c.uid == content_uid ).first()
                 
 relations = rdb.Table(
    "relations",
