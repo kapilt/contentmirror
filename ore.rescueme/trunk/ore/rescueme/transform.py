@@ -146,10 +146,8 @@ class FileTransform( BaseFieldTransformer ):
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
         value = accessor()
-        if not value:
-            return
+        if not value: return
         setattr( peer, self.name, str(value))        
-
 
 class ImageTransform( FileTransform ):     
     component.adapts( interfaces.IImageField, interfaces.ISchemaTransformer )
@@ -179,7 +177,6 @@ class DateTimeTransform( BaseFieldTransformer ):
             return
         value = datetime.fromtimestamp( value.timeTime() )
         setattr( peer, self.name, value )
-        
         
 class ReferenceTransform( object ):
     

@@ -2,11 +2,7 @@
 Todo List
 ---------
 
-- File/Image tests
-
 - Bulk Serializer 
-
-- Test on a Plone 2.5 instance
 
 Maybe Items
 -----------

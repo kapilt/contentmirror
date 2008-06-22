@@ -104,6 +104,15 @@ class DateTime( object ):
     
     def timeTime( self ):
         return self.value
+        
+
+class File( object ):
+    
+    def __init__( self, content=''):
+        self.content = content
+    
+    def __str__( self ):
+        return self.content
     
     
 class MockField( object ):
@@ -171,5 +180,6 @@ doctest_ns = {
     'LinesField'    : LinesField,
     'BaseContent'   : BaseContent,
     'Schema'        : Schema,
-    'DateTime'      : DateTime
+    'DateTime'      : DateTime,
+    'File'          : File
     }        

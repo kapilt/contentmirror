@@ -21,7 +21,7 @@ Features
 --------
 
  - Out of the Box support for Default Plone Content Types.
- - Supports all builtin Archetypes Fields (including references )
+ - Out of the Box support for all builtin Archetypes Fields (including files, and references ).
  - Supports Any 3rd Party / Custom Archetypes Content.
  - Supports Capturing Containment / Content hierarchy in the serialized database. 
  - Completely Automated Mirroring, zero configuration required beyond installation.
@@ -29,7 +29,7 @@ Features
  - Opensource ( GPLv3 )
  - Elegant and Simple Design, less than 600 lines of code, 100% unit test coverage.
  - Support for Plone 2.5, 3.0, and 3.1
- - Commercially Supported ( ObjectRealms )
+ - Commercial Support Available ( ObjectRealms )
 
 Installation
 ------------
@@ -411,7 +411,7 @@ Let's create some related content.
 And serialze the content
 
   >>> peer = interfaces.ISerializer( home_page ).add()
-
+  
 Related objects are accessible from the peer as the relations collection attribute. 
 
   >>> for ob in peer.relations: print ob.target.name, ob.relationship
@@ -423,9 +423,36 @@ Files
 -----
 
 File content is automatically stored in the content class's table as a
-binary field by default, however custom FileTransform adapters can
-store content to the file system easily.
+binary field sqlalchemy. Custom FileTransform adapters can store content
+to the file system easily.
 
+Let's demonstrate using the default file handling which stores files into a
+database. First a class with a file field.
+
+  >>> class MyFile( BaseContent ):
+  ...     portal_type = "My File"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...                StringField('name'),   
+  ...                FileField('file_content', required=True),   
+  ...     ))
+  >>> loader.load( MyFile )
+  >>> metadata.create_all( checkfirst=True )
+  >>> table = component.getUtility( interfaces.IPeerRegistry )[ MyFile ].transformer.table
+  >>> for column in table.columns: print column, column.type
+    myfile.content_id Integer()
+    myfile.name Text(length=None, convert_unicode=False, assert_unicode=None)
+    myfile.file_content Binary(length=None)
+    
+and some content to test.
+
+  >>> image = MyFile('moon-image', name="Icon", file_content=File("treatise") )
+  >>> interfaces.ISerializer( image ).add()
+  <ore.rescueme.peer.MyFilePeer object at ...>
+  >>> session.flush()   
+  >>> list(rdb.select( [table.c.name, table.c.file_content] ).execute())    
+  [(u'Icon', <read-write buffer ptr ..., size 8 at ...>)]
+  
 Custom Types
 ------------
 
