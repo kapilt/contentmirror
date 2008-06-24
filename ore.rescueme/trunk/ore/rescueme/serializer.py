@@ -29,9 +29,9 @@ class Serializer( object ):
     def add( self ):
         registry = component.getUtility( interfaces.IPeerRegistry )
         peer = registry[ self.context.__class__ ]()
-        self._copy( peer )
         session = Session()
-        session.save( peer )
+        session.save( peer )        
+        self._copy( peer )
         return peer
         
     def update( self ):
@@ -50,8 +50,8 @@ class Serializer( object ):
         session.flush()
 
     def _copy( self, peer ):
-        peer.transformer.copy( self.context, peer )
         self._copyPortalAttributes( peer )
+        peer.transformer.copy( self.context, peer )        
         self._copyContainment( peer )
         
     def _copyPortalAttributes( self, peer ):

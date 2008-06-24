@@ -113,10 +113,10 @@ class BaseFieldTransformer( object ):
 
         #if use_field_default and field.default:
         #    args.append( rdb.PassiveDefault( field.default ) )
-        kwargs = {
-            'nullable' : not self.context.required,
-            'key' : self.context.getName(),            
-            }
+        kwargs = {} #{
+        #'nullable' : not self.context.required,
+        #    'key' : self.context.getName(),            
+        #    }
         return args, kwargs        
         
 class StringTransform( BaseFieldTransformer ):    
@@ -126,9 +126,9 @@ class StringTransform( BaseFieldTransformer ):
 
 class TextTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IStringField, interfaces.ISchemaTransformer )
-    column_type = rdb.UnicodeText
+    column_type = rdb.Text
     column_args = ()    
-
+        
 class LinesTransform( StringTransform ):    
     component.adapts( interfaces.ILinesField, interfaces.ISchemaTransformer )
     
@@ -201,13 +201,25 @@ class ReferenceTransform( object ):
         
         session = Session()
         
-        for ob in value:            
+        for ob in value:
+            t_oid = ob.UID()
+
+            # skip if the object is already related
+            related = False
+            for r in peer.relations:
+                if r.target.uid == t_oid and \
+                       self.context.relationship == r.relationship:
+                    related = True
+                    break
+            if related:
+                continue
+            
             peer_ob = schema.fromUID( ob.UID() )
             if peer_ob is None:
                 serializer = interfaces.ISerializer( ob, None )
                 if serializer is None: continue
                 peer_ob = serializer.add()
-
+                
             relation = schema.Relation( peer,
                                         peer_ob,
                                         self.context.relationship )

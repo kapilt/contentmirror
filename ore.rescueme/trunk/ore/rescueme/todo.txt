@@ -4,6 +4,14 @@ Todo List
 
 - Bulk Serializer 
 
+- Web Page 
+
+- Install Instructions  ( windows, unix )
+
+- Test Reference Cycle
+
+- Test Duplicate References / Add/Update
+
 Maybe Items
 -----------
 

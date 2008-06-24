@@ -469,8 +469,7 @@ Commercial Support
 ------------------
 
 The contentmirror system is designed to be useable out of the box, but
-if you need commercial support or installation assistance, please contact
-us at info@objectrealms.net
+if you need commercial support, please contact us at info@objectrealms.net
 
 
 
