@@ -1,6 +1,12 @@
 <configure xmlns="http://namespaces.zope.org/zope">
 
   <adapter
+     for=".interfaces.IComputedField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.StringTransform"
+     />
+     
+  <adapter
      for=".interfaces.IStringField .interfaces.ISchemaTransformer"
      provides=".interfaces.IFieldTransformer"
      factory=".transform.StringTransform"

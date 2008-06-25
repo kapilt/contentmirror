@@ -104,10 +104,17 @@ class BaseFieldTransformer( object ):
     @property                      
     def name( self ):
         name = self.context.__name__.lower()
-        if name in interfaces.RESTRICTED:
-            name = "at_" + name.lower()
-        return name.replace(' ', '_')
-        
+        name = name.replace(' ', '_')
+        if name in self._reserved_names:
+            name = "at_" + name
+        return name
+    
+    @property
+    def _reserved_names(self):
+        e = self.transformer.metadata.bind
+        if e is None: return ()
+        return e.dialect.preparer.reserved_words
+                
     def _extractDefaults( self ):
         args = []
 
@@ -118,7 +125,12 @@ class BaseFieldTransformer( object ):
         #    'key' : self.context.getName(),            
         #    }
         return args, kwargs        
-        
+
+class ComputedTransform( BaseFieldTransformer):
+    component.adapts( interfaces.IComputedField, interfaces.ISchemaTransformer)
+    column_type = rdb.Text
+    column_args = ()
+    
 class StringTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IStringField, interfaces.ISchemaTransformer )
     column_type = rdb.Text
@@ -198,9 +210,7 @@ class ReferenceTransform( object ):
         
         if not isinstance( value, (list, tuple)):
             value= [ value ]
-        
-        session = Session()
-        
+
         for ob in value:
             t_oid = ob.UID()
 
@@ -214,13 +224,14 @@ class ReferenceTransform( object ):
             if related:
                 continue
             
+            # fetch the remote side's peer
             peer_ob = schema.fromUID( ob.UID() )
             if peer_ob is None:
                 serializer = interfaces.ISerializer( ob, None )
                 if serializer is None: continue
                 peer_ob = serializer.add()
                 
+            # create the relation
             relation = schema.Relation( peer,
                                         peer_ob,
                                         self.context.relationship )
-            session.save( relation )

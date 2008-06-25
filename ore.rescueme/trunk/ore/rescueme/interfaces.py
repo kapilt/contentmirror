@@ -164,6 +164,7 @@ class IPeerRegistry( interface.Interface ):
 ## Interface Specifications for AT Fields
 ######################################## 
 
+class IComputedField( interface.Interface): pass
 class IStringField( interface.Interface ): pass
 class IBooleanField( interface.Interface ): pass   
 class IIntegerField( interface.Interface ): pass

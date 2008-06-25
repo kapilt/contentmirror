@@ -110,8 +110,9 @@ Model Loader
 ------------  
 
 The model loader provides an abstraction for generating a relational
-schema and a peer in high level interface. It looks up
-ISchemaTransformer and IPeerFactory components.
+schema and a peer in high level interface. It looks up and utilizes
+ISchemaTransformer and IPeerFactory components to load a content class
+into the mirroring system.
 
   >>> from ore.rescueme.loader import loader
   >>> loader.load( MyPage )
@@ -176,12 +177,15 @@ for the content.
   >>> ops.delete()
   >>> operation.get_buffer().get( content.UID() )
   
+if we create an add operation, and an update operation in a single
+transaction scope, it should collapse down to just the add operation.
+
   >>> ops.add()
   >>> ops.update()
   >>> operation.get_buffer().get( content.UID() )
   <ore.rescueme.operation.AddOperation object at ...>
 
-Items in the buffer are automatically processed at transaction boundaries, if we
+Operations in the transaction buffer are automatically processed at transaction boundaries, if we
 commit the transaction all operations held in the buffer are processed.
 
   >>> import transaction
@@ -372,7 +376,7 @@ contained in the "root" folder
   u'Root'
 
 A caveat to using containment, is that filtering containers, will
-cause contained content to appear as orphans.
+cause contained mirrored content to appear as orphans.
 
 References
 ----------
@@ -423,8 +427,7 @@ Files
 -----
 
 File content is automatically stored in the content class's table as a
-binary field sqlalchemy. Custom FileTransform adapters can store content
-to the file system easily.
+binary field sqlalchemy. 
 
 Let's demonstrate using the default file handling which stores files into a
 database. First a class with a file field.

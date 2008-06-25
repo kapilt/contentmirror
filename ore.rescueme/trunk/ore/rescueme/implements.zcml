@@ -9,7 +9,11 @@
      <implements interface=".interfaces.IMirrored"/>
   </class>   
     -->
-
+    
+  <class class="Products.Archetypes.Field.ComputedField">
+     <implements interface=".interfaces.IComputedField"/>
+  </class>
+  
   <class class="Products.Archetypes.Field.StringField">
      <implements interface=".interfaces.IStringField"/>
   </class>  

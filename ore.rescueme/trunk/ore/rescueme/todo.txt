@@ -2,10 +2,6 @@
 Todo List
 ---------
 
-- Bulk Serializer 
-
-- Web Page 
-
 - Install Instructions  ( windows, unix )
 
 - Test Reference Cycle

@@ -40,11 +40,12 @@ Configuring
 
 The following zcml snippet will configure the system::
 
- <include package="ore.alchemist" file="meta.zcml"/>
- <include package="ore.rescueme" file="meta.zcml"/>
- <include package="ore.rescueme"/>
+
 
   <configure xmlns:db="http://namespaces.objectrealms.net/rdb">
+   <include package="ore.alchemist" file="meta.zcml"/>
+   <include package="ore.rescueme" file="meta.zcml"/>
+   <include package="ore.rescueme"/>
    <db:engine url="postgres://localhost/contentmirror"
 	     name="mirror-db"
              echo="True"/>
