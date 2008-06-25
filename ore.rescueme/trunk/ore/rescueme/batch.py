@@ -44,7 +44,11 @@ def main( ):
     
     for brain in portal.portal_catalog(sort_on='created'):
 
-        try: ob = brain.getObject()
+        try: 
+            ob = brain.getObject()
+            # skip broken objects
+            if not ob.UID(): 
+                continue
         except: continue
         
         serializer = interfaces.ISerializer( ob, None )
