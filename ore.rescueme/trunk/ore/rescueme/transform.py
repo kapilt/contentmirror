@@ -20,7 +20,7 @@ import sqlalchemy as rdb
 from zope import interface, component
 
 from datetime import datetime
-from ore.alchemist import Session
+#from ore.alchemist import Session
 from ore.rescueme import interfaces, schema
 
 class SchemaTransformer( object ):
@@ -150,16 +150,46 @@ class LinesTransform( StringTransform ):
         if isinstance(value, (list, tuple)):
             value = "\n".join(value)
         setattr( peer, self.name, value )        
-    
-class FileTransform( BaseFieldTransformer ):    
+        
+class FileTransform( object ):    
+    """
+    a file field serializer that utilizes a file peer.
+    """
+    interface.implements( interfaces.IFieldTransformer )
     component.adapts( interfaces.IFileField, interfaces.ISchemaTransformer )    
-    column_type = rdb.Binary
-    
+
+    def __init__( self, context, transformer ):
+        self.context = context
+        self.transformer = transformer
+        
+    def transform( self ):
+        file_orm = orm.relation(schema.File, 
+                        uselist=False, backref='origin_content',
+                        primaryjoin=rdb.and_( 
+                            schema.files.c.content_id == schema.content.c.content_id,
+                            schema.files.c.attribute  == self.name )
+                            )
+        self.transformer.properties[ self.name ] = file_orm
+
+    @property
+    def name( self ):
+        return self.context.__name__.lower().replace(' ', '_')
+        
+    def new( self ):
+        return schema.File()
+        
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
         value = accessor()
-        if not value: return
-        setattr( peer, self.name, str(value))        
+        if not value: return 
+        file_peer = getattr( peer, self.name, None ) 
+        if file_peer is None:
+            file_peer = self.new()
+        file_peer.attribute = self.name
+        file_peer.content = str( value.data )
+        file_peer.mime_type = self.context.getContentType( instance ) 
+        file_peer.file_name = getattr(value, 'filename', value.getId())
+        setattr( peer, self.name, file_peer )
 
 class ImageTransform( FileTransform ):     
     component.adapts( interfaces.IImageField, interfaces.ISchemaTransformer )

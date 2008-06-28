@@ -124,8 +124,28 @@ orm.mapper( Relation, relations,
                 }
             )
 
+files = rdb.Table(
+   "files",
+   metadata,
+   rdb.Column( "content_id", rdb.Integer, 
+        rdb.ForeignKey('content.id', ondelete="CASCADE"), primary_key=True ),
+   rdb.Column( "attribute", rdb.String(156), primary_key=True ),           
+   rdb.Column( "type", rdb.String(30) ),        
+   rdb.Column( "content", rdb.Binary),           
+   rdb.Column( "path", rdb.String(300) ),
+   rdb.Column( "file_name", rdb.String(156) ),
+   rdb.Column( "mime_type", rdb.String(80) ),
+   )
    
-
+rdb.Index('files_idx', 
+      files.c.content_id,
+      files.c.attribute,
+      unique=True )
+      
+class File( object ): 
+    """ """
     
-
+orm.mapper( File, files,
+        polymorphic_on=files.c.type,
+        polymorphic_identity='db-file' )
 

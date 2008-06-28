@@ -108,11 +108,16 @@ class DateTime( object ):
 
 class File( object ):
     
-    def __init__( self, content=''):
-        self.content = content
+    def __init__( self, id, content, mime_type="text/plain"):
+        self.id = id
+        self.data = content
+        self.mime_type = mime_type
     
+    def getId( self ):
+        return self.id     
+        
     def __str__( self ):
-        return self.content
+        return self.data
     
     
 class MockField( object ):
@@ -155,6 +160,9 @@ class TextField( MockField ):
 
 class FileField( MockField ):
     interface.implements( interfaces.IFileField )  
+
+    def getContentType( self, instance ):
+        return self.getAccessor( instance )().mime_type
 
 class BooleanField( MockField ):
     interface.implements( interfaces.IBooleanField )  

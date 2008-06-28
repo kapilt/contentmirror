@@ -21,7 +21,7 @@
   <adapter
      for=".interfaces.IFileField .interfaces.ISchemaTransformer"
      provides=".interfaces.IFieldTransformer"
-     factory=".transform.FileTransform"
+     factory=".transform.FilePeerTransform"
      />     
 
   <adapter

@@ -52,9 +52,6 @@ DUBLIN_CORE= [
     "excludeFromNav",
     ]
 
-# SQL Reserved words, for column translation
-RESTRICTED = ['end', 'begin']    
-
 #########################################
 # Runtime Serialization
 #########################################
@@ -149,6 +146,9 @@ class IContentPeer( interface.Interface ):
     """ a rdb persisted class that has a mirror of attributes of a portal content class"""
 
     transformer = schema.Object( ISchemaTransformer )
+    
+class IContentFile( interface.Interface ):
+    pass
 
 class IPeerFactory( interface.Interface ):
     """ """

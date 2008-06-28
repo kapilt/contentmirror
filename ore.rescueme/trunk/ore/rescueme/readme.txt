@@ -58,7 +58,7 @@ directive to third party components.
   ...                DateTimeField('discovered_date')
   ...     ))
  
-  >>> content = MyPage('front-page', title="The Cloud Apps", slug="Miracle Cures for Scaling")
+  >>> content = MyPage('front-page', title="The Cloud Apps", slug="Miracle Cures for Rabbits")
   >>> content.title = u"FooBar"  
   >>> content.discovered_date = DateTime() # now
   >>> content.people = ["venkat", "tyrell", "johan", "arjun", "smithfield"]
@@ -279,7 +279,7 @@ database.
   >>> content_serializer = serializer.Serializer( content )
   >>> peer = content_serializer.add()
   >>> peer.slug
-  'Miracle Cures for Scaling'
+  'Miracle Cures for Rabbits'
 
 We can directly check the database to see the serialized content there.
 
@@ -288,7 +288,7 @@ We can directly check the database to see the serialized content there.
   >>> session = Session()
   >>> session.flush()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
-  [(1, u'Miracle Cures for Scaling')]
+  [(1, u'Miracle Cures for Rabbits')]
 
 Serializers are also responsible for updating database respresentations. 
 
@@ -426,8 +426,9 @@ Related objects are accessible from the peer as the relations collection attribu
 Files
 -----
 
-File content is automatically stored in the content class's table as a
-binary field sqlalchemy. 
+File content is automatically stored in a separate files table, with foreign key pointers 
+back to the origin content. The files table uses the binary field in sqlalchemy for storing
+content.
 
 Let's demonstrate using the default file handling which stores files into a
 database. First a class with a file field.
@@ -441,20 +442,38 @@ database. First a class with a file field.
   ...     ))
   >>> loader.load( MyFile )
   >>> metadata.create_all( checkfirst=True )
-  >>> table = component.getUtility( interfaces.IPeerRegistry )[ MyFile ].transformer.table
-  >>> for column in table.columns: print column, column.type
-    myfile.content_id Integer()
-    myfile.name Text(length=None, convert_unicode=False, assert_unicode=None)
-    myfile.file_content Binary(length=None)
+  
+We can see that the sqlalchemy class mapper uses a relation property for the field.
+  
+  >>> from sqlalchemy import orm
+  >>> peer_factory = component.getUtility( interfaces.IPeerRegistry )[ MyFile ]
+  >>> mapper = orm.class_mapper( peer_factory )
+  >>> mapper.get_property('file_content')
+  <sqlalchemy.orm.properties.PropertyLoader object at ...>
     
-and some content to test.
+Let's create some content and serialize it.
 
-  >>> image = MyFile('moon-image', name="Icon", file_content=File("treatise") )
-  >>> interfaces.ISerializer( image ).add()
+  >>> image = MyFile('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
+  >>> peer = interfaces.ISerializer( image ).add()
+  >>> peer
   <ore.rescueme.peer.MyFilePeer object at ...>
   >>> session.flush()   
-  >>> list(rdb.select( [table.c.name, table.c.file_content] ).execute())    
-  [(u'Icon', <read-write buffer ptr ..., size 8 at ...>)]
+  
+Now let's verify its presence in the database.
+  
+  >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content],
+  ...      schema.files.c.content_id == peer.content_id).execute() )
+  [(u'treatise.txt', <read-write buffer ptr ..., size 11 at ...>)]
+  
+If we let's modify it and see what happens to the database during update.
+
+  >>> image.file_content=File("treatise.txt", "hello world 2") 
+  >>> peer = interfaces.ISerializer( image ).update()
+  >>> session.flush()   
+  >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content],
+  ...      schema.files.c.content_id == peer.content_id).execute() )
+  [(u'treatise.txt', <read-write buffer ptr ..., size 13 at ...>)]
+  
   
 Custom Types
 ------------
