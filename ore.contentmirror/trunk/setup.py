@@ -5,8 +5,8 @@ def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 setup(
-    name="ore.rescueme",
-    version="0.3.4",
+    name="ore.contentmirror",
+    version="0.4.0",
     # play the standard zope2 game to lie about our dependencies...
     # actual would include 'zope.event', 'zope.schema', 'zope.component'
     # plus 'zope.app.container', this last one ends up pulling most of
