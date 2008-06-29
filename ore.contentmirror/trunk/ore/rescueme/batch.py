@@ -21,7 +21,7 @@ a content mirror batch importer
 
 """
 import transaction, time, sys
-from ore.rescueme import interfaces
+from ore.contentmirror import interfaces
 from ore.alchemist import Session
 
 def expunge( ob ):

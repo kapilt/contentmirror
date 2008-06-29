@@ -18,7 +18,7 @@
 import threading, transaction
 from zope import interface, component
 from ore.alchemist import Session
-from ore.rescueme import interfaces
+from ore.contentmirror import interfaces
 
 class Operation( object ):
     

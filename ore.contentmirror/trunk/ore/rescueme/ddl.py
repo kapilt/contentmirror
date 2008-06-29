@@ -19,7 +19,7 @@ Create the database structure for a content mirror and output to standard out.
 """
 
 from StringIO import StringIO
-from ore.rescueme import schema
+from ore.contentmirror import schema
 import sqlalchemy as rdb
 import sys, optparse
 

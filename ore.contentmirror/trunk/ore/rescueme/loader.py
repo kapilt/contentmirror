@@ -21,7 +21,7 @@ and creating the rdb mapped peer classes.
 
 """
 from zope import component
-from ore.rescueme import schema, interfaces
+from ore.contentmirror import schema, interfaces
 
 class ModelLoader( object ):
     

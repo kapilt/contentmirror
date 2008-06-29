@@ -50,8 +50,8 @@ content = rdb.Table(
    rdb.Column( "creators", rdb.Text ),
    rdb.Column( "creation_date", rdb.DateTime ),
    rdb.Column( "modification_date", rdb.DateTime ),
-   rdb.Column( "effectiveDate", rdb.DateTime  ),
-   rdb.Column( "expirationDate", rdb.DateTime ),
+   rdb.Column( "effectivedate", rdb.DateTime  ),
+   rdb.Column( "expirationdate", rdb.DateTime ),
    rdb.Column( "language", rdb.Text(32)  ),
    rdb.Column( "rights", rdb.Text ),
    )

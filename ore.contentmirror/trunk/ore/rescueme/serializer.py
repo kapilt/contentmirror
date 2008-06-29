@@ -17,7 +17,7 @@
 
 from ore.alchemist import Session
 from zope import interface, component
-from ore.rescueme import schema, interfaces
+from ore.contentmirror import schema, interfaces
 
 class Serializer( object ):
 
@@ -50,6 +50,7 @@ class Serializer( object ):
         session.flush()
 
     def _copy( self, peer ):
+        import pdb; pdb.set_trace()
         self._copyPortalAttributes( peer )
         peer.transformer.copy( self.context, peer )        
         self._copyContainment( peer )

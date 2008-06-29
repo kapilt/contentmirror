@@ -21,8 +21,7 @@ from zope import interface, component
 
 from md5 import md5
 from datetime import datetime
-#from ore.alchemist import Session
-from ore.rescueme import interfaces, schema
+from ore.contentmirror import interfaces, schema
 
 class SchemaTransformer( object ):
     """

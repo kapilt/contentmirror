@@ -18,7 +18,7 @@
 from sqlalchemy import orm
 from zope import interface
 
-from ore.rescueme import schema, interfaces
+from ore.contentmirror import schema, interfaces
 
 class PeerFactory( object ):
     
