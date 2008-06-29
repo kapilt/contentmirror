@@ -1,0 +1,22 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+ <!-- A dummy adapter to force loading the pkg's __init__.py module
+      which setups up the python path for loading our contained eggs -->
+ <adapter 
+    for="*"
+    provides=".IMirrorInstaller"
+    factory=".installer"
+    />
+
+ <!-- Load up alchemist and contentmirror zcml -->
+ <include package="ore.alchemist" file="meta.zcml"/>
+ <include package="ore.contentmirror" file="meta.zcml"/>
+ <include package="ore.contentmirror"/>
+
+ <!-- Only for sites on Plone 2.5 -->
+ <include package="ore.contentmirror" file="legacy.zcml"/>
+
+ <!-- File For Customized Settings -->
+ <include file="settings.zcml"/>
+
+</configure>

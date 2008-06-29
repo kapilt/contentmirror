@@ -1,0 +1,15 @@
+<configure xmlns="http://namespaces.zope.org/zope" 
+           xmlns:db="http://namespaces.objectrealms.net/rdb">
+
+    <!-- setup a database connection -->
+   <db:engine url="postgres://localhost/contentmirror"
+             name="mirror-db"
+             echo="True"/>
+
+   <!-- associate the database connection to the mirror db structures -->
+   <db:bind engine="mirror-db"
+           metadata="ore.contentmirror.schema.metadata"
+           />
+
+</configure>
+
