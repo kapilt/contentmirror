@@ -133,6 +133,7 @@ files = rdb.Table(
    rdb.Column( "type", rdb.String(30) ),        
    rdb.Column( "content", rdb.Binary),           
    rdb.Column( "path", rdb.String(300) ),
+   rdb.Column( "checksum", rdb.String(33) ),   
    rdb.Column( "file_name", rdb.String(156) ),
    rdb.Column( "mime_type", rdb.String(80) ),
    )

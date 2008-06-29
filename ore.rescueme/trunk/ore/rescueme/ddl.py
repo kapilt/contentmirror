@@ -21,11 +21,20 @@ Create the database structure for a content mirror and output to standard out.
 from StringIO import StringIO
 from ore.rescueme import schema
 import sqlalchemy as rdb
-import sys
+import sys, optparse
 
 HELP = "zopectl|instance run ddl.py database_type" 
 
 def main( ):
+    
+    parser = optparse.OptionParser()
+    parser.add_option('-d', '--drop', dest="drop", action="store_true", default=False,
+                      help="Generate Drop Tables DDL")
+    parser.add_option('-n', '--nocreate', dest="create", action="store_true", default=False,
+                      help="Do Not Generate Create Tables DDL")
+                      
+    (options, args) = parser.parse_args()
+                                 
     if not len( sys.argv ) == 2:
         print HELP
         sys.exit(1)
@@ -40,9 +49,10 @@ def main( ):
     db = rdb.create_engine('%s://'%(db_type),
                            strategy='mock',
                            executor=write_statement )
-
-    schema.metadata.drop_all(db)
-    schema.metadata.create_all(db)
+    if options.drop:
+        schema.metadata.drop_all(db )
+    if not options.create:
+        schema.metadata.create_all(db )
     print buf.getvalue()
     
 if __name__ == '__main__':

@@ -19,6 +19,7 @@ from sqlalchemy import orm
 import sqlalchemy as rdb
 from zope import interface, component
 
+from md5 import md5
 from datetime import datetime
 #from ore.alchemist import Session
 from ore.rescueme import interfaces, schema
@@ -171,25 +172,43 @@ class FileTransform( object ):
                             )
         self.transformer.properties[ self.name ] = file_orm
 
+    def copy( self, instance, peer ):
+        accessor = self.context.getAccessor( instance )
+        value = accessor()
+        if not value: return 
+        file_peer =self._getPeer( instance, peer )
+        if not self._checkModified( value, file_peer ):
+            return
+        self._copyPeer( file_peer, instance, value )
+        setattr( peer, self.name, file_peer )       
+        
+    # implementation details
     @property
     def name( self ):
         return self.context.__name__.lower().replace(' ', '_')
         
     def new( self ):
         return schema.File()
+
+    def _checkModified( self, value, peer ):
+        checksum = md5( str(value.data) ).hexdigest()
+        if peer.checksum == checksum:
+            return False
+        return True
         
-    def copy( self, instance, peer ):
-        accessor = self.context.getAccessor( instance )
-        value = accessor()
-        if not value: return 
+    def _getPeer( self, instance, peer):
         file_peer = getattr( peer, self.name, None ) 
         if file_peer is None:
             file_peer = self.new()
+        return file_peer
+        
+    def _copyPeer( self, file_peer, instance, value ):
         file_peer.attribute = self.name
         file_peer.content = str( value.data )
         file_peer.mime_type = self.context.getContentType( instance ) 
         file_peer.file_name = getattr(value, 'filename', value.getId())
-        setattr( peer, self.name, file_peer )
+        file_peer.checksum = md5( file_peer.content ).hexdigest()
+        
 
 class ImageTransform( FileTransform ):     
     component.adapts( interfaces.IImageField, interfaces.ISchemaTransformer )

@@ -116,8 +116,6 @@ class File( object ):
     def getId( self ):
         return self.id     
         
-    def __str__( self ):
-        return self.data
     
     
 class MockField( object ):
@@ -131,9 +129,6 @@ class MockField( object ):
         values = dict(self.defaults)
         values.update(kw)
         self.__dict__.update( values )
-    
-    def getName( self ):
-        return self.__name__
         
     def getAccessor( self, instance ):
         return lambda : getattr( instance, 

@@ -404,7 +404,6 @@ And setup the peers and database tables for our new content class.
     myasset.slug Text(length=None, convert_unicode=False, assert_unicode=None)
     myasset.discovered_date DateTime(timezone=False)
 
-
 Let's create some related content.
 
   >>> xo_image = MyAsset('xo-image', name="Icon")
@@ -422,6 +421,17 @@ Related objects are accessible from the peer as the relations collection attribu
     Article inkind
     Logo inkind
 
+If we modify a content object, its references are not serialized again.
+
+  >>> session.flush()
+  >>> home_page.title = "Home"
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> session.dirty
+  IdentitySet([<ore.rescueme.peer.MyAssetPeer object at ...>])
+  
+  >>> for ob in peer.relations: print ob.target.name, ob.relationship
+    Article inkind
+    Logo inkind
 
 Files
 -----
@@ -433,47 +443,92 @@ content.
 Let's demonstrate using the default file handling which stores files into a
 database. First a class with a file field.
 
-  >>> class MyFile( BaseContent ):
+  >>> class ExampleContent( BaseContent ):
   ...     portal_type = "My File"
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
   ...                StringField('name'),   
   ...                FileField('file_content', required=True),   
   ...     ))
-  >>> loader.load( MyFile )
+  >>> loader.load( ExampleContent )
   >>> metadata.create_all( checkfirst=True )
   
 We can see that the sqlalchemy class mapper uses a relation property for the field.
   
   >>> from sqlalchemy import orm
-  >>> peer_factory = component.getUtility( interfaces.IPeerRegistry )[ MyFile ]
+  >>> peer_factory = component.getUtility( interfaces.IPeerRegistry )[ ExampleContent ]
   >>> mapper = orm.class_mapper( peer_factory )
   >>> mapper.get_property('file_content')
   <sqlalchemy.orm.properties.PropertyLoader object at ...>
     
 Let's create some content and serialize it.
 
-  >>> image = MyFile('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
+  >>> image = ExampleContent('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
   >>> peer = interfaces.ISerializer( image ).add()
   >>> peer
-  <ore.rescueme.peer.MyFilePeer object at ...>
+  <ore.rescueme.peer.ExampleContentPeer object at ...>
   >>> session.flush()   
   
 Now let's verify its presence in the database.
   
-  >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content],
+  >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum],
   ...      schema.files.c.content_id == peer.content_id).execute() )
-  [(u'treatise.txt', <read-write buffer ptr ..., size 11 at ...>)]
+  [(u'treatise.txt', <read-write buffer ptr ..., size 11 at ...>, u'5eb63bbbe01eeed093cb22bb8f5acdc3')]
   
 If we let's modify it and see what happens to the database during update.
 
   >>> image.file_content=File("treatise.txt", "hello world 2") 
   >>> peer = interfaces.ISerializer( image ).update()
-  >>> session.flush()   
-  >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content],
-  ...      schema.files.c.content_id == peer.content_id).execute() )
-  [(u'treatise.txt', <read-write buffer ptr ..., size 13 at ...>)]
   
+We should have two dirty (modified) objects in the sqlalchemy session corresponding to the content peer, and its file peer.
+  
+  >>> dirty = list(session.dirty)
+  >>> dirty.sort()
+  >>> dirty
+  [<ore.rescueme.peer.ExampleContentPeer object at ...>, <ore.rescueme.schema.File object at ...>]
+  
+And verify the updated contents of the database.
+  
+  >>> session.flush()   
+  >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum, ],
+  ...      schema.files.c.content_id == peer.content_id).execute() )
+  [(u'treatise.txt', <read-write buffer ptr ..., size 13 at ...>, u'5270941191198af2a01db3572f1b47e8')]
+  
+If we modify the object without modifying the file content, the file content is not written to the database,
+a md5 checksum comparison is made before transmitting modifying the peer.
+
+  >>> image.title = "rabbit"
+  >>> peer = interfaces.ISerializer( image ).update()
+  >>> session.dirty
+  IdentitySet([<ore.rescueme.peer.ExampleContentPeer object at ...>])
+  
+  
+Reserved Words
+--------------
+
+Most databases have a variety of sql words reserved in their dialect, the schema transformation takes this into
+account when generating column names, and prefixes any reserved words with 'at'
+
+  >>> class ExamplePage( BaseContent ):
+  ...     portal_type = 'My Page'
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema(( 
+  ...                StringField('begin'),   
+  ...                StringField('end', required=True),   
+  ...                IntegerField('commit'), 
+  ...                LinesField('select'),
+  ...                DateTimeField('where')
+  ...     ))  
+  >>> 
+  >>> transformer = transform.SchemaTransformer( ExamplePage('a'), metadata)
+  >>> table = transformer.transform()
+  >>> for column in table.columns: print column, column.type
+    examplepage.content_id Integer()
+    examplepage.at_begin Text(length=None, convert_unicode=False, assert_unicode=None)
+    examplepage.at_end Text(length=None, convert_unicode=False, assert_unicode=None)
+    examplepage.at_commit Integer()    
+    examplepage.at_select Text(length=None, convert_unicode=False, assert_unicode=None)
+    examplepage.at_where DateTime(timezone=False)
   
 Custom Types
 ------------
