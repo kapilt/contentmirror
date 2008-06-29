@@ -1,6 +1,6 @@
-------------
-ore.rescueme
-------------
+-----------------
+ore.contentmirror
+-----------------
 
 A facility for mirroring the content of a Plone site into a structured
 external datastore. Primarily, it focuses and supports out of the box,
@@ -46,7 +46,7 @@ practice, we typically apply this interface via a zcml implements
 directive to third party components.
 
   >>> import zope.interface, datetime
-  >>> from ore.rescueme import interfaces
+  >>> from ore.contentmirror import interfaces
   >>> class MyPage( BaseContent ):
   ...     portal_type = 'My Page'
   ...     zope.interface.implements( interfaces.IMirrored )
@@ -72,11 +72,11 @@ provides sensible default FieldTransformers for all builtin Archetypes fields.
 
 First let's grab the sqlalchemy metadata structure to store our tables in
 
-  >>> from ore.rescueme.schema import metadata
+  >>> from ore.contentmirror.schema import metadata
   
 Now let's perform the transformation. 
 
-  >>> from ore.rescueme import transform
+  >>> from ore.contentmirror import transform
   >>> transformer = transform.SchemaTransformer( content, metadata)
   >>> table = transformer.transform()
   >>> for column in table.columns: print column, column.type
@@ -99,11 +99,11 @@ peer class allows us to serialize state to a relational database
 without writing any SQL by hand. We can have the system create a peer
 class for us, by using the peer factory.
 
-  >>> from ore.rescueme import peer
+  >>> from ore.contentmirror import peer
   >>> factory = peer.PeerFactory( content, transformer )
   >>> peer_class = factory.make()
   >>> peer_class
-  <class 'ore.rescueme.peer.MyPagePeer'>  
+  <class 'ore.contentmirror.peer.MyPagePeer'>  
 
  
 Model Loader
@@ -114,7 +114,7 @@ schema and a peer in high level interface. It looks up and utilizes
 ISchemaTransformer and IPeerFactory components to load a content class
 into the mirroring system.
 
-  >>> from ore.rescueme.loader import loader
+  >>> from ore.contentmirror.loader import loader
   >>> loader.load( MyPage )
 
 If we attempt to load the same class twice a KeyError is raised.
@@ -159,7 +159,7 @@ or portal audit logs and BI reports. The default operation factory
 tackles the relational mirroring problem domain. It provides
 operations that process various content lifecycle events.
 
-  >>> from ore.rescueme import operation
+  >>> from ore.contentmirror import operation
   >>> ops = operation.OperationFactory( content )
   
 We can confirm that multiple operations automatically collapse to the
@@ -167,7 +167,7 @@ minimal set
 
   >>> ops.add()
   >>> list(operation.get_buffer())
-  [<ore.rescueme.operation.AddOperation object at ...>]
+  [<ore.contentmirror.operation.AddOperation object at ...>]
   
 If we delete the content in the same transaction scope, then
 effectively for the purposes of mirroring, the content was never
@@ -183,7 +183,7 @@ transaction scope, it should collapse down to just the add operation.
   >>> ops.add()
   >>> ops.update()
   >>> operation.get_buffer().get( content.UID() )
-  <ore.rescueme.operation.AddOperation object at ...>
+  <ore.contentmirror.operation.AddOperation object at ...>
 
 Operations in the transaction buffer are automatically processed at transaction boundaries, if we
 commit the transaction all operations held in the buffer are processed.
@@ -268,14 +268,14 @@ state to the peer.
 To demonstrate the serializer, first we need to register the peer
 class with the registry.
 
-  >>> from ore.rescueme import interfaces
+  >>> from ore.contentmirror import interfaces
   >>> registry = component.getUtility( interfaces.IPeerRegistry )
   >>> registry[ MyPage ] = peer_class
 
 Now we can utilize the serializer directly to serialize our content to the
 database.
 
-  >>> from ore.rescueme import serializer
+  >>> from ore.contentmirror import serializer
   >>> content_serializer = serializer.Serializer( content )
   >>> peer = content_serializer.add()
   >>> peer.slug
@@ -371,7 +371,7 @@ container modification event.
 And let's load the subfolder peer from the database and verify its
 contained in the "root" folder
 
-  >>> from ore.rescueme import schema
+  >>> from ore.contentmirror import schema
   >>> schema.fromUID( subfolder.UID() ).parent.name
   u'Root'
 
@@ -427,7 +427,7 @@ If we modify a content object, its references are not serialized again.
   >>> home_page.title = "Home"
   >>> peer = interfaces.ISerializer( home_page ).update()
   >>> session.dirty
-  IdentitySet([<ore.rescueme.peer.MyAssetPeer object at ...>])
+  IdentitySet([<ore.contentmirror.peer.MyAssetPeer object at ...>])
   
   >>> for ob in peer.relations: print ob.target.name, ob.relationship
     Article inkind
@@ -466,7 +466,7 @@ Let's create some content and serialize it.
   >>> image = ExampleContent('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
   >>> peer = interfaces.ISerializer( image ).add()
   >>> peer
-  <ore.rescueme.peer.ExampleContentPeer object at ...>
+  <ore.contentmirror.peer.ExampleContentPeer object at ...>
   >>> session.flush()   
   
 Now let's verify its presence in the database.
@@ -485,7 +485,7 @@ We should have two dirty (modified) objects in the sqlalchemy session correspond
   >>> dirty = list(session.dirty)
   >>> dirty.sort()
   >>> dirty
-  [<ore.rescueme.peer.ExampleContentPeer object at ...>, <ore.rescueme.schema.File object at ...>]
+  [<ore.contentmirror.peer.ExampleContentPeer object at ...>, <ore.contentmirror.schema.File object at ...>]
   
 And verify the updated contents of the database.
   
@@ -500,7 +500,7 @@ a md5 checksum comparison is made before transmitting modifying the peer.
   >>> image.title = "rabbit"
   >>> peer = interfaces.ISerializer( image ).update()
   >>> session.dirty
-  IdentitySet([<ore.rescueme.peer.ExampleContentPeer object at ...>])
+  IdentitySet([<ore.contentmirror.peer.ExampleContentPeer object at ...>])
   
   
 Reserved Words

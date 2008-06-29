@@ -50,7 +50,6 @@ class Serializer( object ):
         session.flush()
 
     def _copy( self, peer ):
-        import pdb; pdb.set_trace()
         self._copyPortalAttributes( peer )
         peer.transformer.copy( self.context, peer )        
         self._copyContainment( peer )

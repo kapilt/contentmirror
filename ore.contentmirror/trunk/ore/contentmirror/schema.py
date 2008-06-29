@@ -25,7 +25,7 @@ from zope import interface
 import sqlalchemy as rdb
 
 from ore.alchemist import Session
-from ore.rescueme import interfaces
+from ore.contentmirror import interfaces
 
 metadata =  rdb.MetaData()
 

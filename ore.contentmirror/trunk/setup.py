@@ -22,10 +22,11 @@ setup(
     author='Kapil Thangavelu',
     author_email='kapil.foss@gmail.com',
     description="Deploy/Rescue Content from Plone to a Relational Database",
-    long_description=read("ore","rescueme","readme.txt"),
+    long_description=read("ore","contentmirror","readme.txt"),
     license='GPL',
     keywords="plone zope zope3",
     entry_points={
-     'console_scripts': ['mirror-ddl = ore.rescueme.ddl:main'],
+     'console_scripts': ['mirror-ddl = ore.contentmirror.ddl:main',
+                         'mirror-bulk = ore.contentmirror.batch:main'],
     }
     )
