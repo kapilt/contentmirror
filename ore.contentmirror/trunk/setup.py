@@ -11,7 +11,10 @@ setup(
     # actual would include 'zope.event', 'zope.schema', 'zope.component'
     # plus 'zope.app.container', this last one ends up pulling most of
     # zope3.
-    install_requires=['setuptools', 'ore.alchemist', 'zope.app.container'],
+    install_requires=['setuptools',
+                      'SQLAlchemy>=0.4.6',
+                      'ore.alchemist',
+                      'zope.app.container'],
 
     packages=find_packages(exclude=["*.tests"]),
     namespace_packages=['ore'],

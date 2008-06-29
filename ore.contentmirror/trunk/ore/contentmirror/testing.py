@@ -57,13 +57,19 @@ def make_uuid(*args):
     data = t +' '+ r +' '+ str(random.random()*100000000000000000L)+' '+ str(args)
     uid = md5.md5(data).hexdigest()
     return uid
-    
+
+class WorkflowTool( object ):
+
+    def getCatalogVariablesFor( self, instance ):
+        return {'review_state':getattr( instance, 'workflow_state', 'published') }
+        
 class BaseContent( object ):
 
     interface.implements( interfaces.IPortalContent )
     
     portal_type = ""
     schema = None
+    portal_workflow = WorkflowTool()
     
     def __init__( self, id, container=None, **kw ):
         self.id = id

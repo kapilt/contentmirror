@@ -378,6 +378,21 @@ contained in the "root" folder
 A caveat to using containment, is that filtering containers, will
 cause contained mirrored content to appear as orphans.
 
+Workflow
+--------
+
+A content's workflow status is also captured in the database. For testing purposes
+a mock implementation was constructed to avoid the need for setting up a Plone
+instance for development. From the perspective of the api used by contentmirror
+the machinery is identical but the differences in setting the state are evident
+below as we construct some sample content to serialize the state.
+
+   >>> my_space = Folder("my-space")
+   >>> my_space.workflow_state = "archived"
+   >>> peer = interfaces.ISerializer( my_space ).add()
+   >>> peer.status
+   'archived'
+
 References
 ----------
 
