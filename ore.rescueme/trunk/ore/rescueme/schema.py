@@ -104,7 +104,7 @@ relations = rdb.Table(
    rdb.Column( "target_id", rdb.Integer, 
                rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
                primary_key=True),
-   rdb.Column( "relationship", rdb.Text(128), primary_key=True )
+   rdb.Column( "relationship", rdb.String(128), primary_key=True )
    )
 
 

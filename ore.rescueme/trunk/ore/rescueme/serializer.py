@@ -58,7 +58,7 @@ class Serializer( object ):
         peer.portal_type = self.context.portal_type
         peer.uid = self.context.UID()
         peer.id  = self.context.id
-        
+
     def _copyContainment( self, peer ):
         container = self.context.getParentNode()
         if container is None:
@@ -72,6 +72,7 @@ class Serializer( object ):
             if not serializer: return
             container_peer = serializer.add()
         peer.parent = container_peer
+
         
     
         

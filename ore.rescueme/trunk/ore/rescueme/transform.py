@@ -136,6 +136,22 @@ class StringTransform( BaseFieldTransformer ):
     component.adapts( interfaces.IStringField, interfaces.ISchemaTransformer )
     column_type = rdb.Text
     column_args = ()
+    
+    def copy( self, instance, peer ):
+        accessor = self.context.getAccessor( instance )
+        value = accessor()
+        
+        # one of a number of common bad practices that plone permits is specing a widget
+        # which doesn't correspond to the field. ie. using a lines widget with a string field
+        # actually generates a list value for the field. sadly this sort of sloppy usage appears
+        # to be rather common place, so we'll try to handle it inline.. at least for now. 
+        if isinstance( value, (tuple, list)):
+            return LinesTransform( self.context, self.transformer ).copy( instance, peer )
+        # at least morph it into a value which won't cause further issues.
+        if not isinstance( value, basestring):
+            value = str( value )
+            
+        setattr( peer, self.name, value )    
 
 class TextTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IStringField, interfaces.ISchemaTransformer )
@@ -165,7 +181,7 @@ class FileTransform( object ):
         
     def transform( self ):
         file_orm = orm.relation(schema.File, 
-                        uselist=False, backref='origin_content',
+#                        uselist=False,
                         primaryjoin=rdb.and_( 
                             schema.files.c.content_id == schema.content.c.content_id,
                             schema.files.c.attribute  == self.name )
@@ -180,7 +196,12 @@ class FileTransform( object ):
         if not self._checkModified( value, file_peer ):
             return
         self._copyPeer( file_peer, instance, value )
-        setattr( peer, self.name, file_peer )       
+
+        #setattr( peer, self.name, file_peer )
+        files = getattr( peer, self.name )
+        if not file_peer in files:
+            files.append( file_peer )
+
         
     # implementation details
     @property
@@ -198,9 +219,9 @@ class FileTransform( object ):
         
     def _getPeer( self, instance, peer):
         file_peer = getattr( peer, self.name, None ) 
-        if file_peer is None:
-            file_peer = self.new()
-        return file_peer
+        if not file_peer:
+            return self.new()
+        return file_peer[0]
         
     def _copyPeer( self, file_peer, instance, value ):
         file_peer.attribute = self.name
