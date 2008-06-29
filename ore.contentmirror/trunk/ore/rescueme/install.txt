@@ -1,0 +1,101 @@
+------------
+Installation
+------------
+
+Prerequisites
+-------------
+
+ - Plone 2.5 or above
+ - Database Server ( postgresql mysql)
+
+Buildout Installation
+---------------------
+
+The software can be installed via buildout by adding it to the eggs section of an instance (not the buildout). 
+ie::
+
+ eggs =
+    ${plone:eggs}
+    ore.rescueme
+
+Instance Home Installation
+--------------------------
+
+open a shell, and change your current directory to that of your zope instance.
+
+ $ cd $INSTANCE_HOME
+ 
+add the instance's lib/python directory to your python path. You can use any python-path specified in your zope.conf's path directive. $INSTANCE_HOME/lib/python is the default.
+ 
+ $ export PYTHONPATH=$PWD/lib/python
+
+Use easy_install from setuptools to install the packages into your instance.
+
+ $ easy_install -N -d lib/python -s bin ore.rescueme 
+ $ easy_install -N -d lib/python -s bin ore.alchemist
+ $ easy_install -N -d lib/python -s bin SQLAlchemy
+
+Configuring
+------------
+
+The following zcml snippet will configure the system::
+
+
+
+  <configure xmlns:db="http://namespaces.objectrealms.net/rdb">
+   <include package="ore.alchemist" file="meta.zcml"/>
+   <include package="ore.rescueme" file="meta.zcml"/>
+   <include package="ore.rescueme"/>
+   <db:engine url="postgres://localhost/contentmirror"
+	     name="mirror-db"
+             echo="True"/>
+   <db:bind engine="mirror-db"			 
+ 	   metadata="ore.rescueme.schema.metadata"
+ 	   />
+  </configure>
+
+and can be added to as a zcml slug file in
+$INSTANCE_HOME/etc/package-includes or included directly from within a
+custom Product's configure.zcml file.
+
+for testing purposes you can add an echo="True" attribute to the db:engine
+zcml line, and the system will echo all database interaction to the console.
+zope needs to be started in the foreground for this to apply (./bin/instance fg
+or runzope or zopectl fg ).
+
+On Plone 2.5, you also need to include the following zcml line::
+
+  <include package="ore.rescueme" file="legacy.zcml"/>
+
+Configuring Custom Types
+------------------------
+ 
+If you have custom content types, you can have them mirrored by adding the following
+zcml per custom content class::
+
+ <configure xmlns="http://namespaces.zope.org/zope"
+  	       xmlns:ore="http://namespaces.objectrealms.net/mirror"> 
+    <ore:mirror content="Products.ATContentTypes.content.document.ATDocument" />
+ </configure>    
+
+Database Setup
+--------------
+
+Next you'll need to generate the SQL DDL/Schema file for your target
+database. The package when installed creates a command line script
+that will generate the database schema. This script needs to be
+executed with the Zope environment loaded, in order to determine which
+content types
+
+if your running in a buildout you achieve that via the following::
+
+  $ ./bin/instance run bin/mirror-ddl mysql > mirror.sql
+  
+if your running Plone directly in a standard zope instance, you can do
+the following::
+
+  $ $INSTANCE_HOME/bin/zopectl run `which mirror-ddl` postgres > mirror.sql
+
+the mirror-ddl script takes one parameter, the name of the target
+database to deploy to, names are those available as SQLAlchemy
+database driver names ie. ( postgres, mysql, sqlite, etc.)
