@@ -1,3 +1,4 @@
+#labels Featured
 == ore.contentmirror ==
 
 A facility for mirroring the content of a Plone site into a structured external datastore. Primarily, it focuses and supports out of the box, content deployment to a relational database. The current implementation provides for synchronous content mirroring or full site copies. In synchronous mode, it updates the external store, as changes are happening in Plone, and is integrated with the zope transaction machinery.
@@ -547,5 +548,3 @@ Any custom archetypes can easily be added in via a zcml declaration, as an examp
 == Commercial Support ==
 
 The contentmirror system is designed to be useable out of the box, but if you need commercial support, please contact us at [mailto:info@objectrealms.net info@objectrealms.net]
-
-
