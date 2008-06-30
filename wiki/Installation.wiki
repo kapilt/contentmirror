@@ -1,3 +1,4 @@
+#labels Featured
 == Installation ==
 
 Installation consists of two steps, installing the software, and configuring it for your deployment.
@@ -138,5 +139,3 @@ or in an zope instance home setup with:
 {{{
 $ $INSTANCE_HOME/bin/zopectl run Products/ContentMirror/bulk.py mysite-testing
 }}}
-
-
