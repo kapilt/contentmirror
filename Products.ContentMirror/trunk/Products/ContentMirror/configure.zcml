@@ -13,10 +13,12 @@
  <include package="ore.contentmirror" file="meta.zcml"/>
  <include package="ore.contentmirror"/>
 
- <!-- Only for sites on Plone 2.5 -->
- <include package="ore.contentmirror" file="legacy.zcml"/>
-
  <!-- File For Customized Settings -->
  <include file="settings.zcml"/>
+ 
+ <!-- associate the database connection to the mirror db structures -->
+ <db:bind engine="mirror-db"
+          metadata="ore.contentmirror.schema.metadata"
+          />
 
 </configure>

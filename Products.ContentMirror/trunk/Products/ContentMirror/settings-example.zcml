@@ -1,5 +1,6 @@
 <configure xmlns="http://namespaces.zope.org/zope" 
-           xmlns:db="http://namespaces.objectrealms.net/rdb">
+           xmlns:db="http://namespaces.objectrealms.net/rdb"
+	   xmlns:ore="http://namespaces.objectrealms.net/mirror"> 
 
     <!-- setup a database connection -->
    <db:engine url="postgres://localhost/contentmirror"
@@ -10,6 +11,10 @@
    <db:bind engine="mirror-db"
            metadata="ore.contentmirror.schema.metadata"
            />
+
+   <!-- If Your Running on Plone 2.5, you must uncomment the following line 
+   <include package="ore.contentmirror" file="legacy.zcml"/>
+   -->
 
 </configure>
 
