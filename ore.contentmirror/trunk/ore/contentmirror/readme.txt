@@ -7,7 +7,7 @@ external datastore. Primarily, it focuses and supports out of the box,
 content deployment to a relational database. The current
 implementation provides for synchronous content mirroring or full site
 copies. In synchronous mode, it updates the external store, as changes
-are happening in Plone, and is integrated with the zope transaction 
+are happening in Plone, and is integrated with the zope transaction
 machinery.
 
 It allows the access of content from your Plone site in a language
@@ -15,7 +15,8 @@ and platform neutral manner.
 
 It generically handles any archetypes content, with support for all
 archetype field types, as well as serializing containment information.
-Reference support does not support content or stateful based references objects.
+Reference support does not support content or stateful based
+references objects.
 
 Features
 --------
@@ -34,7 +35,7 @@ Features
 Installation
 ------------
 
- see install.txt 
+ see install.txt
   
 Boostrapping
 ------------
@@ -43,7 +44,7 @@ To demonstrate the system, let's create a custom archetype content
 type and an instance of it. We'll add the marker interface IMirrored,
 to get the mirror package's default component registrations. In
 practice, we typically apply this interface via a zcml implements
-directive to third party components.
+directive to third party components::
 
   >>> import zope.interface, datetime
   >>> from ore.contentmirror import interfaces
@@ -70,11 +71,11 @@ In order to serialize content to a relational database, we need to
 tranform our Archeypes schema to a relational database table. The package
 provides sensible default FieldTransformers for all builtin Archetypes fields. 
 
-First let's grab the sqlalchemy metadata structure to store our tables in
+First let's grab the sqlalchemy metadata structure to store our tables in::
 
   >>> from ore.contentmirror.schema import metadata
   
-Now let's perform the transformation. 
+Now let's perform the transformation::
 
   >>> from ore.contentmirror import transform
   >>> transformer = transform.SchemaTransformer( content, metadata)
@@ -97,7 +98,7 @@ In order to utilize SQLAlchemy's ORM, we create a orm mapped class for
 each content class. We call such sql persisted classes a peer. Using a
 peer class allows us to serialize state to a relational database
 without writing any SQL by hand. We can have the system create a peer
-class for us, by using the peer factory.
+class for us, by using the peer factory::
 
   >>> from ore.contentmirror import peer
   >>> factory = peer.PeerFactory( content, transformer )
@@ -112,12 +113,12 @@ Model Loader
 The model loader provides an abstraction for generating a relational
 schema and a peer in high level interface. It looks up and utilizes
 ISchemaTransformer and IPeerFactory components to load a content class
-into the mirroring system.
+into the mirroring system::
 
   >>> from ore.contentmirror.loader import loader
   >>> loader.load( MyPage )
 
-If we attempt to load the same class twice a KeyError is raised.
+If we attempt to load the same class twice a KeyError is raised::
  
   >>> loader.load( MyPage )
   Traceback (most recent call last):
@@ -137,7 +138,7 @@ aggregate events on transaction boundaries, and automatically collapse
 multiple operations for the same object.
 
 To process the event stream, first we need to setup the database 
-connection, and database table structure
+connection, and database table structure::
 
   >>> import sqlalchemy as rdb
   >>> metadata.bind = rdb.create_engine('sqlite://')
@@ -157,13 +158,13 @@ mirroring. Providing a different operation factory, could be utilized
 for deploying content to an xml database, or subversion content store,
 or portal audit logs and BI reports. The default operation factory
 tackles the relational mirroring problem domain. It provides
-operations that process various content lifecycle events.
+operations that process various content lifecycle events::
 
   >>> from ore.contentmirror import operation
   >>> ops = operation.OperationFactory( content )
   
 We can confirm that multiple operations automatically collapse to the
-minimal set
+minimal set::
 
   >>> ops.add()
   >>> list(operation.get_buffer())
@@ -172,28 +173,29 @@ minimal set
 If we delete the content in the same transaction scope, then
 effectively for the purposes of mirroring, the content was never
 created, and the buffer automatically removes any pending operations
-for the content.
+for the content::
   
   >>> ops.delete()
   >>> operation.get_buffer().get( content.UID() )
   
 if we create an add operation, and an update operation in a single
-transaction scope, it should collapse down to just the add operation.
+transaction scope, it should collapse down to just the add operation::
 
   >>> ops.add()
   >>> ops.update()
   >>> operation.get_buffer().get( content.UID() )
   <ore.contentmirror.operation.AddOperation object at ...>
 
-Operations in the transaction buffer are automatically processed at transaction boundaries, if we
-commit the transaction all operations held in the buffer are processed.
+Operations in the transaction buffer are automatically processed at
+transaction boundaries, if we commit the transaction all operations
+held in the buffer are processed::
 
   >>> import transaction
   >>> transaction.get().commit()
   >>> list(operation.get_buffer())
   [] 
 
-Alternatively if the transaction is aborted, all operations are discarded.
+Alternatively if the transaction is aborted, all operations are discarded::
 
   >>> content.title = u"Shall Not Pass"
   >>> ops.update()
@@ -201,13 +203,13 @@ Alternatively if the transaction is aborted, all operations are discarded.
   >>> list(operation.get_buffer())
   []
 
-Let's go ahead and process an update operation for test coverage...
+Let's go ahead and process an update operation for test coverage::
 
   >>> ops.update()
   >>> transaction.get().commit()
 
 Let's also exercise the delete operation to reset the database state
-for other tests.
+for other tests::
 
   >>> ops.delete()
   >>> transaction.get().commit()
@@ -228,12 +230,12 @@ Filters are modeled as subscription adapters, meaning each filter
 matching against the context and operation, is applied in turn.
 
 Let's create a simple filter that filters all content. We do this by
-setting the filtered attribute of the operation, to True.
+setting the filtered attribute of the operation, to True::
 
   >>> def content_filter( content, operation ):
   ...     operation.filtered = True
    
-And let's register our filter with the component architecture.
+And let's register our filter with the component architecture::
 
   >>> from zope import component
   >>> component.provideSubscriptionAdapter( 
@@ -242,13 +244,13 @@ And let's register our filter with the component architecture.
   ...      interfaces.IFilter )
 
 Now if we try create an operation for the content, it will automatically
-be filtered.
+be filtered::
  
   >>> ops.add()
   >>> list(operation.get_buffer())
   []
 
-Finally, let's remove the filter for other tests.
+Finally, let's remove the filter for other tests::
 
   >>> component.getSiteManager().unregisterSubscriptionAdapter( 
   ...    content_filter, 
@@ -266,14 +268,14 @@ utility.  Schema transformers are used to copy the content's fields
 state to the peer.
 
 To demonstrate the serializer, first we need to register the peer
-class with the registry.
+class with the registry::
 
   >>> from ore.contentmirror import interfaces
   >>> registry = component.getUtility( interfaces.IPeerRegistry )
   >>> registry[ MyPage ] = peer_class
 
 Now we can utilize the serializer directly to serialize our content to the
-database.
+database::
 
   >>> from ore.contentmirror import serializer
   >>> content_serializer = serializer.Serializer( content )
@@ -281,7 +283,7 @@ database.
   >>> peer.slug
   'Miracle Cures for Rabbits'
 
-We can directly check the database to see the serialized content there.
+We can directly check the database to see the serialized content there::
 
   >>> import sqlalchemy as rdb
   >>> from ore.alchemist import Session
@@ -290,14 +292,14 @@ We can directly check the database to see the serialized content there.
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
   [(1, u'Miracle Cures for Rabbits')]
 
-Serializers are also responsible for updating database respresentations. 
+Serializers are also responsible for updating database respresentations::
 
   >>> content.slug = "Find a home in the clouds"
   >>> peer = content_serializer.update()
   >>> peer.slug
   'Find a home in the clouds'
 
-and deleting them.
+and deleting them::
 
   >>> session.flush()
   >>> content_serializer.delete()
@@ -306,11 +308,11 @@ and deleting them.
 
 Due to the possibility of being installed and working with existing
 content all the methods need to be reentrant. For example deleting 
-non existent content shouldn't cause an exception.
+non existent content shouldn't cause an exception::
 
   >>> content_serializer.delete()
 
-or attempting to update content which does not exist, should in turn add it.
+or attempting to update content which does not exist, should in turn add it::
 
   >>> peer = content_serializer.update()
   >>> session.flush()
@@ -328,7 +330,7 @@ contentmirror system captures this containment structure in the
 database serialization using the adjancey list support in SQLAlchemy.
 
 To demonstrate, let's create a folderish content type and initialize
-it with the mirroring system.
+it with the mirroring system::
 
   >>> class Folder( BaseContent ):
   ...     portal_type = 'Simple Folder'
@@ -362,14 +364,14 @@ automatically detects and handles this.
  
 Let's try loading this chain of objects through the operations
 factory, to demonstrate, with an additional update event for the
-container modification event.
+container modification event::
 
   >>> operation.OperationFactory( root ).update()
   >>> operation.OperationFactory( subfolder ).add()
   >>> transaction.commit()
   
 And let's load the subfolder peer from the database and verify its
-contained in the "root" folder
+contained in the "root" folder::
 
   >>> from ore.contentmirror import schema
   >>> schema.fromUID( subfolder.UID() ).parent.name
@@ -381,11 +383,12 @@ cause contained mirrored content to appear as orphans.
 Workflow
 --------
 
-A content's workflow status is also captured in the database. For testing purposes
-a mock implementation was constructed to avoid the need for setting up a Plone
-instance for development. From the perspective of the api used by contentmirror
-the machinery is identical but the differences in setting the state are evident
-below as we construct some sample content to serialize the state.
+A content's workflow status is also captured in the database. For
+testing purposes a mock implementation was constructed to avoid the
+need for setting up a Plone instance for development. From the
+perspective of the api used by contentmirror the machinery is
+identical but the differences in setting the state are evident below
+as we construct some sample content to serialize the state::
 
    >>> my_space = Folder("my-space")
    >>> my_space.workflow_state = "archived"
@@ -396,7 +399,7 @@ below as we construct some sample content to serialize the state.
 References
 ----------
 
-Archetypes references are a topic onto themselves
+Archetypes references are a topic onto themselves::
 
   >>> class MyAsset( BaseContent ):
   ...     portal_type = "My Asset"
@@ -408,7 +411,7 @@ Archetypes references are a topic onto themselves
   ...                DateTimeField('discovered_date')
   ...     ))
 
-And setup the peers and database tables for our new content class.
+And setup the peers and database tables for our new content class::
 
   >>> loader.load( MyAsset )
   >>> metadata.create_all(checkfirst=True)
@@ -419,24 +422,26 @@ And setup the peers and database tables for our new content class.
     myasset.slug Text(length=None, convert_unicode=False, assert_unicode=None)
     myasset.discovered_date DateTime(timezone=False)
 
-Let's create some related content.
+Let's create some related content::
 
   >>> xo_image = MyAsset('xo-image', name="Icon")
   >>> logo = MyAsset('logo', name="Logo")
   >>> xo_article = MyAsset('xo-article', name='Article', related=xo_image )
   >>> home_page = MyAsset( 'home-page', related=[xo_article, logo] )  
 
-And serialze the content
+And serialze the content::
 
   >>> peer = interfaces.ISerializer( home_page ).add()
   
-Related objects are accessible from the peer as the relations collection attribute. 
+Related objects are accessible from the peer as the relations
+collection attribute::
 
   >>> for ob in peer.relations: print ob.target.name, ob.relationship
     Article inkind
     Logo inkind
 
-If we modify a content object, its references are not serialized again.
+If we modify a content object, its references are not serialized
+again::
 
   >>> session.flush()
   >>> home_page.title = "Home"
@@ -451,12 +456,12 @@ If we modify a content object, its references are not serialized again.
 Files
 -----
 
-File content is automatically stored in a separate files table, with foreign key pointers 
-back to the origin content. The files table uses the binary field in sqlalchemy for storing
-content.
+File content is automatically stored in a separate files table, with
+foreign key pointers back to the origin content. The files table uses
+the binary field in sqlalchemy for storing content.
 
-Let's demonstrate using the default file handling which stores files into a
-database. First a class with a file field.
+Let's demonstrate using the default file handling which stores files
+into a database. First a class with a file field::
 
   >>> class ExampleContent( BaseContent ):
   ...     portal_type = "My File"
@@ -468,7 +473,7 @@ database. First a class with a file field.
   >>> loader.load( ExampleContent )
   >>> metadata.create_all( checkfirst=True )
   
-We can see that the sqlalchemy class mapper uses a relation property for the field.
+We can see that the sqlalchemy class mapper uses a relation property for the field::
   
   >>> from sqlalchemy import orm
   >>> peer_factory = component.getUtility( interfaces.IPeerRegistry )[ ExampleContent ]
@@ -476,7 +481,7 @@ We can see that the sqlalchemy class mapper uses a relation property for the fie
   >>> mapper.get_property('file_content')
   <sqlalchemy.orm.properties.PropertyLoader object at ...>
     
-Let's create some content and serialize it.
+Let's create some content and serialize it::
 
   >>> image = ExampleContent('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
   >>> peer = interfaces.ISerializer( image ).add()
@@ -484,33 +489,35 @@ Let's create some content and serialize it.
   <ore.contentmirror.peer.ExampleContentPeer object at ...>
   >>> session.flush()   
   
-Now let's verify its presence in the database.
+Now let's verify its presence in the database::
   
   >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum],
   ...      schema.files.c.content_id == peer.content_id).execute() )
   [(u'treatise.txt', <read-write buffer ptr ..., size 11 at ...>, u'5eb63bbbe01eeed093cb22bb8f5acdc3')]
   
-If we let's modify it and see what happens to the database during update.
+If we let's modify it and see what happens to the database during update::
 
   >>> image.file_content=File("treatise.txt", "hello world 2") 
   >>> peer = interfaces.ISerializer( image ).update()
   
-We should have two dirty (modified) objects in the sqlalchemy session corresponding to the content peer, and its file peer.
+We should have two dirty (modified) objects in the sqlalchemy session
+corresponding to the content peer, and its file peer::
   
   >>> dirty = list(session.dirty)
   >>> dirty.sort()
   >>> dirty
   [<ore.contentmirror.peer.ExampleContentPeer object at ...>, <ore.contentmirror.schema.File object at ...>]
   
-And verify the updated contents of the database.
+And verify the updated contents of the database::
   
   >>> session.flush()   
   >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum, ],
   ...      schema.files.c.content_id == peer.content_id).execute() )
   [(u'treatise.txt', <read-write buffer ptr ..., size 13 at ...>, u'5270941191198af2a01db3572f1b47e8')]
   
-If we modify the object without modifying the file content, the file content is not written to the database,
-a md5 checksum comparison is made before transmitting modifying the peer.
+If we modify the object without modifying the file content, the file
+content is not written to the database, a md5 checksum comparison is
+made before transmitting modifying the peer::
 
   >>> image.title = "rabbit"
   >>> peer = interfaces.ISerializer( image ).update()
@@ -521,8 +528,9 @@ a md5 checksum comparison is made before transmitting modifying the peer.
 Reserved Words
 --------------
 
-Most databases have a variety of sql words reserved in their dialect, the schema transformation takes this into
-account when generating column names, and prefixes any reserved words with 'at'
+Most databases have a variety of sql words reserved in their dialect,
+the schema transformation takes this into account when generating
+column names, and prefixes any reserved words with 'at'::
 
   >>> class ExamplePage( BaseContent ):
   ...     portal_type = 'My Page'
@@ -548,8 +556,8 @@ account when generating column names, and prefixes any reserved words with 'at'
 Custom Types
 ------------
 
-Any custom archetypes can easily be added in via a zcml declaration, as an example
-this is the configuration to setup ATDocuments::
+Any custom archetypes can easily be added in via a zcml declaration,
+as an example this is the configuration to setup ATDocuments::
 
   <configure xmlns="http://namespaces.zope.org/zope"
              xmlns:ore="http://namespaces.objectrealms.net/mirror"> 

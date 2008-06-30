@@ -17,7 +17,7 @@
 """
 ./bin/zopectl run mirror-batch PORTAL_PATH
 
-a content mirror batch importer
+a content mirror bulk importer
 
 """
 import transaction, time, sys

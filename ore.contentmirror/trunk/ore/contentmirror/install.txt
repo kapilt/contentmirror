@@ -141,7 +141,7 @@ the ddl.py script takes one parameter, the name of the target
 database to deploy to, names are those available as SQLAlchemy
 database driver names ie. ( postgres, mysql, sqlite, etc.)
 
-You should load this file into your target database. ie for mysql:
+You should load this file into your target database. ie for mysql::
 
   $ mysql -u dbowner contentmirror < mirror.sql 
 
@@ -149,7 +149,7 @@ this will connect to the contentmirror database as the dbowner user
 and execute the content of mirror.sql, which will create the database
 tables needed.
 
-for postgres:
+for postgres::
 
  $ pgsql contentmirror < mirror.sql
 
