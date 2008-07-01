@@ -28,7 +28,7 @@ def expunge( ob ):
     try: ob._p_deactivate()
     except:pass
         
-def main( ):
+def main( app ):
     if not len(sys.argv) == 2:
         print "mirror-batch portal_path"
         sys.exit(1)
@@ -80,7 +80,7 @@ def main( ):
 if __name__ == '__main__':
     
     try:
-        main()        
+        main( app = app )        
     except:
         import sys,traceback, pdb
         traceback.print_exc()
