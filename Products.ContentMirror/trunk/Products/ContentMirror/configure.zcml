@@ -1,4 +1,6 @@
-<configure xmlns="http://namespaces.zope.org/zope">
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:db="http://namespaces.objectrealms.net/rdb">
+
 
  <!-- A dummy adapter to force loading the pkg's __init__.py module
       which setups up the python path for loading our contained eggs -->
