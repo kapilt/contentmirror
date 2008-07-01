@@ -226,6 +226,7 @@ class FileTransform( object ):
         file_peer.attribute = self.name
         file_peer.content = str( value.data )
         file_peer.mime_type = self.context.getContentType( instance ) 
+        file_peer.size = len( file_peer.content )
         file_peer.file_name = getattr(value, 'filename', value.getId())
         file_peer.checksum = md5( file_peer.content ).hexdigest()
         
