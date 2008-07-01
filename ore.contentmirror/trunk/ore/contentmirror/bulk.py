@@ -70,7 +70,6 @@ def main( app ):
             print "Processed ", count, "in", "%0.2f s"%(time.time()-batch_time)            
             ob._p_jar._cache.incrgc()
             batch_time = time.time()
-            Session().expunge_all()
 
     # commit the last batch
     transaction.commit()
