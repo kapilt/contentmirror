@@ -6,7 +6,7 @@ def read(*rnames):
 
 setup(
     name="ore.contentmirror",
-    version="0.4.0",
+    version="0.4.1",
     # play the standard zope2 game to lie about our dependencies...
     # actual would include 'zope.event', 'zope.schema', 'zope.component'
     # plus 'zope.app.container', this last one ends up pulling most of
