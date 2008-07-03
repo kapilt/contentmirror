@@ -37,7 +37,7 @@ Installation
 
  see install.txt
   
-Boostrapping
+Bootstrapping
 ------------
 
 To demonstrate the system, let's create a custom archetype content
@@ -64,6 +64,15 @@ directive to third party components::
   >>> content.discovered_date = DateTime() # now
   >>> content.people = ["venkat", "tyrell", "johan", "arjun", "smithfield"]
   
+Note on Examples
+----------------
+
+For testing purposes a mock implementation was constructed to avoid
+the need for setting up a Plone instance for development. From the
+perspective of the api used by contentmirror the machinery is
+identical but the differences in for some attributes as done in these
+examples differs from the actual plone api for doing the same.
+
 Schema Tranformation
 --------------------
 
@@ -354,13 +363,22 @@ it with the mirroring system::
 The content mirror automatically serializes a content's container if
 its not already serialized. Containment serialization is a recursive
 operation. In the course of normal operations, this has a nominal
-cost, as a the container would already have been serialized.
+cost, as the content's container would already have been serialized,
+from a previous add event.
+
 Nonetheless, a common scenario when starting to use content mirror on
 an existing system is that content will be added to a container thats
-not serialized. Additionally, the container will have have been the
-subject of an object modified event, when a content object is added to
-it, leading to redundant serialization operations. The content mirror
-automatically detects and handles this.
+not been serialized, in which case the serialization will recurse till
+it has captured the entire parent chain. When operating on existing
+systems, its best to let the content mirroring process 'catch up', by
+running the bulk serialization tool as documented in the installation
+file. Once this tools has been run, containment operation recursion is
+minimal.
+ 
+Additionally, when adding content to a container, the container will
+have have been the subject of an object modified event, when a content
+object is added to it, leading to redundant serialization
+operations. The content mirror automatically detects and handles this.
  
 Let's try loading this chain of objects through the operations
 factory, to demonstrate, with an additional update event for the
@@ -378,16 +396,12 @@ contained in the "root" folder::
   u'Root'
 
 A caveat to using containment, is that filtering containers, will
-cause contained mirrored content to appear as orphans.
+cause contained mirrored content to appear as orphans/root objects.
 
 Workflow
 --------
 
-A content's workflow status is also captured in the database. For
-testing purposes a mock implementation was constructed to avoid the
-need for setting up a Plone instance for development. From the
-perspective of the api used by contentmirror the machinery is
-identical but the differences in setting the state are evident below
+A content's workflow status is also captured in the database. the state are evident below
 as we construct some sample content to serialize the state::
 
    >>> my_space = Folder("my-space")
@@ -399,7 +413,10 @@ as we construct some sample content to serialize the state::
 References
 ----------
 
-Archetypes references are a topic onto themselves::
+Archetypes references are a topic onto themselves. By default,
+References got stored in a relation table which containing the source
+and target content ids, and a relationship name. Let's create a
+content class with reference fields to demonstrate::
 
   >>> class MyAsset( BaseContent ):
   ...     portal_type = "My Asset"
@@ -429,7 +446,10 @@ Let's create some related content::
   >>> xo_article = MyAsset('xo-article', name='Article', related=xo_image )
   >>> home_page = MyAsset( 'home-page', related=[xo_article, logo] )  
 
-And serialze the content::
+And serialze the content. Any objects referenced by a serialized
+object are also serialized if they not have already been
+serialized. In this way reference processing like containment, is
+recursive::
 
   >>> peer = interfaces.ISerializer( home_page ).add()
   
@@ -481,7 +501,7 @@ We can see that the sqlalchemy class mapper uses a relation property for the fie
   >>> mapper.get_property('file_content')
   <sqlalchemy.orm.properties.PropertyLoader object at ...>
     
-Let's create some content and serialize it::
+Let's create some content with files and serialize it::
 
   >>> image = ExampleContent('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
   >>> peer = interfaces.ISerializer( image ).add()
@@ -489,18 +509,18 @@ Let's create some content and serialize it::
   <ore.contentmirror.peer.ExampleContentPeer object at ...>
   >>> session.flush()   
   
-Now let's verify its presence in the database::
+Now let's verify the presence of the file in the files table:
   
   >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum],
   ...      schema.files.c.content_id == peer.content_id).execute() )
   [(u'treatise.txt', <read-write buffer ptr ..., size 11 at ...>, u'5eb63bbbe01eeed093cb22bb8f5acdc3')]
   
-If we let's modify it and see what happens to the database during update::
+If we modify it, what happens to the database during update::
 
   >>> image.file_content=File("treatise.txt", "hello world 2") 
   >>> peer = interfaces.ISerializer( image ).update()
   
-We should have two dirty (modified) objects in the sqlalchemy session
+We'll end up with two dirty (modified) objects in the sqlalchemy session
 corresponding to the content peer, and its file peer::
   
   >>> dirty = list(session.dirty)
@@ -508,7 +528,7 @@ corresponding to the content peer, and its file peer::
   >>> dirty
   [<ore.contentmirror.peer.ExampleContentPeer object at ...>, <ore.contentmirror.schema.File object at ...>]
   
-And verify the updated contents of the database::
+And if we flush the session, we can verify the updated contents of the database::
   
   >>> session.flush()   
   >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum, ],
@@ -517,7 +537,8 @@ And verify the updated contents of the database::
   
 If we modify the object without modifying the file content, the file
 content is not written to the database, a md5 checksum comparison is
-made before transmitting modifying the peer::
+made between the object file contents and the file peer checksum,
+before modifying the file peer::
 
   >>> image.title = "rabbit"
   >>> peer = interfaces.ISerializer( image ).update()
