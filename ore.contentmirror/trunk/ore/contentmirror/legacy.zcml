@@ -7,10 +7,4 @@
      handler=".subscriber.objectModified" 
      />
      
-  <subscriber
-     for=".interfaces.IMirrored
-          zope.app.event.interfaces.IObjectCopiedEvent"
-     handler=".subscriber.objectCloned" 
-     />     
-     
 </configure>     

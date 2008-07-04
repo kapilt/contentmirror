@@ -29,5 +29,3 @@ def objectDeleted( object, event ):
 def objectMoved( object, event ):
     interfaces.IOperationFactory( object ).update()
 
-def objectCloned( object, event ):
-    interfaces.IOperationFactory( object ).add()

@@ -9,13 +9,6 @@
      />
 
   <subscriber
-     zcml:condition="installed zope.lifecycleevent"      
-     for=".interfaces.IMirrored
-          zope.lifecycleevent.IObjectCopiedEvent"
-     handler=".subscriber.objectCloned"
-     />
-          
-  <subscriber
      for=".interfaces.IMirrored
           zope.app.container.interfaces.IObjectAddedEvent"
      handler=".subscriber.objectAdded"
