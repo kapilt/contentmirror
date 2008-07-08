@@ -1,0 +1,5 @@
+
+0.4.2 - Unreleased
+
+ - fixed a bug when copy and pasting in plone. 
+   http://code.google.com/p/contentmirror/issues/detail?id=11
