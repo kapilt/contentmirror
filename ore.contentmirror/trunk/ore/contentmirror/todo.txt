@@ -8,6 +8,14 @@ Todo List
 
 - Test Duplicate References / Add/Update
 
+- Single Valued References as Scalar (  issue 12, on delete set null )
+
+- Files as scalar ( sqlalchemy bug )
+
+- Containment deletion cascade
+
+- Ordering Support ( needs skin script :-( )
+
 Maybe Items
 -----------
 
