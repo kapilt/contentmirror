@@ -46,7 +46,8 @@ to get the mirror package's default component registrations. In
 practice, we typically apply this interface via a zcml implements
 directive to third party components::
 
-  >>> import zope.interface, datetime
+  >>> import zope.interface
+  >>> from datetime import datetime
   >>> from ore.contentmirror import interfaces
   >>> class MyPage( BaseContent ):
   ...     portal_type = 'My Page'
@@ -425,7 +426,7 @@ content class with reference fields to demonstrate::
   ...                StringField('name'),   
   ...                StringField('slug', required=True),   
   ...                ReferenceField('related', relationship='inkind'), 
-  ...                DateTimeField('discovered_date')
+  ...                DateTimeField('discoveredDate')
   ...     ))
 
 And setup the peers and database tables for our new content class::
@@ -437,13 +438,13 @@ And setup the peers and database tables for our new content class::
     myasset.content_id Integer()
     myasset.name Text(length=None, convert_unicode=False, assert_unicode=None)
     myasset.slug Text(length=None, convert_unicode=False, assert_unicode=None)
-    myasset.discovered_date DateTime(timezone=False)
+    myasset.discovereddate DateTime(timezone=False)
 
 Let's create some related content::
 
   >>> xo_image = MyAsset('xo-image', name="Icon")
   >>> logo = MyAsset('logo', name="Logo")
-  >>> xo_article = MyAsset('xo-article', name='Article', related=xo_image )
+  >>> xo_article = MyAsset('xo-article', name='Article', related=xo_image, discoveredDate=DateTime() )
   >>> home_page = MyAsset( 'home-page', related=[xo_article, logo] )  
 
 And serialze the content. Any objects referenced by a serialized
@@ -473,6 +474,11 @@ again::
     Article inkind
     Logo inkind
 
+When performing case manipulation, let's verify that we're serializing the values properly.
+
+  >>> schema.fromUID( xo_article.UID() ).discovereddate
+  datetime.datetime(...)
+
 Files
 -----
 
@@ -487,7 +493,7 @@ into a database. First a class with a file field::
   ...     portal_type = "My File"
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
-  ...                StringField('name'),   
+  ...                StringField('Name'),   
   ...                FileField('file_content', required=True),   
   ...     ))
   >>> loader.load( ExampleContent )
@@ -503,10 +509,12 @@ We can see that the sqlalchemy class mapper uses a relation property for the fie
     
 Let's create some content with files and serialize it::
 
-  >>> image = ExampleContent('moon-image', name="Icon", file_content=File("treatise.txt", "hello world") )
+  >>> image = ExampleContent('moon-image', Name="Icon", file_content=File("treatise.txt", "hello world") )
   >>> peer = interfaces.ISerializer( image ).add()
   >>> peer
   <ore.contentmirror.peer.ExampleContentPeer object at ...>
+  >>> peer.name
+  'Icon'
   >>> session.flush()   
   
 Now let's verify the presence of the file in the files table:

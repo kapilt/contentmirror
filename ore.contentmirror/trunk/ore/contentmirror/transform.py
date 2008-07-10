@@ -93,7 +93,7 @@ class BaseFieldTransformer( object ):
                              self.column_type( *self.column_args ),  
                              *args,
                              **kw )
-        self.transformer.properties[ self.context.__name__ ] = column
+        self.transformer.properties[ self.name ] = column
         return column
     
     def copy( self, instance, peer ):
