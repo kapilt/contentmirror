@@ -527,7 +527,9 @@ If we modify it, what happens to the database during update::
 
   >>> image.file_content=File("treatise.txt", "hello world 2") 
   >>> peer = interfaces.ISerializer( image ).update()
-  
+  >>> peer.file_content
+  <ore.contentmirror.schema.File object at ...>  
+
 We'll end up with two dirty (modified) objects in the sqlalchemy session
 corresponding to the content peer, and its file peer::
   

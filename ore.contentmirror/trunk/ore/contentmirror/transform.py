@@ -117,7 +117,6 @@ class BaseFieldTransformer( object ):
                 
     def _extractDefaults( self ):
         args = []
-
         #if use_field_default and field.default:
         #    args.append( rdb.PassiveDefault( field.default ) )
         kwargs = {} #{
@@ -180,7 +179,7 @@ class FileTransform( object ):
         
     def transform( self ):
         file_orm = orm.relation(schema.File, 
-#                        uselist=False,
+                        uselist=False,
                         primaryjoin=rdb.and_( 
                             schema.files.c.content_id == schema.content.c.content_id,
                             schema.files.c.attribute  == self.name )
@@ -195,12 +194,7 @@ class FileTransform( object ):
         if not self._checkModified( value, file_peer ):
             return
         self._copyPeer( file_peer, instance, value )
-
-        #setattr( peer, self.name, file_peer )
-        files = getattr( peer, self.name )
-        if not file_peer in files:
-            files.append( file_peer )
-
+        setattr( peer, self.name, file_peer )
         
     # implementation details
     @property
@@ -220,7 +214,7 @@ class FileTransform( object ):
         file_peer = getattr( peer, self.name, None ) 
         if not file_peer:
             return self.new()
-        return file_peer[0]
+        return file_peer
         
     def _copyPeer( self, file_peer, instance, value ):
         file_peer.attribute = self.name
