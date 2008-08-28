@@ -150,8 +150,10 @@ multiple operations for the same object.
 To process the event stream, first we need to setup the database 
 connection, and database table structure::
 
+  >>> import os
+  >>> db_url = os.environ.get('DATABASE_URL') or 'sqlite://'
   >>> import sqlalchemy as rdb
-  >>> metadata.bind = rdb.create_engine('sqlite://')
+  >>> metadata.bind = rdb.create_engine( db_url )
   >>> metadata.create_all()
   
 
@@ -223,6 +225,7 @@ for other tests::
 
   >>> ops.delete()
   >>> transaction.get().commit()
+
 
 
 Filters
@@ -398,6 +401,15 @@ contained in the "root" folder::
 
 A caveat to using containment, is that filtering containers, will
 cause contained mirrored content to appear as orphans/root objects.
+
+Delete operations on a container, cascade down to all contained content.
+Test note, demonstrating this requires usage of a database with foreign key action
+support ( for cascade operators ), but the default test database is sqlite
+so we won't attempt verification.
+ 
+  >>> operation.OperationFactory( root ).delete()
+  >>> transaction.commit()
+  >>> schema.fromUID( subfolder.UID() )
 
 Workflow
 --------

@@ -40,7 +40,7 @@ content = rdb.Table(
    rdb.Column( "portal_type", rdb.String(64) ),
    rdb.Column( "status", rdb.String(64) ),   
    rdb.Column( "type", rdb.String(64) ),
-   rdb.Column( "container_id", rdb.Integer, rdb.ForeignKey('content.content_id') ),
+   rdb.Column( "container_id", rdb.Integer, rdb.ForeignKey('content.content_id', ondelete="CASCADE")),
    # dublin core
    rdb.Column( "title", rdb.Text ),
    rdb.Column( "description", rdb.Text ),
