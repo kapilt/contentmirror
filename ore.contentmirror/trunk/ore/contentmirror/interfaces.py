@@ -46,6 +46,7 @@ DUBLIN_CORE= [
     "rights",    
     "subject",
     "title",
+    'path',
     # the following aren't dublin core but are common to atct, we include
     # them here to have them filtered by default from the peer table
     "allowDiscussion",

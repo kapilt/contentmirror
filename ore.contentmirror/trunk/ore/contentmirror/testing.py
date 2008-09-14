@@ -89,6 +89,17 @@ class BaseContent( object ):
         
     def getParentNode( self ):
         return self.container
+
+    def getPhysicalPath( self ):
+        path = []
+        ob = self
+        while True:
+            path.append( ob.id )
+            ob = ob.container
+            if ob is None:
+                break
+        path.reverse()
+        return path
     
 class Schema( object ):
 

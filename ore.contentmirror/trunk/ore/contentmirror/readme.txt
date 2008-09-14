@@ -402,6 +402,14 @@ contained in the "root" folder::
 A caveat to using containment, is that filtering containers, will
 cause contained mirrored content to appear as orphans/root objects.
 
+
+Containment hiearchies can be queried either via the adjancency tree model using
+join depth to control the number of levels fetched in a single query, or via
+a path prefix query against the portal relative path on a content node.
+ 
+  >>> schema.fromUID( subfolder.UID() ).path
+  u'root/subfolder'
+
 Delete operations on a container, cascade down to all contained content.
 Test note, demonstrating this requires usage of a database with foreign key action
 support ( for cascade operators ), but the default test database is sqlite
@@ -409,7 +417,6 @@ so we won't attempt verification.
  
   >>> operation.OperationFactory( root ).delete()
   >>> transaction.commit()
-  >>> schema.fromUID( subfolder.UID() )
 
 Workflow
 --------

@@ -41,6 +41,7 @@ content = rdb.Table(
    rdb.Column( "status", rdb.String(64) ),   
    rdb.Column( "type", rdb.String(64) ),
    rdb.Column( "container_id", rdb.Integer, rdb.ForeignKey('content.content_id', ondelete="CASCADE")),
+   rdb.Column( "path", rdb.Text ), 
    # dublin core
    rdb.Column( "title", rdb.Text ),
    rdb.Column( "description", rdb.Text ),

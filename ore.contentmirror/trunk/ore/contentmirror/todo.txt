@@ -25,7 +25,7 @@ Maybe Items
 
  - Content Versions ? or this
 
- - Lazy Asynchronous Synchronization 
+ - Lazy Asynchronous Synchronization  ( preferrably funded / contributed )
 
 
 

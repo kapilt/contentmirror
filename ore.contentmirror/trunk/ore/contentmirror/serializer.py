@@ -59,6 +59,8 @@ class Serializer( object ):
         peer.uid = self.context.UID()
         peer.id  = self.context.id
 
+        peer.path = '/'.join( self.context.getPhysicalPath() )
+
         wf_tool = getattr( self.context, 'portal_workflow', None )
         if wf_tool is None: return
         peer.status = wf_tool.getCatalogVariablesFor( self.context ).get('review_state')
