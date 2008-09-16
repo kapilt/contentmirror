@@ -2,6 +2,21 @@
 Todo List
 ---------
 
+
+Bugs
+----
+
+- MySQL File Truncation
+
+  detect database field type binary on startup
+
+  for files table, function setFileColumnKind
+
+
+
+Todo
+----
+
 - Install Instructions  ( windows, unix )
 
 - Test Reference Cycle
@@ -15,6 +30,8 @@ Todo List
 - Containment deletion cascade
 
 - Ordering Support ( needs skin script :-( )
+
+  
 
 Maybe Items
 -----------
