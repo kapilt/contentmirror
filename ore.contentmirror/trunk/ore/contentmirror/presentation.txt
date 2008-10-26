@@ -135,13 +135,11 @@ Still too complex, needs to work out of the box.
 
 operation and setup need to be dirt simple regardless of the internal complexity (like a product ;-)
 
-Rescueme
---------
+Content Mirror
+--------------
 
  "A facility for mirroring the content of a Plone site into a structured external datastore."
 
- `- new name ? (suggestions welcome)`
- 
  `- automated, transparent, synchronous serialization.`
 
  `- default source, Archetypes Content`

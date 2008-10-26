@@ -13,9 +13,10 @@ Bugs
   for files table, function setFileColumnKind
 
 
-
-Todo
+Todo ( needs reviewing )
 ----
+
+- give bulk script option to do the date
 
 - Install Instructions  ( windows, unix )
 
@@ -31,7 +32,6 @@ Todo
 
 - Ordering Support ( needs skin script :-( )
 
-  
 
 Maybe Items
 -----------

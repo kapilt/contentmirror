@@ -59,3 +59,6 @@ class PeerRegistry( object ):
         
     def __contains__( self, key ):
         return key in self._peer_classes
+
+    def items( self ):
+        return self._peer_classes.items()

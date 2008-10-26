@@ -50,9 +50,9 @@ def main( ):
                            strategy='mock',
                            executor=write_statement )
     if options.drop:
-        schema.metadata.drop_all(db )
+        schema.metadata.drop_all( db )
     if not options.create:
-        schema.metadata.create_all(db )
+        schema.metadata.create_all( db )
     print buf.getvalue()
     
 if __name__ == '__main__':
