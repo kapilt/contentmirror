@@ -1,6 +1,12 @@
 0.5.0 - Unreleased
 
+ 1/9/09
+ - add 'excludefromnav' in the base attributes that are mapped to RDBMs.
+   register workflow transition events to .subscribers.objectModified handler
+   [runyaga]
+   
  - content physical path is serialized.
+ 
 
 0.4.2 - Unreleased
 
