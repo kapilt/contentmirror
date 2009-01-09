@@ -8,6 +8,13 @@
      handler=".subscriber.objectModified" 
      />
 
+  <!-- CMF Workflow transition success event -->
+  <subscriber
+     for=".interfaces.IMirrored
+	      Products.CMFCore.interfaces.IActionSucceededEvent"
+	 handler=".subscriber.objectModified"
+	 />
+
   <subscriber
      for=".interfaces.IMirrored
           zope.app.container.interfaces.IObjectAddedEvent"

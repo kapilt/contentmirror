@@ -55,6 +55,8 @@ content = rdb.Table(
    rdb.Column( "expirationdate", rdb.DateTime ),
    rdb.Column( "language", rdb.Text(32)  ),
    rdb.Column( "rights", rdb.Text ),
+   # plone
+   rdb.Column( "excludefromnav", rdb.Boolean)
    )
 
 rdb.Index('content_uid_idx', content.c.uid, unique=True )
