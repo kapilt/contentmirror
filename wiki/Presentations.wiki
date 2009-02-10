@@ -1,0 +1,23 @@
+#summary Presentations About Content Mirror
+#labels Featured
+
+= Introduction =
+
+Links to some talks and presentations on content mirror
+
+
+== Plone Conference 2008 ==
+
+  * Content Mirror Intro/Architecture -> http://plone.org/events/conferences/2008-washington-dc/agenda/toc/content-mirror-and-relational-databases 
+
+  * Plone Dynamic Site Factory -> http://plone.org/events/conferences/2008-washington-dc/agenda/toc/the-big-green-button-turning-plone-into-a-dynamic-site-factory 
+
+  * Slides -> http://www.slideshare.net/carlos.delaguardia/turning-plone-into-a-dynamic-site-factory-presentation
+
+
+== Pycon 2009 ==
+
+
+Carlos created a video walkthrough of Content Mirror
+
+  * http://blog.delaguardia.com.mx/index.php?op=ViewArticle&articleId=120&blogId=1
