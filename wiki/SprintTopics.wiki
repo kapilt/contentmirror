@@ -33,10 +33,3 @@ A simple repoze.bfg web application that presents a simple web front end to the 
 == mirror.clouds ==
 
 App Engine integration, a simple cms application, with publishing to from plone.
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
