@@ -1,0 +1,42 @@
+#summary Ideas to Sprint On
+#labels Phase-Requirements
+
+= Sprint Topics =
+
+  * mirror.clouds
+  * mirror.jsonschema 
+  * mirror.async
+  * mirror.bfgsite 
+
+
+== mirror.jsonschema ==
+
+Full export of archetypes schemas, specifically vocabularies into a json file.
+
+== mirror.async ==
+
+Asynchronous serialization, allows for disabling the database to be taken offline, or replication to multiple databases. Primarily it removes the serialization process from
+the request cycle ( the serialization process has lower overhead compared to other invariants maintained within the cms ). utilizing repoze.queue ( beanstalkd or sqs). What are the benefits.. we're still dependent on an external system, the only way to make it non externally dependent is to store the data within the zodb. 
+
+== mirror.audit ==
+
+audit log of content modifications.
+
+== mirror.reports ==
+
+graphing / reporting against the database structure.
+
+== mirror.bfgsite ==
+
+A simple repoze.bfg web application that presents a simple web front end to the cms data.
+
+== mirror.clouds ==
+
+App Engine integration, a simple cms application, with publishing to from plone.
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
