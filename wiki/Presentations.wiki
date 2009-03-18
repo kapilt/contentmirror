@@ -18,6 +18,10 @@ Links to some talks and presentations on content mirror
 == Pycon 2009 ==
 
 
-Carlos created a video walkthrough of Content Mirror
+Carlos de La Guardia created a video walkthrough of Content Mirror
 
   * http://blog.delaguardia.com.mx/index.php?op=ViewArticle&articleId=120&blogId=1
+
+Andy Mckay did a presentation at the Seattle Plone User Group
+
+ * http://www.agmweb.ca/blog/andy/2189  [ http://www.agmweb.ca/files/content-mirror.pdf Slides ]
