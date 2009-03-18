@@ -1,0 +1,74 @@
+Intro
+-----
+
+Additional tests for some reference corner cases.
+
+Bootstrapping
+------------
+set up the same type of stuff in the readme.txt doctest
+
+  >>> import zope.interface
+  >>> from datetime import datetime
+  >>> from ore.contentmirror.testing import *
+  >>> from ore.contentmirror import interfaces
+  >>> from ore.contentmirror.schema import metadata
+  >>> from ore.contentmirror import operation
+  >>> from ore.contentmirror.loader import loader
+  >>> import transaction 
+  >>> from ore.alchemist import Session
+  >>> setUp(None)  
+  >>> import os
+  >>> db_url = os.environ.get('DATABASE_URL') or 'sqlite://'
+  >>> import sqlalchemy as rdb
+  >>> from ore.contentmirror.schema import metadata
+  >>> metadata.bind = rdb.create_engine( db_url )
+  >>> engine=metadata.bind
+  >>> session = Session()
+
+Test Class
+------------
+Copy the MyAsset class from the readme doctest to make it as similar as possible.  
+The only difference is multiValued=False is set on the type.  This means that the type should only
+have a single value.
+
+  >>> class MyAsset( BaseContent ):
+  ...     portal_type = "My Asset"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...         StringField('name'),   
+  ...         StringField('slug', required=True),   
+  ...         ReferenceField('related', relationship='ref',multiValued=False), 
+  ...         DateTimeField('discoveredDate')
+  ...     ))
+
+perform all of the necessary wiring to get the machinery working
+  
+  >>> loader.load( MyAsset )
+  >>> metadata.create_all(checkfirst=True)
+
+create some test instances
+
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> ref2 = MyAsset('ref2', name="Ref 2")
+  >>> home_page = MyAsset( 'home-page', related=[ ref1 ] )
+  >>> peer = interfaces.ISerializer( home_page ).add()
+  >>> transaction.commit()
+  >>> list(engine.execute('select id,content_id from content order by id'))
+  [(u'home-page', 1), (u'ref1', 2)]
+  
+the related item should be logo
+
+  >>> home_page.related[0].id
+  'ref1'  
+  >>> list(engine.execute('select source_id,target_id from relations order by source_id'))
+  [(1, 2)]
+
+ now change the related item to ref2.  This should remove the relation for ref1 and add one for ref2
+  
+  >>> home_page.related=ref2
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> list(engine.execute('select id,content_id from content order by id'))
+  [(u'home-page', 1), (u'ref1', 2), (u'ref2', 3)]
+  >>> list(engine.execute('select source_id,target_id from relations order by source_id'))
+  [(1, 3)]

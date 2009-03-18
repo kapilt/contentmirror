@@ -162,6 +162,7 @@ class FloatField( MockField ):
     interface.implements( interfaces.IFloatField )  
     
 class ReferenceField( MockField ):
+    multiValued = True
     interface.implements( interfaces.IReferenceField )  
     
 class LinesField( MockField ):
