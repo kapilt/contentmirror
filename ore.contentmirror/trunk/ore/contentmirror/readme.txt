@@ -524,7 +524,7 @@ We can see that the sqlalchemy class mapper uses a relation property for the fie
   >>> peer_factory = component.getUtility( interfaces.IPeerRegistry )[ ExampleContent ]
   >>> mapper = orm.class_mapper( peer_factory )
   >>> mapper.get_property('file_content')
-  <sqlalchemy.orm.properties.PropertyLoader object at ...>
+  <sqlalchemy.orm.properties.RelationProperty object at ...>
     
 Let's create some content with files and serialize it::
 
