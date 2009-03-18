@@ -21,6 +21,7 @@ from zope import interface, component
 
 from md5 import md5
 from datetime import datetime
+from ore.alchemist import Session
 from ore.contentmirror import interfaces, schema
 
 class SchemaTransformer( object ):
@@ -269,6 +270,8 @@ class ReferenceTransform( object ):
     def copy( self, instance, peer ):
         value = self.context.getAccessor( instance )()
 
+        single_value = not self.context.multiValued 
+        
         if not value:
             return
         
@@ -287,6 +290,9 @@ class ReferenceTransform( object ):
                     break
             if related:
                 continue
+            # not related, delete previous value
+            elif single_value and peer.relations: 
+                Session.delete( peer.relations[0] )
             
             # fetch the remote side's peer
             peer_ob = schema.fromUID( ob.UID() )
