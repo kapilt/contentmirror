@@ -65,22 +65,37 @@ create some test instances
   >>> home_page = OurAsset( 'home-page', related=[ ref1 ] )
   >>> peer = interfaces.ISerializer( home_page ).add()
   >>> transaction.commit()
-  >>> list(engine.execute('select id, content_id from content order by id'))
-  [(u'home-page', 2), (u'ref1', 1)]
+
+we create some lookup tables for testing verification due to the indeteriminate order these
+will go into the database ( ie. the primary key changes from one test run to another as the 
+session machinery utilizes a dict, and there is no definitive ordering determination for the inserts ).
+
+  >>> id_pk_map = dict(list(engine.execute('select id, content_id from content order by id')))
+  >>> pk_id_map = dict(list(engine.execute('select content_id, id from content order by id')))
+  >>> assert 'home-page' in id_pk_map
+  >>> assert 'ref1' in id_pk_map
   
-the related item should be logo
+the related item should be ref1
 
   >>> home_page.related[0].id
   'ref1'  
-  >>> list(engine.execute('select source_id,target_id from relations order by source_id'))
-  [(2, 1)]
+  >>> rel = list(engine.execute('select source_id, target_id from relations order by source_id'))[0]
+  >>> pk_id_map[rel[0]]
+  u'home-page'
+  >>> pk_id_map[rel[1]]
+  u'ref1'
 
  now change the related item to ref2.  This should remove the relation for ref1 and add one for ref2
   
   >>> home_page.related=ref2
   >>> peer = interfaces.ISerializer( home_page ).update()
   >>> transaction.commit()
-  >>> list(engine.execute('select id,content_id from content order by id'))
-  [(u'home-page', 2), (u'ref1', 1), (u'ref2', 3)]
-  >>> list(engine.execute('select source_id,target_id from relations order by source_id'))
-  [(2, 3)]
+  >>> id_pk_map = dict(list(engine.execute('select id, content_id from content order by id')))
+  >>> pk_id_map = dict(list(engine.execute('select content_id, id from content order by id')))
+  >>> sorted( id_pk_map.keys() )
+  [u'home-page', u'ref1', u'ref2']
+  >>> rel =list(engine.execute('select source_id,target_id from relations order by source_id'))[0]
+  >>> pk_id_map[ rel[0] ]
+  u'home-page'
+  >>> pk_id_map[ rel[1] ]
+  u'ref2'
