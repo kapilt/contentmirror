@@ -278,21 +278,20 @@ class ReferenceTransform( object ):
         if not isinstance( value, (list, tuple)):
             value= [ value ]
 
+        rel_map = dict( [ ( (r.relationship, r.target.uid ), r) for r in peer.relations ] )
+        oids_seen = set() # oids of the current reference values of this field
+        
         for ob in value:
             t_oid = ob.UID()
-
+            oids_seen.add( t_oid )
+            
             # skip if the object is already related
-            related = False
-            for r in peer.relations:
-                if r.target.uid == t_oid and \
-                       self.context.relationship == r.relationship:
-                    related = True
-                    break
+            related =  ( self.context.relationship, t_oid ) in rel_map
             if related:
                 continue
-            # not related, delete previous value
+            # if single value and not the same value, delete previous value
             elif single_value and peer.relations: 
-                Session.delete( peer.relations[0] )
+                Session().delete( peer.relations[0] )
             
             # fetch the remote side's peer
             peer_ob = schema.fromUID( ob.UID() )
@@ -305,3 +304,12 @@ class ReferenceTransform( object ):
             relation = schema.Relation( peer,
                                         peer_ob,
                                         self.context.relationship )
+
+        if single_value:
+            return
+        
+        # delete old values for multi valued relations
+        rel_oids = set( [ oid for rel_type, oid in rel_map if rel_type == self.context.relationship ] )
+        for oid in (rel_oids - oids_seen):
+            Session().delete( rel_map[ ( self.context.relationship, oid)] )
+            
