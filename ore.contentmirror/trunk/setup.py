@@ -6,15 +6,18 @@ def read(*rnames):
 
 setup(
     name="ore.contentmirror",
-    version="0.4.2",
+    version="0.5",
     # play the standard zope2 game to lie about our dependencies...
     # actual would include 'zope.event', 'zope.schema', 'zope.component'
     # plus 'zope.app.container', this last one ends up pulling most of
     # zope3.
     install_requires=['setuptools',
-                      'SQLAlchemy>=0.4.6',
-                      'ore.alchemist',
-                      'zope.app.container'],
+                      'SQLAlchemy>=0.5',
+                      'zope.sqlalchemy',
+                      'zope.component',
+                      'zope.event',
+                      'zope.schema',
+                      ],
 
     packages=find_packages(exclude=["*.tests"]),
     namespace_packages=['ore'],

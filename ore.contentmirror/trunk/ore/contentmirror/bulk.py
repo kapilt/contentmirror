@@ -22,7 +22,7 @@ a content mirror bulk importer
 """
 import transaction, time, sys
 from ore.contentmirror import interfaces
-from ore.alchemist import Session
+from ore.contentmirror.session import Session
 
 def expunge( ob ):
     try: ob._p_deactivate()

@@ -18,6 +18,11 @@
 
 from zope import interface, schema
 
+class IDatabaseEngine( interface.Interface ):
+    """
+    configuration and access to pooled database connection
+    """
+                
 class IMirrored( interface.Interface ):
     """ marker interface, signifying that the content should be mirrored to a database """
 

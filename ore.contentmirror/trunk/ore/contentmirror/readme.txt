@@ -299,7 +299,7 @@ database::
 We can directly check the database to see the serialized content there::
 
   >>> import sqlalchemy as rdb
-  >>> from ore.alchemist import Session
+  >>> from ore.contentmirror.session import Session
   >>> session = Session()
   >>> session.flush()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())

@@ -15,17 +15,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
 
+from zope import interface, schema
 
-import loader
+from zope import component
+from zope.app.component.metaconfigure import utility, PublicPermission
+
+import sqlalchemy
+from ore.contentmirror import interfaces
+from ore.contentmirror import loader
 
 from zope.configuration import fields
 from zope import interface
+
 try:
     from zope.component import zcml
 except ImportError:
+    # Plone 2.5 compatibility
     from zope.app.component import metaconfigure as zcml
-
-import interfaces
 
 class IContentMirror( interface.Interface ):
 
@@ -67,9 +73,65 @@ def mirror( _context, content, serializer=None, transformer=None ):
         callable = loader.load,
         args = ( content, )
         )
+
+class IEngineDirective( interface.Interface ):
+    """ Creates A Database Engine. Database Engines are named utilities.
+    """
+    url = schema.URI( title = u'Database URL',
+                      description = u'SQLAlchemy Database URL',
+                      required = True,
+                      )
     
-        
-                      
-        
-        
-        
+    name = schema.Text( title = u'Engine Name',
+                        description = u'Empty if this engine is the default engine.',
+                        required = False,
+                        default = u'',
+                        )
+    
+    echo = schema.Bool( title = u'Echo SQL statements',
+                        description = u'Debugging Echo Log for Engine',
+                        required = False,
+                        default=False
+                        )
+
+    pool_recycle = schema.Int( title = u"Connection Recycle",
+                               description=u"Time Given in Seconds",
+                               required = False,
+                               default = -1
+                               )
+
+# keyword arguments to pass to the engine
+IEngineDirective.setTaggedValue('keyword_arguments', True)
+
+def engine(_context, url, name='', echo=False, pool_recycle=-1, **kwargs):
+
+    component = sqlalchemy.create_engine( url, echo=echo, pool_recycle=pool_recycle, **kwargs )
+
+    utility( _context,
+             provides = interfaces.IDatabaseEngine,
+             component = component,
+             permission = PublicPermission,
+             name = name )
+             
+
+class IBindDirective( interface.Interface ):
+    """ Binds a MetaData to a database engine.
+    """
+
+    engine = schema.Text( title = u"Engine Name" )
+    
+    metadata = GlobalObject( title=u"Metadata Instance",
+                             description = u"Metadata Instance to be bound" )
+    
+    
+def bind( _context, engine, metadata ):
+
+    def _bind( engine_name, metadata ):
+        metadata.bind = component.getUtility( interfaces.IDatabaseEngine, engine )
+
+    _context.action(
+        discriminator = ('alchemist.bind', metadata ),
+        callable = _bind,
+        args = ( engine, metadata )
+        )
+

@@ -15,9 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
 
-from ore.alchemist import Session
 from zope import interface, component
 from ore.contentmirror import schema, interfaces
+from ore.contentmirror.session import Session
 
 class Serializer( object ):
 
@@ -30,7 +30,7 @@ class Serializer( object ):
         registry = component.getUtility( interfaces.IPeerRegistry )
         peer = registry[ self.context.__class__ ]()
         session = Session()
-        session.save( peer )        
+        session.add( peer )        
         self._copy( peer )
         return peer
         

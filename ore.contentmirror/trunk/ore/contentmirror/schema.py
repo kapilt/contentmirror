@@ -19,16 +19,19 @@
 cms content model
 
 """
-
-from sqlalchemy import orm
+import os
 from zope import interface
+from sqlalchemy import orm, create_engine
 import sqlalchemy as rdb
 
-from ore.alchemist import Session
+from ore.contentmirror.session import Session
 from ore.contentmirror import interfaces
 
 metadata =  rdb.MetaData()
 
+if os.environ.get('CONTENTMIRROR_URI'):
+    metadata.bind=create_engine(os.environ['CONTENTMIRROR_URI'])
+    
 ContentSequence = rdb.Sequence('content_sequence')
 
 content = rdb.Table(
