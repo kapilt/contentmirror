@@ -32,7 +32,8 @@ Mixed Case Fields
 issue 25
 http://code.google.com/p/contentmirror/issues/detail?id=25
 
-contentmirror doesn't handle multicase field names correctly
+contentmirror doesn't handle multicase field names correctly, this was an invalid issue, as this
+unit test worked out of the box.
 
   >>> class MixedCase( BaseContent ):
   ...     portal_type = "Mixed Case"
@@ -61,6 +62,43 @@ contentmirror doesn't handle multicase field names correctly
   >>> assert object_map['magic'].contactemail2 == mixed1.contactEmail2
   >>> transaction.abort()
 
+
+Deleting Files
+--------------
+
+issue 24
+http://code.google.com/p/contentmirror/issues/detail?id=24
+
+create an image or file and try to delete it, it fails with a sqlalchemy error
+
+  >>> class FileContentTest( BaseContent ):
+  ...     portal_type = "File Test"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...                StringField('Name'),   
+  ...                FileField('file_content', required=True),   
+  ...     ))
+
+  >>> loader.load( FileContentTest )
+  >>> metadata.drop_all(checkfirst=True)
+  >>> metadata.create_all(checkfirst=True)
+
+  >>> file1 = FileContentTest('abc', Name="Rabbit", file_content=File("treaty.txt", "file text") )
+  >>> peer1 = interfaces.ISerializer( file1 ).add()
+  >>> transaction.commit()
+
+Test Updating the File Content
+
+  >>> file1.Name = "Tweak"
+  >>> peer1 = interfaces.ISerializer( file1 ).update()
+  >>> transaction.commit()
+
+And verify deleting it, fixes the problem
+ 
+  >>> interfaces.ISerializer( file1 ).delete()
+  >>> transaction.commit()
+  >>> assert list(engine.execute('select count(*) from files  ') )[0][0] == 0
+
 Deleting References
 -------------------
 
@@ -71,6 +109,10 @@ We want to verify that references are deleted from the database when there delet
 
 The only difference is multiValued=False is set on the type.  This means that the type should only
 have a single value.
+     
+First let's clear out any previous db state
+
+  >>> transaction.abort()
 
   >>> class MyAsset( BaseContent ):
   ...     portal_type = "My Asset"
