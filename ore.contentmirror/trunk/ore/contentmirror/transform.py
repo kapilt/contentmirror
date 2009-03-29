@@ -179,12 +179,13 @@ class FileTransform( object ):
         self.transformer = transformer
         
     def transform( self ):
-        file_orm = orm.relation(schema.File, 
-                        uselist=False,
-                        primaryjoin=rdb.and_( 
-                            schema.files.c.content_id == schema.content.c.content_id,
-                            schema.files.c.attribute  == self.name )
-                            )
+        file_orm = orm.relation(schema.File,
+                                cascade='all',
+                                uselist=False,
+                                primaryjoin=rdb.and_( 
+                                    schema.files.c.content_id == schema.content.c.content_id,
+                                    schema.files.c.attribute  == self.name )
+                                )
         self.transformer.properties[ self.name ] = file_orm
 
     def copy( self, instance, peer ):
@@ -212,7 +213,7 @@ class FileTransform( object ):
         return True
         
     def _getPeer( self, instance, peer):
-        file_peer = getattr( peer, self.name, None ) 
+        file_peer = getattr( peer, self.name, None )
         if not file_peer:
             return self.new()
         return file_peer
