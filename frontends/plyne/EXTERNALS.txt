@@ -1,0 +1,6 @@
+#
+# Create this file: svn propget svn:externals . > EXTERNALS.txt
+# Apply this file:  svn propset svn:externals -F EXTERNALS.txt .
+#
+
+plyne http://plyne.googlecode.com/svn/Plyne/trunk
