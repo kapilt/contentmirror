@@ -1,22 +1,25 @@
+
+
 0.5.0 - Unreleased
 
- 3/27/09
+ - fixes for file fields deletion / updates as scalar values [ hazmat ]
 
- copied ore.alchemist.zcml and meta.zcml directives into ore.contentmirror to
- support zcml directives
+ - fixes for reference fields to delete old db relations values when values are changed
+   and the old values are no longer valid. ( Thanks to Bryan Davis for a doctest demonstrating
+   the issue. ) [hazmat]
 
- remove deprecation warning change 
+ - copied ore.alchemist.zcml and meta.zcml directives into ore.contentmirror to
+   support zcml directives [ runyaga + hazmat ]
 
- allow environment variable CONTENTMIRROR_URI for database configuration no need for zcml
-   use a SQLAlchemy engine URI.
+ - remove deprecation warning change [ runyaga + hazmat ]
 
- setup.py changes:
-   - replace ore.alchemist dependency with zope.sqlalchemy
-   - replace zope.app.container with zope.{event,schema,component}
+ - allow environment variable CONTENTMIRROR_URI for database configuration no need for zcml
+   use a SQLAlchemy engine URI. [ runyaga + hazmat ]
 
- refs.txt can sometime's give errors during tests.  disregard for the moment.
+ - replace ore.alchemist dependency with zope.sqlalchemy [ runyaga + hazmat ]
 
- 1/9/09
+ - replace zope.app.container with zope.{event,schema,component} [ runyaga + hazmat ]
+
  - add 'excludefromnav' in the base attributes that are mapped to RDBMs.
    register workflow transition events to .subscribers.objectModified handler
    [runyaga]
