@@ -6,7 +6,7 @@ def read(*rnames):
 
 setup(
     name="ore.contentmirror",
-    version="0.5-dev",
+    version="0.5.2-dev",
     url="http://contentmirror.googlecode.com",
     download_url="http://code.google.com/p/contentmirror/downloads/list",
     install_requires=['setuptools',
@@ -30,6 +30,6 @@ setup(
     keywords="plone zope zope3",
     entry_points={
      'console_scripts': ['mirror-ddl = ore.contentmirror.ddl:main',
-                         'mirror-bulk = ore.contentmirror.batch:main'],
+                         'mirror-bulk = ore.contentmirror.bulk:main'],
         }
     )
