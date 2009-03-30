@@ -1,0 +1,38 @@
+#!/usr/bin/python
+# warning there's some names, passwords and most importantly paths in here that you will want to change
+# first off you see lots of /home/andy/plone/zinstance....
+# thats where my plone site is
+# second my db in postgres is called plone (you might want to change that)
+import os
+os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
+
+def cmd(text):
+    try:
+        print text
+        os.system(text)
+    except:
+        print "* command failed"
+
+cmd('dropdb andymckay_djangozen')
+cmd('createdb andymckay_djangozen --encoding=UTF-8')
+                                    
+cmd('cd /home/andy/plone/zinstance; bin/instance run parts/productdistros/ContentMirror/ddl.py postgres > mirror.sql')
+cmd('psql -h localhost -p 5432 -U andymckay_djangozen andymckay_djangozen < /home/andy/plone/zinstance/mirror.sql')                                                  
+cmd('python manage.py syncdb --noinput')
+
+# if you had django admin enabled, this is where
+# you add users in
+# from django.contrib.auth.models import User
+# u = User.objects.create(
+#     username='admin',
+#     first_name='',
+#     last_name='',
+#     email='andy@clearwind.ca',
+#     is_superuser=True,
+#     is_staff=True,
+#     is_active=True)
+#  u.set_password('admin')
+#  u.save() 
+
+# fixtures 
+cmd('cd /home/andy/plone/zinstance; bin/instance run parts/productdistros/ContentMirror/bulk.py Plone')

@@ -1,0 +1,39 @@
+This is a demonstration front end for Plone using Django. 
+
+It requires:
+
+- Plone
+
+- Postgres 8.3 (for the searching)
+
+- Django
+
+Serve Plone in Django by using ContentMirror. Based on the talk given here:
+
+http://www.agmweb.ca/blog/andy/2189/
+
+http://www.agmweb.ca/files/content-mirror.pdf
+
+How to install:
+
+    1. Install Plone: http://plone.org
+
+        * at this point reading docs/install-plone.txt might be a good idea
+
+    2. Install a relational database: http://www.postgresql.org/
+
+    3. Install a driver for your database: http://initd.org/pub/software/psycopg/
+
+    4. Install and follow steps for ContentMirror: http://code.google.com/p/contentmirror/wiki/Installation
+
+    5. Install Django: http://www.djangoproject.com/
+
+    6. Fix the paths and name in update to match your paths
+    
+        * at this point reading docs/install-plango.txt might be a good idea
+
+    7. Run update
+
+    8. Start django
+
+    Enjoy.

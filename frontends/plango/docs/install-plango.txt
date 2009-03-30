@@ -1,0 +1,25 @@
+To install plango do the following:
+
+1. Copy settings-backup.py to settings.py
+
+2. Alter the database settings to mirror your database configurations
+
+3. If you'd like to use the update script, then you will need to change it so that it talks to the right database
+
+    - this script drops your db
+    
+    - creates your db
+    
+    - loads it with all the data definitions from plone
+    
+    - loads it with all the data definitions from django (syncdb)
+    
+    - loads it with data
+
+4. Because Django can't see changes from Plone, you can set cron.py to run regularly this:
+
+    - adds in content to the search
+    
+    - fixes uid's from Kupu for embedded images
+    
+5. Start the site and you should be golden.

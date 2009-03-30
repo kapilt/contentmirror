@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p class="description">{{ object.description }}</p>
+
+{{ object.text|safe }}
+{% endblock %}

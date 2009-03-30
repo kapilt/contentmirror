@@ -1,0 +1,23 @@
+To use with Plone, please note the following:
+
+1. If you embed images in Kupu it will give you a URL that you likely can't resolve. To solve this:
+
+    * go to Site Setup > Visual Editor and
+    
+        * check Link using UIDs
+        
+        * uncheck Allow captioned images
+    
+    * go to Site Setup > Zope Management Interface > portal_transforms
+    
+        * delete captioned-to-html
+        
+        * delete html-to-captioned
+        
+    * Warning! each time you edit Kupu (via Site Setup > Visual Editor) you will need to repeat the steps to delete portal_transforms, Kupu adds them back in for you.
+
+2. Not all the Plone things will be copied over into the db eg:
+
+    * folder ordering
+    
+    * please make sure you feel comfortable with what is going to be copied into the database

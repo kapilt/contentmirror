@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p class="description">{{ object.description }}</p>
+
+<table class="listing" id="event-placeholder-{{ object.id }}"></table>
+<h3>{{ object.startdate }} &rarr; {{ object.enddate }}</h3>
+
+{{ object.text|safe }}
+<dl>
+    <dt>Location</dt><dd>{{ object.location }}</dd>
+    <dt>More information</dt><dd><a href="{{ object.eventurl }}">{{ object.eventurl }}</a></dd>
+</dl>
+{% endblock %}

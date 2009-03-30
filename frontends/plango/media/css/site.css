@@ -1,0 +1,19 @@
+#bread ul {
+    margin-left: 0;
+    padding-left: 0;
+    display: inline;
+    border: none;
+} 
+
+#bread ul li {
+    margin-left: 0;
+    padding-left: 0px;
+    border: none;
+    list-style: none;
+    display: inline;
+}
+
+#search {
+    float: right;
+    padding-top: 3em;
+}

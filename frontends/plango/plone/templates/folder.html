@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if sub_objects %}
+<table class="listing">
+    {% for obj in sub_objects %}
+    <tr>
+        <td>
+            <a href="{{ obj.content_object.get_absolute_url }}"><h3>{{ obj.content_object.title }}</h3></a>
+            <p class="byline"><b>{{ obj.content_object.verbose_name|capfirst }}</b> | 
+                Created <abbr title="{{ obj.content_object.creation_date }}">{{ obj.content_object.get_nice_creation_date }}</abbr> |
+                Last updated <abbr title="{{ obj.content_object.modification_date }}">{{ obj.content_object.get_nice_modified_date }}</abbr></p>
+            <p>{{ obj.content_object.description }}</p>
+
+        </td>
+    </tr> 
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

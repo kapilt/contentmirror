@@ -1,0 +1,125 @@
+Here's some notes from Nate Aune, when he tried to install Plango:
+
+Steps to get Plango working on Leopard.
+
+    1. Add these lines to your Plone buildout.cfg:
+
+    [buildout]
+    parts = ...
+        productdistros
+        
+    [instance]
+    ...
+    products =
+        ${buildout:directory}/parts/productdistros
+    
+    [productdistros]
+    recipe = plone.recipe.distros
+    urls = http://contentmirror.googlecode.com/files/ContentMirror-0-4-1.tgz
+
+    2. Rerun buildout and create a Plone site with id "Plone"
+
+    $ bin/buildout -v
+    $ bin/instance fg
+
+    Go to http://localhost:8080 to make sure Zope is running.
+    Add a Plone site with an id of "Plone".
+
+    3. Install PostgreSQL
+    You can either install it using Macports, or get a binary, or install from source.
+    $ sudo port install postgresql83-server
+
+    Add the PostgreSQL bin directory to your path:
+
+    Add this line to your ~/.profile 
+    export PATH=$PATH:/opt/local/lib/postgresql83/bin/
+
+    Then reload it:
+    source ~/.profile
+
+    Make the PostgreSQL data directory:
+
+    $ mkdir ~/pgsql/data
+    $ initdb -D ~/pgsql/data
+
+    If you get this error: "FATAL: could not create shared memory segment"
+    then you need to create this on Leopard:
+
+    create /etc/sysctl.conf (if it does not already exist -- mine didn't), and add the following lines:
+
+    kern.sysv.shmmax=167772160 kern.sysv.shmmin=1 kern.sysv.shmmni=32 kern.sysv.shmseg=8 kern.sysv.shmall=65536
+
+    And then restart your Mac.
+
+    (found via http://earthcode.com/blog/2008/01/postgresql_on_leopard_gotchas.html)
+
+    Start the database with:
+    postgres -D ~/pgsql/data  (in the foreground)
+    -OR-
+    pg_ctl -D ~/pgsql/data -l logfile start  (as a daemon)
+
+    To get PostgreSQL to load on startup on your Mac:
+    $ sudo launchctl load -w /Library/LaunchDaemons/org.macports.postgresql83-server.plist
+
+    4. Install psycopg2
+    These are the Python bindings for PostgreSQL.
+    $ sudo port install py-psycopg2
+
+    Or if you want to install from source:
+    $ wget http://initd.org/pub/software/psycopg/psycopg2-2.0.9.tar.gz
+    $ cd psycopg2-2.0.9
+    $ /opt/local/bin/python2.4 setup.py install
+    (make sure that the python is the same one that you used for installing Django and Zope)
+
+    5. Edit the update script
+    Replace all instances of '/home/andy/plone/zinstance' with the path to
+    your Plone 3.2 buildout. 
+    Mine is in /Users/nateaune/Documents/instances/plone32.buildout
+
+    6. Edit the plango/settings.py file.
+    For the DATABASE_USER parameter, change 'andy' to your username
+    Mine is 'nateaune'
+
+    7. Make sure you are using the correct Python
+    You might have to change the line:
+    cmd('python manage.py syncdb --noinput')
+    to:
+    cmd('/opt/local/bin/python2.4 manage.py syncdb --noinput')
+    if you're using the Macports version of Python.
+
+    8. Install Django 1.0
+    $ wget http://www.djangoproject.com/download/1.0.2/tarball/
+    $ tar xvfz Django-1.0.2-final.tar.gz
+    $ cd Django-1.0.2-final.tar.gz
+    $ /opt/local/bin/python2.4 setup.py install
+
+    9. Make a settings.zcml in the ContentMirror dir
+    Copy the file plone32.buildout/parts/productdistros/ContentMirror/settings-example.zcml to settings.zcml
+
+    You shouldn't need to modify it unless you are using a database other than postgres,
+    or if you've named it something other than 'plone'.
+
+    10. Run the update script
+    $ cd plango
+    $ ./update
+
+    This will do a whole bunch of stuff. Just pay close attention that there are no critical errors.
+
+    11. Start up the Django instance
+    $ /opt/local/bin/python2.4 manage.py runserver
+
+    Go to http://127.0.0.1:8000/ in your browser.
+    You should see the Nautica 2.2 Liquid theme with the content of your Plone site.
+
+    11. Edit some content in your Plone site
+    Edit some content in your Plone site and then refresh the same page in the Django site,
+    and you should see the changes.
+
+    12. Use the Navicat Lite for PostgreSQL
+    This will let you browse the data that is stored in the database.
+    http://www.navicat.com/download.html
+
+    Navicat also makes database admin tool for MySQL and Oracle, if you'd rather use those databases instead of PostgreSQL.
+
+
+
