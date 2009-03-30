@@ -14,6 +14,10 @@ Links to some talks and presentations on content mirror
 
 == 2009 ==
 
+Carlos de La Guardia gave a [http://us.pycon.org/2009/conference/schedule/event/85/ presentation about ContentMirror] at PyCon 2009.
+
+ * [http://us.pycon.org/media/2009/talkdata/PyCon2009/085/winning.pdf PDF slides] | [http://us.pycon.org/media/2009/talkdata/PyCon2009/085/winning.odp Open Office slides]
+
 Carlos de La Guardia created a video walkthrough of Content Mirror
 
   * http://blog.delaguardia.com.mx/index.php?op=ViewArticle&articleId=120&blogId=1
