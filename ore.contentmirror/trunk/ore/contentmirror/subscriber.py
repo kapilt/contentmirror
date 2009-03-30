@@ -21,6 +21,7 @@ def objectAdded( object, event ):
     interfaces.IOperationFactory( object ).add()
     
 def objectModified( object, event ):
+    print "modified"
     interfaces.IOperationFactory( object ).update()
     
 def objectDeleted( object, event ):

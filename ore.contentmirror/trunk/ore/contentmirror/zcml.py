@@ -120,7 +120,7 @@ class IBindDirective( interface.Interface ):
 
     engine = schema.Text( title = u"Engine Name" )
     
-    metadata = GlobalObject( title=u"Metadata Instance",
+    metadata = fields.GlobalObject( title=u"Metadata Instance",
                              description = u"Metadata Instance to be bound" )
     
     
