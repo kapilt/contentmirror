@@ -6,7 +6,7 @@ Below are some example frontends that show how the content in Plone can be serve
 
 == Pylons ==
 
- * [http://code.google.com/a/pylne Plyne] by Roberto Allende
+ * [http://code.google.com/p/plyne/ Plyne] by Roberto Allende
 
 == Django ==
 
