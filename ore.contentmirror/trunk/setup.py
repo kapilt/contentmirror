@@ -7,10 +7,8 @@ def read(*rnames):
 setup(
     name="ore.contentmirror",
     version="0.5",
-    # play the standard zope2 game to lie about our dependencies...
-    # actual would include 'zope.event', 'zope.schema', 'zope.component'
-    # plus 'zope.app.container', this last one ends up pulling most of
-    # zope3.
+    url="http://contentmirror.googlecode.com",
+    download_url="http://code.google.com/p/contentmirror/downloads/list",
     install_requires=['setuptools',
                       'SQLAlchemy>=0.5',
                       'zope.sqlalchemy',
@@ -18,7 +16,6 @@ setup(
                       'zope.event',
                       'zope.schema',
                       ],
-
     packages=find_packages(exclude=["*.tests"]),
     namespace_packages=['ore'],
     package_data = {
@@ -34,5 +31,5 @@ setup(
     entry_points={
      'console_scripts': ['mirror-ddl = ore.contentmirror.ddl:main',
                          'mirror-bulk = ore.contentmirror.batch:main'],
-    }
+        }
     )
