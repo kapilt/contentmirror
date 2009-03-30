@@ -1,8 +1,8 @@
 # many thanks to mike bayer, for helping me track down this bug fix
 # http://www.sqlalchemy.org/trac/ticket/1357
 
-from sqlalchemy.sql import expression
 import sqlalchemy
+from sqlalchemy.sql import expression
 
 def compare(self, other):
     """Compare this ``_BindParamClause`` to the given clause.
@@ -15,6 +15,5 @@ def compare(self, other):
            and self.value == other.value
 
 if sqlalchemy.__version__ < '0.5.4':
-    print "PATCHED"
     expression._BindParamClause.compare = compare
 
