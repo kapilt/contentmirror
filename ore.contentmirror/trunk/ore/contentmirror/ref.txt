@@ -8,8 +8,17 @@ Bootstrapping
 -------------
 set up the same type of stuff in the readme.txt doctest
 
-  >>> import zope.interface
+  >>> import zope.interface, os
   >>> from datetime import datetime
+ 
+Testing Database environment variable setup
+
+  >>> db_url = os.environ.get('DATABASE_URL') or 'sqlite://'
+
+This is the key that contentmirror expects to find its database
+variable at
+
+  >>> os.environ['CONTENTMIRROR_URI'] = db_url
   >>> from ore.contentmirror.testing import *
   >>> from ore.contentmirror import interfaces
   >>> from ore.contentmirror.schema import metadata
@@ -18,13 +27,44 @@ set up the same type of stuff in the readme.txt doctest
   >>> import transaction 
   >>> from ore.contentmirror.session import Session
   >>> setUp(None)  
-  >>> import os
-  >>> db_url = os.environ.get('DATABASE_URL') or 'sqlite://'
+
+
   >>> import sqlalchemy as rdb
   >>> from ore.contentmirror.schema import metadata
   >>> metadata.bind = rdb.create_engine( db_url )
   >>> engine=metadata.bind
   >>> session = Session()
+
+Unicode Content
+---------------
+
+issue 22
+http://code.google.com/p/contentmirror/issues/detail?id=22
+
+This issue was not reproducible, as the following test worked
+out of the box.
+
+  >>> class UnicodeContent( BaseContent ):
+  ...     portal_type = "Uni Content"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...         StringField('name'),   
+  ...         StringField('slug', required=True),   
+  ...     ))
+
+
+  >>> loader.load( UnicodeContent )
+  >>> metadata.drop_all(checkfirst=True)
+  >>> metadata.create_all(checkfirst=True)
+  >>> uni1 = UnicodeContent( 'test', name= u'ﺎﻠﻋﺮﺒﻳﺓ', slug=u'简体中文' )
+  >>> peer1 = interfaces.ISerializer( uni1 ).add()
+  >>> transaction.commit()
+
+Not let's modify it
+  
+  >>> uni1.name = u'Русский'
+  >>> peer2 = interfaces.ISerializer( uni1 ).update()
+  >>> transaction.commit()
 
 Mixed Case Fields 
 -----------------
@@ -69,7 +109,7 @@ Deleting Files
 issue 24
 http://code.google.com/p/contentmirror/issues/detail?id=24
 
-create an image or file and try to delete it, it fails with a sqlalchemy error
+create an image or file and try to delete it, it fails with a sqlalchemy error. There were a couple of things going on here, files as named scalar values triggered some interesting problems with a sqlalchemy optimization as relates 
 
   >>> class FileContentTest( BaseContent ):
   ...     portal_type = "File Test"
@@ -121,6 +161,7 @@ First let's clear out any previous db state
   ...         StringField('name'),   
   ...         StringField('slug', required=True),   
   ...         ReferenceField('related', relationship='ref',multiValued=False), 
+  ...         ReferenceField('sim', relationship='sim'),
   ...         DateTimeField('discoveredDate')
   ...     ))
 
@@ -171,3 +212,42 @@ the related item should be ref1
   u'home-page'
   >>> pk_id_map[ rel[1] ]
   u'ref2'
+
+
+Now retest with with multivalued relations
+
+  >>> metadata.drop_all(checkfirst=True)
+  >>> metadata.create_all(checkfirst=True)
+ 
+Create a content object with two references
+ 
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> ref2 = MyAsset('ref2', name="Ref 2")
+  >>> home_page = MyAsset( 'home-page', sim=[ ref1, ref2 ] )
+  >>> peer = interfaces.ISerializer( home_page ).add()
+  >>> transaction.commit()  
+  
+Update the content to have just one reference, and verify
+
+  >>> home_page.sim = [ref1]
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> rels = list(engine.execute('select source_id,target_id from relations order by source_id'))
+  >>> assert len(rels) == 1
+
+100% Coverage
+-------------
+
+Test some silly things to get to 100% code coverage
+
+  >>> from zope import component
+  >>> registry = component.getUtility( interfaces.IPeerRegistry )
+  >>> len(registry.items())
+  4
+
+
+  >>> from ore.contentmirror import operation
+  >>> operation.Operation(None).process()
+  Traceback (most recent call last):
+  ...
+  NotImplementedError: subclass responsibility
