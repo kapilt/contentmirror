@@ -1,0 +1,30 @@
+<html>
+    <head>
+        <title>Plone Mirror Creation Form</title>
+    </head>
+    <body>
+        <h1>Plone Mirror Creation Form</h1>
+        <p><a href="{{ url }}">{{ url_linktext }}</a></p>
+        <p>This form should be used for testing purposes only</p>
+        <form action="/create" method="post" enctype="multipart/form-data">
+            id: <input type="text" name="id"><br/>
+            title: <input type="text" name="title" size="40"><br/>
+            description:<br/>
+            <textarea name="description" cols="60" rows="5"></textarea><br/>
+            {% ifequal type 'atdocument' %}
+            text:<br/>
+            <textarea name="text" cols="60" rows="5"></textarea><br/>
+            {% endifequal %}
+            {% ifequal type 'atnewsitem' %}
+            text:<br/>
+            <textarea name="text" cols="60" rows="5"></textarea><br/>
+            {% endifequal %}
+            {% ifequal type 'atimage' %}
+            image:<br/>
+            <input type="file" name="image"><br/>
+            {% endifequal %}
+            <input type="hidden" name="type" value="{{ type }}">
+            <input type="submit">
+        </form>
+    </body>
+</html>

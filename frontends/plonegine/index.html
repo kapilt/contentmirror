@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>Plone Mirror</title>
+    </head>
+    <body>
+        <h1>Plone Mirror</h1>
+        <p><a href="{{ url }}">{{ url_linktext }}</a></p>
+        <p>This content is mirrored directly from Plone.</p>
+        <table border>
+            <tr>
+                <th>title</th>
+                <th>type</th>
+                <th>description</th>
+                <th>author</th>
+                <th>modified</th>
+            </tr>
+            {% for item in content %}
+            <tr>
+                <td>{{ item.title }} ({{ item.id }})</td>
+                <td>{{ item.portal_type }}</td>
+                <td>{{ item.description }}</td>
+                <td>{% for creator in item.creators %}{{ creator.email }}{% endfor %}</td>
+                <td>{{ item.modification_date }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

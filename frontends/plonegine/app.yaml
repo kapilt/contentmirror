@@ -1,0 +1,25 @@
+application: plonemirror
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /create
+  script: create.py
+  login: admin
+
+- url: /content_mirror
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
+- url: /document/.*
+  script: document.py
+  
+- url: /image/.*
+  script: image.py
+  
+- url: /styles
+  static_dir: styles
+
+- url: .*
+  script: main.py

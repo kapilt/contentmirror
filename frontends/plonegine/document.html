@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="/styles/plone.css" type="text/css" media="screen" />
+<title>{{ title }}
+</title>
+</head>
+<body>
+<div id="outer-wrapper">
+<div id="inner-wrapper">
+<div id="nav">
+<form id="search" name="searchform" action="http://plone.org/search">
+<input id="search-site" name="SearchableText" type="search" title="Search this site…" accesskey="4" class="inputLabel" size="15" />
+</form>
+<div id="user">
+<a href="{{ url }}">{{ url_linktext }}
+</a>
+</div>
+<ul id="main-nav" class="navigation">
+<li id="portaltab-index_html" class="plain">
+<a href="/" title="">Home
+</a>
+</li>
+<li id="portaltab-products" class="plain">
+<a href="/create" title="Create test content for the Plone site.">Create
+</a>
+</li>
+</ul>
+</div>
+<div id="edit-bar">
+<div id="action-menu">
+</div>
+<div id="edit-menu">
+</div>
+</div>
+<div id="content-wrapper">
+<div class="grid-row">
+<div class="grid-cell position-leftmost width-two-thirds">
+<div id="region-content" class="documentContent">
+<span id="contentTopLeft">
+</span>
+<span id="contentTopRight">
+</span>
+<a name="documentContent" id="documentContent">
+</a>
+<dl class="portalMessage info" id="kssPortalMessage" style="display:none">
+<dt>Info
+</dt>
+<dd>
+</dd>
+</dl>
+<div id="viewlet-above-content">
+</div>
+<div id="content">
+<h1 class="documentFirstHeading">
+<span class="" id="parent-fieldname-title">
+            {{ title }}
+        
+</span>
+</h1>
+<div class="documentByLine" id="plone-document-byline">
+<span class="documentAuthor">
+      by
+      
+      <a href="/member/{{ author }}">{{ author }}
+</a>
+</span>
+<span class="documentModified">
+
+    —
+    
+<span>
+      last modified
+    
+</span>
+      {{ modification_date }}
+  
+</span>
+<div class="documentContributors">
+    {% if contributors %}
+    Contributors:
+    {{ contributors }}
+    {% endif %}
+  
+</div>
+</div>
+<p class="documentDescription">
+<span class="" id="parent-fieldname-description">
+            {{ description }}
+        
+</span>
+</p>
+<div class="" id="parent-fieldname-text">
+{{ text }}
+</div>
+<div class="relatedItems">
+</div>
+<div class="reviewHistory" id="review-history">
+</div>
+</div>
+<span id="contentBottomLeft">
+</span>
+<span id="contentBottomRight">
+</span>
+</div>
+</div>
+<!-- End cell -->
+<div class="grid-cell position-two-thirds width-third">
+<div id="sidebar">
+<div class="visualPadding">
+<div id="portletwrapper-706c6f6e652e6c656674636f6c756d6e0a636f6e746578740a2f706c6f6e652e6f72670a6e617669676174696f6e" class="portletWrapper kssattr-portlethash-706c6f6e652e6c656674636f6c756d6e0a636f6e746578740a2f706c6f6e652e6f72670a6e617669676174696f6e">
+<dl class="portlet portletNavigationTree">
+<dt class="portletHeader">
+<span class="portletTopLeft">
+</span>
+<a href="/sitemap" class="tile">Navigation
+</a>
+<span class="portletTopRight">
+</span>
+</dt>
+<dd class="portletItem lastItem">
+<ul class="navTree navTreeLevel0">
+<li class="navTreeItem visualNoMarker navTreeItemInPath navTreeFolderish">
+<div>
+<a href="http://plone.org/foundation/about" class="state-published navTreeItemInPath navTreeFolderish" title="About the Plone Foundation.">
+<span>About
+</span>
+</a>
+</div>
+<ul class="navTree navTreeLevel1">
+<li class="navTreeItem visualNoMarker navTreeCurrentNode">
+<div>
+<a href="http://plone.org/foundation/about/thanks" class="state-published navTreeCurrentItem navTreeCurrentNode" title="Credit and thanks to those who helped make the Plone Foundation launch possible.">
+<span>Thanks
+</span>
+</a>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<span class="portletBottomLeft">
+</span>
+<span class="portletBottomRight">
+</span>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- End row -->
+</div>
+<div style="clear:both"> 
+</div>
+</div>
+<!-- end inner-wrapper -->
+<div id="push">
+</div>
+</div>
+<!-- end outer-wrapper -->
+<div id="footer-wrapper">
+<div id="footer-gradient">
+</div>
+<div id="footer">
+<a id="footer-logo" href="http://plone.org" title="Plone CMS, the open source content management system">
+</a>
+<p>The Plone
+<sup>®
+</sup> Content Management System is copyright © 2000–2009 the Plone Foundation and friends.
+</p>
+<p>Plone
+<sup>®
+</sup> and the Plone logo are registered trademarks of the Plone Foundation. You’re looking good today.
+</p>
+</div>
+</div>
+</div>
+</body>
+</html>
+
