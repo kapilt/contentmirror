@@ -1,0 +1,31 @@
+#summary List of frontends in other web frameworks that interface with contentmirror
+
+= Introduction =
+
+Below are some example frontends that show how the content in Plone can be served up by other web frameworks.
+
+== Pylons ==
+
+ * [http://code.google.com/a/pylne Plyne] by Roberto Allende
+
+== Django ==
+
+ * [http://svn.clearwind.ca/public/django/plango/ Plango] by Andy McKay
+
+== Repoze.bfg ==
+
+ * TBD by Carlos de la Guardia
+
+== Google App Engine ==
+
+ * TBD by Ilia
+
+== Grok ==
+
+ * TBD by Jordan Baker
+
+
+Add your frontend example here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
