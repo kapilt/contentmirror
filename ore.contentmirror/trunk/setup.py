@@ -6,7 +6,7 @@ def read(*rnames):
 
 setup(
     name="ore.contentmirror",
-    version="0.5",
+    version="0.5-dev",
     url="http://contentmirror.googlecode.com",
     download_url="http://code.google.com/p/contentmirror/downloads/list",
     install_requires=['setuptools',
