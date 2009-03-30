@@ -2,7 +2,6 @@
 Todo List
 ---------
 
-
 Bugs
 ----
 
@@ -11,7 +10,6 @@ Bugs
   detect database field type binary on startup
 
   for files table, function setFileColumnKind
-
 
 Todo ( needs reviewing )
 ----
@@ -25,8 +23,6 @@ Todo ( needs reviewing )
 - Test Duplicate References / Add/Update
 
 - Single Valued References as Scalar (  issue 12, on delete set null )
-
-- Files as scalar ( sqlalchemy bug )
 
 - Containment deletion cascade
 
@@ -44,5 +40,8 @@ Maybe Items
 
  - Lazy Asynchronous Synchronization  ( preferrably funded / contributed )
 
+ - LinguaPlone Compatibility
 
+ - Staging Support
 
+ - cmfedition versions
