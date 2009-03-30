@@ -34,7 +34,7 @@ class Operation( object ):
         return self.context.UID()
         
     def process( self ):
-        raise NotImplemented
+        raise NotImplementedError("subclass responsibility")
 
 class AddOperation( Operation ):
 
