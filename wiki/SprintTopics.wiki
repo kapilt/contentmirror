@@ -24,7 +24,7 @@ audit log of content modifications.
 
 == mirror.reports ==
 
-graphing / reporting against the database structure.
+graphing / reporting against the database structure, possibly using [http://code.google.com/apis/chart/ Google Charts API]
 
 == mirror.bfgsite ==
 
