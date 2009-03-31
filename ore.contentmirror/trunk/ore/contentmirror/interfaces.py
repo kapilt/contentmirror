@@ -97,9 +97,9 @@ class ISerializer( interface.Interface ):
         delete the object from the database
         """
         
-    def delete( ):
+    def update( ):
         """
-        delete the object from the database
+        update the object state in the database
         """
 
 ########################################    
@@ -111,19 +111,11 @@ class IModelLoader( interface.Interface ):
         """ load a content class"""
         
     def transform( ):
-        """ return a """
+        """ return a schema transformer """
         
     def peer( transformer ):
         """ generate a content peer class for the content class """
         
-# class ISchemaGenerator( interface.Interface ):
-#     """ generates an rdb schema for a given class (an instance is passed)"""
-#     metadata = interface.Attribute("metadata")
-# 
-#     def make( ):
-#         """
-#         """
-# 
         
 class ISchemaTransformer( interface.Interface ):
     """ translate an archetypes schema to a relational schema """
@@ -132,10 +124,11 @@ class ISchemaTransformer( interface.Interface ):
     
     def transform( ):
         """
+        return a sqlalchemy database table representation
         """
         
 class IFieldTransformer(interface.Interface):
-    """ """
+    """ transforms an archetypes field into a sqlalchemy field """
     
     def transform( ):
         """
@@ -160,11 +153,11 @@ class IPeerFactory( interface.Interface ):
     """ """
     def make( ):
         """
-        create a peer class, with a mapper
+        create a peer class, with a mapper, returns the mapped orm class
         """
         
 class IPeerRegistry( interface.Interface ):
-    """ """
+    """ a registry mapping a content class to its orm peer class """
     
 ########################################    
 ## Interface Specifications for AT Fields
@@ -182,4 +175,4 @@ class IImageField( interface.Interface ): pass
 class IPhotoField( interface.Interface ): pass
 class ITextField( interface.Interface ): pass
 class IDateTimeField( interface.Interface ): pass
-    
+class IDisplayList( interface.Interface ): pass
