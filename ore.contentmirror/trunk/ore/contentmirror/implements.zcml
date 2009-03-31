@@ -57,6 +57,10 @@
   <class class="Products.Archetypes.Field.LinesField">
      <implements interface=".interfaces.ILinesField"/>
   </class>    
+
+  <class class="Products.Archetypes.utils.DisplayList">
+     <implements interface=".interfaces.IDisplayList"/>
+  </class>    
     
   
 </configure>  
