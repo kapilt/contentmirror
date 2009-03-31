@@ -45,6 +45,7 @@ class CreateHandler(webapp.RequestHandler):
         content.id = self.request.get('id')
         content.title = self.request.get('title')
         content.description = self.request.get('description')
+        content.path = self.request.get('path')
         content.creators = [users.get_current_user()]
         content.put()
         self.redirect('/')

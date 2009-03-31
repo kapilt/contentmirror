@@ -12,10 +12,10 @@ from google.appengine.api import users
 class PloneContent(polymodel.PolyModel):
     id = db.StringProperty()
     uid = db.StringProperty()
-    portal_type = db.StringProperty()
+    portal_type = db.StringProperty() # eg. Document
     status = db.StringProperty()
-    type = db.StringProperty()
-    path = db.StringProperty()
+    type = db.StringProperty() 
+    path = db.StringProperty() # eg. /folder/testimage
     title = db.StringProperty()
     description = db.StringProperty(multiline=True)
     subject = db.StringListProperty()
@@ -47,6 +47,7 @@ class ATLink(PloneContent):
 
 class ATNewsItem(PloneContent):
     text = db.TextProperty()
+    image = db.BlobProperty()
     imagecaption = db.StringProperty(multiline=True)
 
 class ATImage(PloneContent):
@@ -66,6 +67,13 @@ class ATEvent(PloneContent):
     contactemail = db.StringProperty()
     contactphone = db.StringProperty()
 
+
+class_for_portal_type = {
+    "Image": ATImage,
+    "News Item": ATNewsItem,
+    "Document": ATDocument,
+}
+    
 class MainHandler(webapp.RequestHandler):
 
     def get(self):
