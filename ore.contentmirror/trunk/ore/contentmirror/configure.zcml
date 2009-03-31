@@ -43,7 +43,10 @@
   
   <!-- Subscribers -->
   <include file="subscriber.zcml"/>
-  
+
+  <!-- Archetypes Dependency -->  
+  <include package="Product.Archetypes"/>
+	
   <!-- Plone Default Content -->
   <include file="content.zcml" />
 
