@@ -45,7 +45,7 @@
   <include file="subscriber.zcml"/>
 
   <!-- Archetypes Dependency -->  
-  <include package="Product.Archetypes"/>
+  <include package="Products.Archetypes"/>
 	
   <!-- Plone Default Content -->
   <include file="content.zcml" />
