@@ -10,7 +10,7 @@ Below are some example frontends that show how the content in Plone can be serve
 
 == Django ==
 
- * [http://svn.clearwind.ca/public/django/plango/ Plango] by Andy McKay
+ * [http://code.google.com/p/contentmirror/source/browse/#svn/frontends/plango Plango] by Andy McKay  ([http://svn.clearwind.ca/public/django/plango/ old svn repo])
 
 == Repoze.bfg ==
 
@@ -18,7 +18,7 @@ Below are some example frontends that show how the content in Plone can be serve
 
 == Google App Engine ==
 
- * TBD by Ilia
+ * [http://code.google.com/p/contentmirror/source/browse/#svn/frontends/plonegine Plonegine] by Carlos de la Guardia and Ilia
 
 == Grok ==
 
