@@ -11,7 +11,6 @@
     />
 
  <!-- Load up alchemist and contentmirror zcml -->
- <include package="ore.alchemist" file="meta.zcml"/>
  <include package="ore.contentmirror" file="meta.zcml"/>
  <include package="ore.contentmirror"/>
 
