@@ -1,5 +1,5 @@
 <configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:db="http://namespaces.objectrealms.net/rdb">
+           xmlns:ore="http://namespaces.objectrealms.net/mirror">
 
 
  <!-- A dummy adapter to force loading the pkg's __init__.py module
@@ -18,7 +18,7 @@
  <include file="settings.zcml"/>
  
  <!-- associate the database connection to the mirror db structures -->
- <db:bind engine="mirror-db"
+ <ore:bind engine="mirror-db"
           metadata="ore.contentmirror.schema.metadata"
           />
 
