@@ -30,7 +30,7 @@ for example:
 {{{
 [productdistros]
 recipe = plone.recipe.distros
-urls = http://contentmirror.googlecode.com/files/ContentMirror-0.4.0-Plone-3.0.tgz
+urls = http://contentmirror.googlecode.com/files/ContentMirror-0-5-1.tgz
 }}}
 
 == Instance Home Installation ==
