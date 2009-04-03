@@ -1,4 +1,5 @@
 
+
 config.update( dict(
     project = "ore.contentmirror",
     version = open('version.txt').read().strip(),
@@ -8,8 +9,8 @@ config.update( dict(
 def release( ):
     egg_tag()
     egg_release()
-    product_build()
     product_tag()
+    product_build( config.version )
     product_release()
 
 def egg_tag( ):
@@ -55,7 +56,7 @@ def product_build( version='trunk' ):
     local('MACOSX_DEPLOYMENT_TARGET="10.3" python2.4 setup.py bdist_egg')
     local('cd build/%(cm_egg)s && unzip %(working_dir)s/dist/%(cm_egg)s')
     local('cp -Rf build/%(cm_egg)s build/ContentMirror/eggs')
-    shutil.copyfile('version.txt', 'build/ContentMirror/version.txt')
+    #shutil.copyfile('version.txt', 'build/ContentMirror/version.txt')
     
     local('cd build && tar czvf ContentMirror-%(version)s.tar.gz ContentMirror')
 

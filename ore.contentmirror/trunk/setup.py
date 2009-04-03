@@ -8,7 +8,6 @@ setup(
     name="ore.contentmirror",
     version=read('version.txt').strip(),
     url="http://contentmirror.googlecode.com",
-    download_url="http://code.google.com/p/contentmirror/downloads/list",
     install_requires=['setuptools',
                       'SQLAlchemy>=0.5',
                       'zope.sqlalchemy',
