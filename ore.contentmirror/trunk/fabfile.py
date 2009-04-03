@@ -29,15 +29,20 @@ def product_build( version='trunk' ):
         shutil.rmtree('build/ContentMirror')
         
     if version == 'trunk':
-        local('svn co %(repo_url)s/Products.ContentMirror/trunk/Products/ContentMirror build/ContentMirror')  
+        local('svn export %(repo_url)s/Products.ContentMirror/trunk/Products/ContentMirror build/ContentMirror')  
     else:
-        local('svn co %(repo_url)s/Products.ContentMirror/tags/%(version)s/Products/ContentMirror build/ContentMirror')
+        local('svn export %(repo_url)s/Products.ContentMirror/tags/%(version)s/Products/ContentMirror build/ContentMirror')
     
     # copy sqlalchemy egg
     sa_eggs = fnmatch.filter( os.listdir('eggs'), 'SQLAlchemy*' )
     sa_eggs.sort()
     shutil.copytree( 'eggs/%s'%(sa_eggs[-1]), 'build/ContentMirror/eggs/%s'%(sa_eggs[-1]))
     
+    # copy zope.sqlalchemy egg
+    zsa_eggs = fnmatch.filter( os.listdir('eggs'), 'zope.sqlalchemy*' )
+    zsa_eggs.sort()
+    shutil.copytree( 'eggs/%s'%(zsa_eggs[-1]), 'build/ContentMirror/eggs/%s'%(zsa_eggs[-1]))
+        
     # unpack bdist egg 
     config.cm_egg = 'ore.contentmirror-%(version)s-py2.4.egg'
     
@@ -62,10 +67,3 @@ def product_tag( ):
 def product_release( ):
     local('googlecode_upload.py -S "Product Release %(version)s" -p contentmirror build/ContentMirror-%(version).tar.gz')
     
-    
-
-    
-    
-    
-
-
