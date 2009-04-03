@@ -1,0 +1,34 @@
+
+0.5.1
+
+ - packaging fix
+
+0.5.0 
+
+ - fixes for file fields deletion / updates as scalar values [ hazmat ]
+
+ - fixes for reference fields to delete old db relations values when values are changed
+   and the old values are no longer valid. ( Thanks to Bryan Davis for a doctest demonstrating
+   the issue. ) [hazmat]
+
+ - copied ore.alchemist.zcml and meta.zcml directives into ore.contentmirror to
+   support zcml directives [ runyaga + hazmat ]
+
+ - remove deprecation warning change [ runyaga + hazmat ]
+
+ - allow environment variable CONTENTMIRROR_URI for database configuration no need for zcml
+   use a SQLAlchemy engine URI. [ runyaga + hazmat ]
+
+ - replace ore.alchemist dependency with zope.sqlalchemy [ runyaga + hazmat ]
+
+ - replace zope.app.container with zope.{event,schema,component} [ runyaga + hazmat ]
+
+ - add 'excludefromnav' in the base attributes that are mapped to RDBMs.
+   register workflow transition events to .subscribers.objectModified handler
+   [runyaga]
+   
+ - content physical path is serialized. [hazmat]
+ 
+ - fixed a bug when copy and pasting in plone. [hazmat]
+   http://code.google.com/p/contentmirror/issues/detail?id=11
+
