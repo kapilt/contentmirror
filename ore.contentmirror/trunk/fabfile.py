@@ -66,5 +66,5 @@ def product_tag( ):
     local('svn cp %(repo_url)s/%(project)s/trunk %(repo_url)s/%(project)s/tags/%(version)s -m "tagging version %(version)s"')
     
 def product_release( ):
-    local('googlecode_upload.py -S "Product Release %(version)s" -p contentmirror build/ContentMirror-%(version).tar.gz')
+    local('googlecode_upload.py -s "Product Release %(version)s" -p contentmirror build/ContentMirror-%(version)s.tar.gz')
     
