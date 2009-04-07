@@ -18,11 +18,9 @@
 
 from zope import interface, schema
 
-class IDatabaseEngine( interface.Interface ):
-    """
-    configuration and access to pooled database connection
-    """
-                
+class IAppEngine(interface.Interface):
+    """marker interface for app engine datastore"""
+
 class IMirrored( interface.Interface ):
     """ marker interface, signifying that the content should be mirrored to a database """
 
@@ -32,9 +30,8 @@ try:
 except:
     class IPortalContent( interface.Interface ): pass
 
-class IMetaData( interface.Interface ):
-    """ marker interface for sqlalchemy metadata, to allow for use in adaptation """
-
+class IGoogleDatastore ( interface.Interface):
+    """ marker interface for google db """
 
 # Fields already covered by the base peer content class, common to all content
 DUBLIN_CORE= [
@@ -97,9 +94,9 @@ class ISerializer( interface.Interface ):
         delete the object from the database
         """
         
-    def update( ):
+    def delete( ):
         """
-        update the object state in the database
+        delete the object from the database
         """
 
 ########################################    
@@ -111,11 +108,19 @@ class IModelLoader( interface.Interface ):
         """ load a content class"""
         
     def transform( ):
-        """ return a schema transformer """
+        """ return a """
         
     def peer( transformer ):
         """ generate a content peer class for the content class """
         
+# class ISchemaGenerator( interface.Interface ):
+#     """ generates an rdb schema for a given class (an instance is passed)"""
+#     metadata = interface.Attribute("metadata")
+# 
+#     def make( ):
+#         """
+#         """
+# 
         
 class ISchemaTransformer( interface.Interface ):
     """ translate an archetypes schema to a relational schema """
@@ -124,11 +129,10 @@ class ISchemaTransformer( interface.Interface ):
     
     def transform( ):
         """
-        return a sqlalchemy database table representation
         """
         
 class IFieldTransformer(interface.Interface):
-    """ transforms an archetypes field into a sqlalchemy field """
+    """ """
     
     def transform( ):
         """
@@ -153,11 +157,11 @@ class IPeerFactory( interface.Interface ):
     """ """
     def make( ):
         """
-        create a peer class, with a mapper, returns the mapped orm class
+        create a peer class, with a mapper
         """
         
 class IPeerRegistry( interface.Interface ):
-    """ a registry mapping a content class to its orm peer class """
+    """ """
     
 ########################################    
 ## Interface Specifications for AT Fields
@@ -175,4 +179,4 @@ class IImageField( interface.Interface ): pass
 class IPhotoField( interface.Interface ): pass
 class ITextField( interface.Interface ): pass
 class IDateTimeField( interface.Interface ): pass
-class IDisplayList( interface.Interface ): pass
+    

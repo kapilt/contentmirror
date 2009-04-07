@@ -15,10 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
 
-from sqlalchemy import orm
 from zope import interface
 
-from ore.contentmirror import schema, interfaces
+import schema, interfaces
 
 class PeerFactory( object ):
     
@@ -28,20 +27,9 @@ class PeerFactory( object ):
         self.context = context
         self.transformer = transformer
         
-    @property
-    def name(self):
-        return self.context.__class__.__name__ + 'Peer'
-        
     def make( self ):
-        klass = type( self.name, (schema.Content,),
-                      dict(transformer=self.transformer) )
-
-        orm.mapper( klass, 
-                    self.transformer.table,
-                    properties=dict(self.transformer.properties),
-                    inherits=schema.Content,
-                    polymorphic_on=schema.content.c.type,
-                    polymorphic_identity=self.name )
+        klass = schema.Content[self.context.portal_type]
+        klass.transformer = self.transformer
         return klass
         
 class PeerRegistry( object ):

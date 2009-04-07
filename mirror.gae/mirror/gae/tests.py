@@ -20,7 +20,10 @@ $Id: $
 """
 
 import unittest
-from zope.testing import doctest
+import re
+
+from zope.testing import doctest, renormalizing
+#from zope.app.testing import placelesssetup
 
 def test_suite():
     import testing
@@ -36,7 +39,6 @@ def test_suite():
             setUp=testing.setUp, tearDown=testing.tearDown,
             optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
             globs=testing.doctest_ns
-            ),           
-
+            )
     ))
 

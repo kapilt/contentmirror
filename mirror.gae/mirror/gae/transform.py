@@ -15,14 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
 
-from sqlalchemy import orm
-import sqlalchemy as rdb
 from zope import interface, component
 
 from md5 import md5
 from datetime import datetime
-from ore.contentmirror.session import Session
-from ore.contentmirror import interfaces, schema
+import interfaces, schema
 
 class SchemaTransformer( object ):
     """
@@ -33,19 +30,12 @@ class SchemaTransformer( object ):
     """
     interface.implements( interfaces.ISchemaTransformer )
     
-    def __init__( self, context, metadata):
+    def __init__( self, context, store):
         self.context = context
-        self.metadata = metadata
-        self.table = None
         self.properties = {}
         
     def transform( self ):
-        columns = list(self.columns())
-        self.table = rdb.Table( self.name,
-                                self.metadata,
-                                useexisting=True,
-                                *columns )
-        return self.table
+        return
                                 
     def copy( self, instance, peer ):
         for field in self.context.Schema().fields():
@@ -61,11 +51,6 @@ class SchemaTransformer( object ):
         return not field.__name__ in interfaces.DUBLIN_CORE
 
     def columns( self):
-        yield rdb.Column( "content_id", 
-                          rdb.Integer, 
-                          rdb.ForeignKey('content.content_id', ondelete="CASCADE"), 
-                          primary_key=True )
-
         for field in self.context.Schema().fields():
             if not self.filter( field ):
                 continue
@@ -73,7 +58,7 @@ class SchemaTransformer( object ):
             transformer = component.getMultiAdapter( ( field, self ))
             result = transformer.transform()
             
-            if isinstance( result, rdb.Column ):
+            if isinstance( result, "" ):
                 yield result
                 
 
@@ -81,19 +66,12 @@ class BaseFieldTransformer( object ):
     
     interface.implements( interfaces.IFieldTransformer )
 
-    column_type = rdb.String
-    column_args = ()
-    
     def __init__( self, context, transformer):
         self.context = context
         self.transformer = transformer
 
     def transform( self ):
-        args, kw = self._extractDefaults()
-        column = rdb.Column( self.name, 
-                             self.column_type( *self.column_args ),  
-                             *args,
-                             **kw )
+        column = self.name
         self.transformer.properties[ self.name ] = column
         return column
     
@@ -106,34 +84,16 @@ class BaseFieldTransformer( object ):
     def name( self ):
         name = self.context.__name__.lower()
         name = name.replace(' ', '_')
-        if name in self._reserved_names:
-            name = "at_" + name
         return name
     
-    @property
-    def _reserved_names(self):
-        e = self.transformer.metadata.bind
-        if e is None: return ()
-        return e.dialect.preparer.reserved_words
-                
-    def _extractDefaults( self ):
-        args = []
-        #if use_field_default and field.default:
-        #    args.append( rdb.PassiveDefault( field.default ) )
-        kwargs = {} #{
-        #'nullable' : not self.context.required,
-        #    'key' : self.context.getName(),            
-        #    }
-        return args, kwargs        
-
 class ComputedTransform( BaseFieldTransformer):
     component.adapts( interfaces.IComputedField, interfaces.ISchemaTransformer)
-    column_type = rdb.Text
+    column_type = "text"
     column_args = ()
     
 class StringTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IStringField, interfaces.ISchemaTransformer )
-    column_type = rdb.Text
+    column_type = "text"
     column_args = ()
     
     def copy( self, instance, peer ):
@@ -154,7 +114,7 @@ class StringTransform( BaseFieldTransformer ):
 
 class TextTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IStringField, interfaces.ISchemaTransformer )
-    column_type = rdb.Text
+    column_type = "text"
     column_args = ()    
         
 class LinesTransform( StringTransform ):    
@@ -163,8 +123,10 @@ class LinesTransform( StringTransform ):
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
         value = accessor()
-        if isinstance(value, (list, tuple)):
-            value = "\n".join(value)
+        if isinstance(value, type("")):
+            value = [value]
+        if isinstance(value, tuple):
+            value = list(value)
         setattr( peer, self.name, value )        
         
 class FileTransform( object ):    
@@ -178,55 +140,12 @@ class FileTransform( object ):
         self.context = context
         self.transformer = transformer
         
-    def transform( self ):
-        file_orm = orm.relation(schema.File,
-                                cascade='all',
-                                uselist=False,
-                                primaryjoin=rdb.and_( 
-                                    schema.files.c.content_id == schema.content.c.content_id,
-                                    schema.files.c.attribute  == self.name )
-                                )
-        self.transformer.properties[ self.name ] = file_orm
-
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
         value = accessor()
         if not value: return 
-        file_peer =self._getPeer( instance, peer )
-        if not self._checkModified( value, file_peer ):
-            return
-        self._copyPeer( file_peer, instance, value )
-        setattr( peer, self.name, file_peer )
+        setattr( peer, self.name, value)
         
-    # implementation details
-    @property
-    def name( self ):
-        return self.context.__name__.lower().replace(' ', '_')
-        
-    def new( self ):
-        return schema.File()
-
-    def _checkModified( self, value, peer ):
-        checksum = md5( str(value.data) ).hexdigest()
-        if peer.checksum == checksum:
-            return False
-        return True
-        
-    def _getPeer( self, instance, peer):
-        file_peer = getattr( peer, self.name, None )
-        if not file_peer:
-            return self.new()
-        return file_peer
-        
-    def _copyPeer( self, file_peer, instance, value ):
-        file_peer.attribute = self.name
-        file_peer.content = str( value.data )
-        file_peer.mime_type = self.context.getContentType( instance ) 
-        file_peer.size = len( file_peer.content )
-        file_peer.file_name = getattr(value, 'filename', value.getId())
-        file_peer.checksum = md5( file_peer.content ).hexdigest()
-        
-
 class ImageTransform( FileTransform ):     
     component.adapts( interfaces.IImageField, interfaces.ISchemaTransformer )
     
@@ -235,18 +154,18 @@ class PhotoTransform( FileTransform ):
 
 class BooleanTransform( BaseFieldTransformer):    
     component.adapts( interfaces.IBooleanField, interfaces.ISchemaTransformer )
-    column_type = rdb.Boolean
+    column_type = "boolean"
 
 class IntegerTransform( BaseFieldTransformer):
     component.adapts( interfaces.IIntegerField, interfaces.ISchemaTransformer )
-    column_type = rdb.Integer
+    column_type = "int"
     
 class FloatTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IFloatField, interfaces.ISchemaTransformer )
-    column_type = rdb.Float
+    column_type = "float"
     
 class DateTimeTransform( BaseFieldTransformer ):
-    column_type = rdb.DateTime
+    column_type = "date"
     component.adapts( interfaces.IDateTimeField, interfaces.ISchemaTransformer )
 
     def copy( self, instance, peer ):
@@ -265,9 +184,6 @@ class ReferenceTransform( object ):
         self.context = context
         self.transformer = transformer
         
-    def transform( self ):
-        return
-        
     def copy( self, instance, peer ):
         value = self.context.getAccessor( instance )()
 
@@ -279,38 +195,4 @@ class ReferenceTransform( object ):
         if not isinstance( value, (list, tuple)):
             value= [ value ]
 
-        rel_map = dict( [ ( (r.relationship, r.target.uid ), r) for r in peer.relations ] )
-        oids_seen = set() # oids of the current reference values of this field
-        
-        for ob in value:
-            t_oid = ob.UID()
-            oids_seen.add( t_oid )
-            
-            # skip if the object is already related
-            related =  ( self.context.relationship, t_oid ) in rel_map
-            if related:
-                continue
-            # if single value and not the same value, delete previous value
-            elif single_value and peer.relations: 
-                Session().delete( peer.relations[0] )
-            
-            # fetch the remote side's peer
-            peer_ob = schema.fromUID( ob.UID() )
-            if peer_ob is None:
-                serializer = interfaces.ISerializer( ob, None )
-                if serializer is None: continue
-                peer_ob = serializer.add()
-                
-            # create the relation
-            relation = schema.Relation( peer,
-                                        peer_ob,
-                                        self.context.relationship )
-
-        if single_value:
-            return
-        
-        # delete old values for multi valued relations
-        rel_oids = set( [ oid for rel_type, oid in rel_map if rel_type == self.context.relationship ] )
-        for oid in (rel_oids - oids_seen):
-            Session().delete( rel_map[ ( self.context.relationship, oid)] )
-            
+        setattr( peer, self.name, value )

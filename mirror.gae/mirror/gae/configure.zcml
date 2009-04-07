@@ -1,4 +1,5 @@
-<configure xmlns="http://namespaces.zope.org/zope">
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:five="http://namespaces.zope.org/five">
 
   <adapter
      for=".interfaces.IMirrored"
@@ -13,7 +14,7 @@
      />
 
   <adapter
-     for=".interfaces.IMirrored .interfaces.IMetaData"
+     for=".interfaces.IMirrored .interfaces.IAppEngine"
      provides=".interfaces.ISchemaTransformer"
      factory=".transform.SchemaTransformer"
      />
@@ -43,10 +44,13 @@
   
   <!-- Subscribers -->
   <include file="subscriber.zcml"/>
-
+  
   <!-- Archetypes Dependency -->  
   <include package="Products.Archetypes"/>
-	
+
+  <!-- App Engine Settings -->
+  <include file="settings.zcml" />
+
   <!-- Plone Default Content -->
   <include file="content.zcml" />
 

@@ -1,0 +1,113 @@
+------------
+Installation
+------------
+
+Installation consists of two steps, installing the software, and
+configuring it for your deployment.
+
+Note that tests are curently broken.
+
+Prerequisites
+-------------
+
+ - Plone 2.5 or above
+ - Google App Engine Development toolkit installed
+ - plonegine application.
+   http://contentmirror.googlecode.com/svn/frontends/plonegine
+
+Product Installation
+--------------------
+
+Not available at this time.
+
+Buildout Installation
+---------------------
+
+Basically, you need to include the mirror.gae egg, load its configure.zcml
+and meta.zcml files and add the location of the GAE toolkit where the
+plonegine app is installed as an extra path, together with other GAE libs.
+
+Example buildout configuration for a plone instance:
+
+[instance1]
+recipe = plone.recipe.zope2instance
+zope2-location = ${zope2:location}
+user = admin:admin
+http-address = 8081
+debug-mode = on
+verbose-security = on
+gae-location = /home/cguardia/work/google_appengine
+extra-paths = ${instance1:gae-location}
+              ${instance1:gae-location}/lib/antlr3
+              ${instance1:gae-location}/lib/django
+              ${instance1:gae-location}/lib/webob
+              ${instance1:gae-location}/lib/yaml/lib
+
+eggs =
+    ${buildout:eggs}
+    ${plone:eggs}
+    mirror.gae
+
+zcml =
+    mirror.gae
+    mirror.gae-meta
+
+products =
+    ${buildout:directory}/products
+    ${productdistros:location}
+    ${plone:products}
+
+
+Configuring
+------------
+
+Before ContentMirror will work, it *must* be configured. Configuration
+is done via ZCML ( Zope Configuration Markup Language ). The Content
+Mirror product contains a few zcml files in it, that load up the base system, 
+as well a sample configuration.
+
+Inside of Content Mirror is a file called settings-example.zcml, you should rename this
+file to settings.zcml and make your modifications to it.
+
+The contents of this file are::
+
+<configure xmlns="http://namespaces.zope.org/zope" 
+	   xmlns:mirror="http://namespaces.objectrealms.net/mirror"> 
+
+    <!-- set up an app engine connection -->
+   <mirror:appengine app_id="plonemirror"
+                     host="plonemirror.appspot.com"
+                     username="appengine_username"
+                     password="password"/>
+
+   <!-- If Your Running on Plone 2.5, you must uncomment the following line 
+   <include package="ore.contentmirror" file="legacy.zcml"/>
+   -->
+
+</configure>
+
+
+The mirror:appengine directive is used to specify an app engine connection.
+
+The setting-example.zcml uses the mirror:appengine directive to setup a
+connection to an application with id plonemirror running on host
+plonemirror.appspot.com. You need to include your app engine username and
+password in the configuration.
+
+If your running on Plone 2.5, you also need to include/uncomment the following
+zcml line in settings.zcml::
+
+  <include package="ore.rescueme" file="legacy.zcml"/>
+
+Configuring Custom Types
+------------------------
+ 
+Not enabled at the moment.
+
+Bulk Loading an Existing Site
+-----------------------------
+
+Not available at this time.
+ 
+
+

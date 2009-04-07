@@ -1,15 +1,9 @@
 <configure xmlns="http://namespaces.zope.org/zope">
 
-  <class class="sqlalchemy.MetaData">
-     <implements interface=".interfaces.IMetaData"/>
+  <class class=".zcml.DataStore">
+     <implements interface=".interfaces.IAppEngine"/>
   </class>
   
-  <!--
-  <class class="Products.Archetypes.BaseContent.BaseContent">
-     <implements interface=".interfaces.IMirrored"/>
-  </class>   
-    -->
-    
   <class class="Products.Archetypes.Field.ComputedField">
      <implements interface=".interfaces.IComputedField"/>
   </class>
@@ -56,10 +50,6 @@
 
   <class class="Products.Archetypes.Field.LinesField">
      <implements interface=".interfaces.ILinesField"/>
-  </class>    
-
-  <class class="Products.Archetypes.utils.DisplayList">
-     <implements interface=".interfaces.IDisplayList"/>
   </class>    
     
   

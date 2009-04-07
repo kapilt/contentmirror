@@ -21,12 +21,12 @@ and creating the rdb mapped peer classes.
 
 """
 from zope import component
-from ore.contentmirror import schema, interfaces
+import schema, interfaces
 
 class ModelLoader( object ):
     
-    def __init__( self, metadata ):
-        self.metadata = metadata
+    #def __init__( self ):
+    #    self.store = component.getUtility( interfaces.IAppEngine, 'appengine')
 
     def load( self, klass ):
         instance = klass("transient")
@@ -41,17 +41,19 @@ class ModelLoader( object ):
         registry[ klass ] = peer_class
         
     def transform( self, instance ):
-        transformer = component.getMultiAdapter( (instance, self.metadata ),
-                                                 interfaces.ISchemaTransformer )
+        store = component.getUtility( interfaces.IAppEngine, 'appengine')
+        transformer = component.getMultiAdapter( (instance, store),
+                                                interfaces.ISchemaTransformer )
         transformer.transform()
         return transformer
         
     def peer( self, instance, transformer ):
         factory = component.getMultiAdapter( ( instance, transformer ) ,
-                                             interfaces.IPeerFactory )
+                                            interfaces.IPeerFactory )
         return factory.make()
+        return object
         
-loader = ModelLoader( schema.metadata )
+loader = ModelLoader()
 load = loader.load
 
    

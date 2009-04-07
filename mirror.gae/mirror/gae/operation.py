@@ -17,8 +17,7 @@
 
 import threading, transaction
 from zope import interface, component
-from ore.contentmirror.session import Session
-from ore.contentmirror import interfaces
+import interfaces
 
 class Operation( object ):
     
@@ -34,7 +33,7 @@ class Operation( object ):
         return self.context.UID()
         
     def process( self ):
-        raise NotImplementedError("subclass responsibility")
+        raise NotImplemented
 
 class AddOperation( Operation ):
 
@@ -93,7 +92,7 @@ class BufferManager( object ):
     def nothing( self, *args ): pass
 
     def sortKey( self ):
-        return "content-mirror-2008"
+        return "content-mirror-2009"
     
     tpc_abort = abort
     commit = tpc_begin = tpc_vote = tpc_finish = nothing
@@ -128,7 +127,6 @@ class OperationBuffer( object ):
     def flush( self ):
         for op in self:
             op.process()
-        Session().flush()
         self.clear()
         
     def get( self, doc_id ):

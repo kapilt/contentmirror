@@ -8,19 +8,12 @@
        name="mirror"
        schema=".zcml.IContentMirror"
        handler=".zcml.mirror" />
-
+    
     <meta:directive
-        name="engine"
-        schema=".zcml.IEngineDirective"
-        handler=".zcml.engine"
-        />
-
-    <meta:directive
-        name="bind"
-        schema=".zcml.IBindDirective"
-        handler=".zcml.bind"
-        />
-
+       name="appengine"
+       schema=".zcml.IAppEngineDirective"
+       handler=".zcml.appengine" />
+    
   </meta:directives>
   
 </configure>

@@ -1,34 +1,40 @@
-import os
 from setuptools import setup, find_packages
+import os
 
-def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+version = '0.5'
 
-setup(
-    name="ore.contentmirror",
-    version=read('version.txt').strip(),
-    url="http://contentmirror.googlecode.com",
-    install_requires=['setuptools',
-                      'SQLAlchemy>=0.5',
-                      'zope.sqlalchemy',
-                      'zope.component',
-                      'zope.event',
-                      'zope.schema',
-                      ],
-    packages=find_packages(exclude=["*.tests"]),
-    namespace_packages=['ore'],
-    package_data = {
-      '': ['*.txt', '*.zcml', '*.pt'],
-    },
-    zip_safe=False,
-    author='Kapil Thangavelu',
-    author_email='kapil.foss@gmail.com',
-    description="Deploy/Rescue Content from Plone to a Relational Database",
-    long_description=read("ore","contentmirror","readme.txt"),
-    license='GPL',
-    keywords="plone zope zope3",
-    entry_points={
-     'console_scripts': ['mirror-ddl = ore.contentmirror.ddl:main',
-                         'mirror-bulk = ore.contentmirror.bulk:main'],
-        }
-    )
+setup(name='mirror.gae',
+      version=version,
+      description="Plone mirroring backend for Google App Engine",
+      long_description=open("README.txt").read() + "\n" +
+                       open(os.path.join("docs", "HISTORY.txt")).read(),
+      # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
+      classifiers=[
+        "Framework :: Plone",
+        "Programming Language :: Python",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        ],
+      keywords='plone mirror contentmirror gae appengine datastore google',
+      author='Carlos de la Guardia',
+      author_email='cguardia@yahoo.com',
+      url='http://svn.plone.org/svn/plone/plone.example',
+      license='GPL',
+      packages=find_packages(exclude=['ez_setup']),
+      namespace_packages=['mirror'],
+      include_package_data=True,
+      zip_safe=False,
+      install_requires=[
+          'setuptools',
+          # -*- Extra requirements: -*-
+      ],
+      entry_points="""
+      # -*- Entry points: -*-
+
+      [distutils.setup_keywords]
+      paster_plugins = setuptools.dist:assert_string_list
+
+      [egg_info.writers]
+      paster_plugins.txt = setuptools.command.egg_info:write_arg
+      """,
+      paster_plugins = ["ZopeSkel"],
+      )

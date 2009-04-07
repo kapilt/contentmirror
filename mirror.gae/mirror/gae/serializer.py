@@ -16,8 +16,7 @@
 ####################################################################
 
 from zope import interface, component
-from ore.contentmirror import schema, interfaces
-from ore.contentmirror.session import Session
+import schema, interfaces
 
 class Serializer( object ):
 
@@ -29,9 +28,8 @@ class Serializer( object ):
     def add( self ):
         registry = component.getUtility( interfaces.IPeerRegistry )
         peer = registry[ self.context.__class__ ]()
-        session = Session()
-        session.add( peer )        
         self._copy( peer )
+        peer.put()
         return peer
         
     def update( self ):
@@ -39,15 +37,14 @@ class Serializer( object ):
         if peer is None:
             return self.add()
         self._copy( peer )
+        peer.put()
         return peer
         
     def delete( self ):
         peer = schema.fromUID( self.context.UID() )
         if peer is None:
             return
-        session = Session()
-        session.delete( peer )
-        session.flush()
+        peer.delete()
 
     def _copy( self, peer ):
         self._copyPortalAttributes( peer )
@@ -77,7 +74,7 @@ class Serializer( object ):
             serializer = interfaces.ISerializer( container, None )
             if not serializer: return
             container_peer = serializer.add()
-        peer.parent = container_peer
+        peer.container = container_peer
 
         
     
