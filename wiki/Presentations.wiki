@@ -5,12 +5,6 @@
 
 Links to some talks and presentations on content mirror
 
-== Plone Conference 2008 ==
-
-  * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/content-mirror-and-relational-databases Content Mirror Intro/Architecture] [http://plone.tv/media/1442083380/view video] - Kapil Thangavelu
-
-  * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/the-big-green-button-turning-plone-into-a-dynamic-site-factory  Plone Dynamic Site Factory] ( [http://www.slideshare.net/carlos.delaguardia/turning-plone-into-a-dynamic-site-factory-presentation Slides] ) - Carlos de La Guardia
-
 
 == 2009 ==
 
@@ -26,3 +20,9 @@ Carlos de La Guardia created a video walkthrough of Content Mirror
 Andy Mckay did a presentation at the Seattle Plone User Group, and demoed his django/plone integration using content mirror.
 
  * http://www.agmweb.ca/blog/andy/2189 ( [http://www.agmweb.ca/files/content-mirror.pdf Slides] )
+
+== Plone Conference 2008 ==
+
+  * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/content-mirror-and-relational-databases Content Mirror Intro/Architecture] [http://plone.tv/media/1442083380/view video] - Kapil Thangavelu
+
+  * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/the-big-green-button-turning-plone-into-a-dynamic-site-factory  Plone Dynamic Site Factory] ( [http://www.slideshare.net/carlos.delaguardia/turning-plone-into-a-dynamic-site-factory-presentation Slides] ) - Carlos de La Guardia
