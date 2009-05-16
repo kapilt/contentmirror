@@ -59,10 +59,8 @@ The contents of this file are:
            name="mirror-db"
            echo="True"/>
 
- <!-- setup a database connection -->
- <ore:engine url="postgres://localhost/contentmirror"
-           name="mirror-db"
-           echo="True"/>
+ <!-- bind the database connection to the contentmirror rdb schema -->
+ <ore:bind db="mirror-db" metadata="ore.contentmirror.schema.metadata"/>
 
  <!-- If Your Running on Plone 2.5, you must uncomment the following line
  <include package="ore.contentmirror" file="legacy.zcml"/>
