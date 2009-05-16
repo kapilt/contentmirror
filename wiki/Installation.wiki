@@ -7,8 +7,9 @@ Installation consists of two steps, installing the software, and configuring it 
 
  * Plone 2.5 or above
 
- * Database Server ( postgresql mysql)
+ * Database Server ( postgresql mysql oracle firebird )
 
+ * Python Database Adapters for your Database
 
 
 == Product Installation ==
@@ -51,11 +52,15 @@ The contents of this file are:
 
 {{{
 <configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:db="http://namespaces.objectrealms.net/rdb"
            xmlns:ore="http://namespaces.objectrealms.net/mirror">
 
   <!-- setup a database connection -->
- <db:engine url="postgres://localhost/contentmirror"
+ <ore:engine url="postgres://localhost/contentmirror"
+           name="mirror-db"
+           echo="True"/>
+
+ <!-- setup a database connection -->
+ <ore:engine url="postgres://localhost/contentmirror"
            name="mirror-db"
            echo="True"/>
 
