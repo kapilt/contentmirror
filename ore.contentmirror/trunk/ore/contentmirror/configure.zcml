@@ -27,6 +27,9 @@
   <utility
      factory=".peer.PeerRegistry"/>
 
+  <utility
+     factory=".operation.OperationBufferFactory"/>
+
   <!-- Filter for Portal Factory Content    -->
   <subscriber
      factory=".filter.PortalFactory"

@@ -82,6 +82,16 @@ class IAddOperation( IOperation ): pass
 class IOperationBuffer( interface.Interface ):
     """ transactional operation buffer """
 
+    def add( operation ):
+        """ add an operation to the buffer """
+
+    def flush( ):
+        """ flush the buffer and process/handle the operations """
+
+class IOperationBufferFactory( interface.Interface ):
+    """ a factory for creating operation buffer instances, as buffers
+        are accessed via utilities """
+
 class IOperationFactory( interface.Interface ):
         """ """
 

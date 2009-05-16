@@ -97,12 +97,22 @@ class BufferManager( object ):
     
     tpc_abort = abort
     commit = tpc_begin = tpc_vote = tpc_finish = nothing
+
+class OperationBufferFactory( object ):
+    # we componentize this so we can plugin alternate implementations
+    # that can do async processing
+    interface.implements( interfaces.IOperationBufferFactory )
+    
+    def new( self ):
+        return OperationBuffer()
     
 class OperationBuffer( object ):
     """
     an operation buffer aggregates operations across a transaction
     """
 
+    interface.implements( interfaces.IOperationBuffer )
+    
     def __init__( self ):
         self.ops = {}
         self.registered = False
@@ -169,6 +179,6 @@ def get_buffer( ):
     op_buffer = getattr( _buffer, 'buffer', None)
     if op_buffer is not None:
         return op_buffer
-    op_buffer = OperationBuffer()
+    op_buffer = component.getUtility( interfaces.IOperationBufferFactory ).new()
     _buffer.buffer = op_buffer
     return op_buffer

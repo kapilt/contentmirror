@@ -46,6 +46,7 @@ def setUp( test ):
                               ( interfaces.IMirrored, interfaces.IMetaData ) )
     component.provideAdapter( serializer.Serializer, (interfaces.IMirrored,) )
     component.provideAdapter( operation.OperationFactory, ( interfaces.IMirrored,) )
+    component.provideUtility( operation.OperationBufferFactory() )
                               
     
 def tearDown( test ):
