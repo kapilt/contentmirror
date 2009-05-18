@@ -23,7 +23,7 @@ setup(
     zip_safe=False,
     author='Kapil Thangavelu',
     author_email='kapil.foss@gmail.com',
-    description="Content Mirror Async Operations",
+    description="Content Mirror Async Operations via AMQP/SQS/RDB",
     long_description=read('mirror', 'async', 'readme.txt'),
     license='GPL',
     keywords="zope plone"
