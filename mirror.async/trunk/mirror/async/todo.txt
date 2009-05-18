@@ -1,0 +1,2 @@
+ - use buffer to reduce set from transport ( ie. remove redundants )
+ - finish daemon implementation code
