@@ -23,6 +23,6 @@ Andy Mckay did a presentation at the Seattle Plone User Group, and demoed his dj
 
 == Plone Conference 2008 ==
 
-  * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/content-mirror-and-relational-databases Content Mirror Intro/Architecture] [http://plone.tv/media/1442083380/view video] - Kapil Thangavelu
+  * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/content-mirror-and-relational-databases Content Mirror Intro/Architecture] [http://plone.tv/media/1442083380/view video] [ http://docs.google.com/Presentation?id=dntgmzf_17547q5j3wq slides] - Kapil Thangavelu
 
   * [http://plone.org/events/conferences/2008-washington-dc/agenda/toc/the-big-green-button-turning-plone-into-a-dynamic-site-factory  Plone Dynamic Site Factory] ( [http://www.slideshare.net/carlos.delaguardia/turning-plone-into-a-dynamic-site-factory-presentation Slides] ) - Carlos de La Guardia
