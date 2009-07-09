@@ -13,7 +13,7 @@ set up the same type of stuff in the readme.txt doctest
  
 Testing Database environment variable setup
 
-  >>> db_url = os.environ.get('DATABASE_URL') or 'sqlite://'
+  >>> db_url = os.environ.get('CONTENTMIRROR_URI') or 'sqlite://'
 
 This is the key that contentmirror expects to find its database
 variable at
