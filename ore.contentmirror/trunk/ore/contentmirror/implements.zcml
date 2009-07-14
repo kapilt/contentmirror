@@ -26,6 +26,10 @@
      <implements interface=".interfaces.IFloatField"/>
   </class>    
 
+  <class class="Products.Archetypes.Field.FixedPointField">
+     <implements interface=".interfaces.IFixedPointField"/>
+  </class>    
+
   <class class="Products.Archetypes.Field.TextField">
      <implements interface=".interfaces.ITextField"/>
   </class>    

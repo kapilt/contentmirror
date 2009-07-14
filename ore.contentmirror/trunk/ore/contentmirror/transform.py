@@ -244,6 +244,10 @@ class IntegerTransform( BaseFieldTransformer):
 class FloatTransform( BaseFieldTransformer ):    
     component.adapts( interfaces.IFloatField, interfaces.ISchemaTransformer )
     column_type = rdb.Float
+
+class FixedPointTransform( BaseFieldTransformer ):    
+    component.adapts( interfaces.IFixedPointField, interfaces.ISchemaTransformer )
+    column_type = rdb.Float
     
 class DateTimeTransform( BaseFieldTransformer ):
     column_type = rdb.DateTime
@@ -291,8 +295,11 @@ class ReferenceTransform( object ):
             if related:
                 continue
             # if single value and not the same value, delete previous value
-            elif single_value and peer.relations: 
-                Session().delete( peer.relations[0] )
+            elif single_value:
+                relationship = self.context.relationship
+                for r in peer.relations:
+                    if r.relationship == relationship:
+                        Session().delete( r )
             
             # fetch the remote side's peer
             peer_ob = schema.fromUID( ob.UID() )

@@ -178,6 +178,7 @@ class IStringField( interface.Interface ): pass
 class IBooleanField( interface.Interface ): pass   
 class IIntegerField( interface.Interface ): pass
 class IFloatField( interface.Interface ): pass
+class IFixedPointField( interface.Interface ): pass
 class IReferenceField( interface.Interface): pass
 class ILinesField( interface.Interface ): pass
 class IFileField( interface.Interface ): pass

@@ -49,6 +49,12 @@
      />          
 
   <adapter
+     for=".interfaces.IFixedPointField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.FixedPointTransform"
+     />          
+
+  <adapter
      for=".interfaces.IDateTimeField .interfaces.ISchemaTransformer"
      provides=".interfaces.IFieldTransformer"
      factory=".transform.DateTimeTransform"
