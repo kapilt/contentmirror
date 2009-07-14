@@ -1,7 +1,4 @@
-0.5.1
-
- - Packaging fix
-   [hazmat]
+0.5.2
 
  - Issue 38: Support FixedPoint Field
    [stefan.eletzhofer]
@@ -12,6 +9,12 @@
 
  - Issue 46: Avoid incorrect delete of references  
    [tesdal]
+
+
+0.5.1
+
+ - Packaging fix
+   [hazmat]
 
 0.5.0 
 
