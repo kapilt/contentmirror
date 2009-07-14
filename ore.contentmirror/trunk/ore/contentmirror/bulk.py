@@ -35,14 +35,19 @@ def main( app ):
         
     instance_path = sys.argv[1]
     portal = app.unrestrictedTraverse( instance_path )
-     
+
+    from AccessControl.SecurityManagement import newSecurityManager
+    admin=app.acl_users.getUserById("admin")
+    newSecurityManager(None, admin)
+
     threshold = 500
     count = 0
     
     start_time = time.time()
     batch_time = start_time
-    
-    for brain in portal.portal_catalog(sort_on='created'):
+
+    portal_catalog = portal.portal_catalog
+    for brain in portal_catalog.unrestrictedSearchResults(sort_on='created'):
 
         try: 
             ob = brain.getObject()
