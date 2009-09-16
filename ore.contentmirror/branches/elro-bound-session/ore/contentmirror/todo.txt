@@ -1,0 +1,47 @@
+---------
+Todo List
+---------
+
+Bugs
+----
+
+- MySQL File Truncation
+
+  detect database field type binary on startup
+
+  for files table, function setFileColumnKind
+
+Todo ( needs reviewing )
+----
+
+- give bulk script option to do the date
+
+- Install Instructions  ( windows, unix )
+
+- Test Reference Cycle
+
+- Test Duplicate References / Add/Update
+
+- Single Valued References as Scalar (  issue 12, on delete set null )
+
+- Containment deletion cascade
+
+- Ordering Support ( needs skin script :-( )
+
+
+Maybe Items
+-----------
+
+ - Files on Disk Support
+
+ - Workflow History ? does any one want this
+
+ - Content Versions ? or this
+
+ - Lazy Asynchronous Synchronization  ( preferrably funded / contributed )
+
+ - LinguaPlone Compatibility
+
+ - Staging Support
+
+ - cmfedition versions
