@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<componentregistry>
+  <subscribers>
+
+     <subscriber
+        for="ore.contentmirror.interfaces.IMirrored
+             zope.lifecycleevent.IObjectModifiedEvent"
+        handler="ore.contentmirror.subscriber.objectModified" 
+        />
+
+     <!-- CMF Workflow transition success event -->
+     <subscriber
+        for="ore.contentmirror.interfaces.IMirrored
+            Products.CMFCore.interfaces.IActionSucceededEvent"
+        handler="ore.contentmirror.subscriber.objectModified"
+        />
+
+     <subscriber
+        for="ore.contentmirror.interfaces.IMirrored
+             zope.app.container.interfaces.IObjectAddedEvent"
+        handler="ore.contentmirror.subscriber.objectAdded"
+        />
+
+     <subscriber
+        for="ore.contentmirror.interfaces.IMirrored
+             zope.app.container.interfaces.IObjectMovedEvent"
+        handler="ore.contentmirror.subscriber.objectMoved"
+        />
+
+     <subscriber
+        for="ore.contentmirror.interfaces.IMirrored
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler="ore.contentmirror.subscriber.objectDeleted"
+        />
+
+  </subscribers>
+</componentregistry>

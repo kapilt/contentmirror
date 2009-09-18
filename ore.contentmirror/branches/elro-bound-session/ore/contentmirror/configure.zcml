@@ -45,7 +45,12 @@
   <include file="transform.zcml"/>
   
   <!-- Subscribers -->
+<!--
   <include file="subscriber.zcml"/>
+-->
+
+  <!-- Generic setup profile -->  
+  <include file="profiles.zcml"/>
 
   <!-- Archetypes Dependency -->  
   <include package="Products.Archetypes"/>
