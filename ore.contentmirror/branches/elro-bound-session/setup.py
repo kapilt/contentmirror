@@ -10,6 +10,7 @@ setup(
     url="http://contentmirror.googlecode.com",
     install_requires=['setuptools',
                       'SQLAlchemy>=0.5',
+                      'z3c.saconfig',
                       'zope.sqlalchemy',
                       'zope.component',
                       'zope.event',

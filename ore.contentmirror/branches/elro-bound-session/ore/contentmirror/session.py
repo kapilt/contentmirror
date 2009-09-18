@@ -1,6 +1,5 @@
 
-from sqlalchemy.orm import scoped_session, sessionmaker
-from zope.sqlalchemy import ZopeTransactionExtension
+from z3c.saconfig import named_scoped_session
 
-Session = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+Session = named_scoped_session("mirror-db")
 
