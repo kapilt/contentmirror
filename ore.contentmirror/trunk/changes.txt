@@ -1,4 +1,8 @@
 
+ - Peer handling for subclasses of IMirrored.
+   (An alternative would be for the class to provide rather than implement IMirrored)
+   [laurencerowe]
+
  - Transform handling for write-only fields.
    [laurencerowe]
 

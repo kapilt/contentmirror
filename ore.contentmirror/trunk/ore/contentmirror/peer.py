@@ -55,9 +55,18 @@ class PeerRegistry( object ):
         self._peer_classes[ key ] = value        
         
     def __getitem__( self, key ):
-        return self._peer_classes[ key ]
+        try:
+            return self._peer_classes[ key ]
+        except KeyError:
+            for base in key.mro():
+                factory = self._peer_classes.get( base, None )
+                if factory is not None:
+                    self._peer_classes[ key ] = factory # cache
+                    break
+            return self._peer_classes[ key ]
         
     def __contains__( self, key ):
+        # must not check base classes here
         return key in self._peer_classes
 
     def items( self ):
