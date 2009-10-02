@@ -99,7 +99,7 @@ class BaseFieldTransformer( object ):
     
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
-        value = accessor()
+        value = accessor and accessor()
         setattr( peer, self.name, value )
                                  
     @property                      
@@ -138,7 +138,7 @@ class StringTransform( BaseFieldTransformer ):
     
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
-        value = accessor()
+        value = accessor and accessor()
         
         # one of a number of common bad practices that plone permits is specing a widget
         # which doesn't correspond to the field. ie. using a lines widget with a string field
@@ -162,7 +162,7 @@ class LinesTransform( StringTransform ):
     
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
-        value = accessor()
+        value = accessor and accessor()
         if isinstance(value, (list, tuple)):
             value = "\n".join(value)
         setattr( peer, self.name, value )        
@@ -190,7 +190,7 @@ class FileTransform( object ):
 
     def copy( self, instance, peer ):
         accessor = self.context.getAccessor( instance )
-        value = accessor()
+        value = accessor and accessor()
         if not value: return 
         file_peer =self._getPeer( instance, peer )
         if not self._checkModified( value, file_peer ):

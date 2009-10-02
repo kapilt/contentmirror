@@ -1,3 +1,7 @@
+
+ - Transform handling for write-only fields.
+   [laurencerowe]
+
 0.5.2
 
  - Issue 38: Support FixedPoint Field
