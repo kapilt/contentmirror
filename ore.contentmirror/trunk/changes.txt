@@ -1,4 +1,7 @@
 
+ - Separate core zcml into base.zcml for when default content types do not need mirroring.
+   [laurencerowe]
+
  - Peer handling for subclasses of IMirrored.
    (An alternative would be for the class to provide rather than implement IMirrored)
    [laurencerowe]
