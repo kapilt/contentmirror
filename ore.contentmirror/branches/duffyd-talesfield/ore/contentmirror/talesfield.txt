@@ -10,13 +10,7 @@ set up the same type of stuff in the readme.txt doctest
 
   >>> import zope.interface, os
   >>> from datetime import datetime
-  
-We'll also ensure our TALESString adapter is registered
 
-  >>> from zope import component
-  >>> from ore.contentmirror import transform
-  >>> component.provideAdapter( transform.TALESStringTransform )
- 
 Testing Database environment variable setup
 
   >>> db_url = os.environ.get('CONTENTMIRROR_URI') or 'sqlite://'
@@ -33,7 +27,13 @@ variable at
   >>> import transaction 
   >>> from ore.contentmirror.session import Session
 
-Confirming the TALES String field content will serialize across
+Now lets register our TALESString adapter.
+
+  >>> from zope import component
+  >>> from ore.contentmirror import transform
+  >>> component.provideAdapter( transform.TALESStringTransform )
+
+Lets confirm the TALES String field content will serialize across
 to the RDBMS.
 
   >>> class TALESStringContent( BaseContent ):
@@ -44,8 +44,6 @@ to the RDBMS.
   ...         StringField('slug', required=True),
   ...         TALESString('mytalesstring')   
   ...     ))
-
-
   >>> loader.load( TALESStringContent )
   >>> metadata.drop_all(checkfirst=True)
   >>> metadata.create_all(checkfirst=True)

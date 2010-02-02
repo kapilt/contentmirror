@@ -1,4 +1,5 @@
-<configure xmlns="http://namespaces.zope.org/zope">
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
 
   <class class="sqlalchemy.MetaData">
      <implements interface=".interfaces.IMetaData"/>
@@ -66,7 +67,8 @@
      <implements interface=".interfaces.IDisplayList"/>
   </class>
   
-  <class class="Products.TALESField.TALESString">
+  <class class="Products.TALESField.TALESString"
+         zcml:condition="installed Products.TALESField">
      <implements interface=".interfaces.ITALESStringField"/>
   </class>
   
