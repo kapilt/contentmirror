@@ -321,3 +321,8 @@ class ReferenceTransform( object ):
         for oid in (rel_oids - oids_seen):
             Session().delete( rel_map[ ( self.context.relationship, oid)] )
             
+class TALESStringTransform( BaseFieldTransformer ):    
+    component.adapts( interfaces.ITALESStringField, interfaces.ISchemaTransformer )
+    column_type = rdb.Text
+    column_args = ()
+    

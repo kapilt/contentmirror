@@ -187,3 +187,4 @@ class IPhotoField( interface.Interface ): pass
 class ITextField( interface.Interface ): pass
 class IDateTimeField( interface.Interface ): pass
 class IDisplayList( interface.Interface ): pass
+class ITALESStringField( interface.Interface ): pass

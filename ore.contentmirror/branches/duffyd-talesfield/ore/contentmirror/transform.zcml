@@ -72,4 +72,10 @@
      factory=".transform.ReferenceTransform"
      />     
           
+  <adapter
+     for=".interfaces.ITALESStringField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.TALESStringTransform"
+     />
+
 </configure>     

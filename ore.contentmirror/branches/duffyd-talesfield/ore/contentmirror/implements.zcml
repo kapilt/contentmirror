@@ -64,7 +64,10 @@
 
   <class class="Products.Archetypes.utils.DisplayList">
      <implements interface=".interfaces.IDisplayList"/>
-  </class>    
-    
+  </class>
+  
+  <class class="Products.TALESField.TALESString">
+     <implements interface=".interfaces.ITALESStringField"/>
+  </class>
   
 </configure>  
