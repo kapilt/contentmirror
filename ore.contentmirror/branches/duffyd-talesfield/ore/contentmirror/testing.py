@@ -37,6 +37,7 @@ def setUp( test ):
     component.provideAdapter( transform.FileTransform )
     component.provideAdapter( transform.PhotoTransform )
     component.provideAdapter( transform.ReferenceTransform )
+    component.provideAdapter( transform.TALESStringTransform )
 
 
     component.provideUtility( peer.PeerRegistry() )
@@ -189,6 +190,9 @@ class DateTimeField( MockField ):
 
 class PhotoField( MockField ):
     interface.implements( interfaces.IPhotoField )  
+
+class TALESString( MockField ):
+    interface.implements( interfaces.ITALESStringField ) 
     
 doctest_ns = {
     'IntegerField'  : IntegerField,
@@ -203,5 +207,6 @@ doctest_ns = {
     'BaseContent'   : BaseContent,
     'Schema'        : Schema,
     'DateTime'      : DateTime,
-    'File'          : File
+    'File'          : File,
+    'TALESString'   : TALESString
     }        
