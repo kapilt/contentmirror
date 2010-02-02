@@ -37,7 +37,7 @@ def setUp( test ):
     component.provideAdapter( transform.FileTransform )
     component.provideAdapter( transform.PhotoTransform )
     component.provideAdapter( transform.ReferenceTransform )
-    component.provideAdapter( transform.TALESStringTransform )
+    #component.provideAdapter( transform.TALESStringTransform )
 
 
     component.provideUtility( peer.PeerRegistry() )

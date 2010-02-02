@@ -10,6 +10,12 @@ set up the same type of stuff in the readme.txt doctest
 
   >>> import zope.interface, os
   >>> from datetime import datetime
+  
+We'll also ensure our TALESString adapter is registered
+
+  >>> from zope import component
+  >>> from ore.contentmirror import transform
+  >>> component.provideAdapter( transform.TALESStringTransform )
  
 Testing Database environment variable setup
 
