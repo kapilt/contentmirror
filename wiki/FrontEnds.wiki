@@ -12,6 +12,8 @@ Below are some example frontends that show how the content in Plone can be serve
 
  * [http://code.google.com/p/contentmirror/source/browse/#svn/frontends/plango Plango] by Andy McKay  ([http://svn.clearwind.ca/public/django/plango/ old svn repo])
 
+ * [http://plone.org/documentation/kb/send-plone-content-to-a-django-web-app-via-contentmirror/tutorial-all-pages Tutorial on Plone.org about publishing Plone content to Django.]
+
 == Repoze.bfg ==
 
  * TBD by Carlos de la Guardia
