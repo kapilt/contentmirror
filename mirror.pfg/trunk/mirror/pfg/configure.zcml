@@ -1,0 +1,12 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <class class="Products.TALESField.TALESString">
+    <implements interface=".interfaces.ITALESStringField"/>
+  </class>
+
+  <adapter
+     for=".interfaces.ITALESStringField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.TALESStringTransform"/>
+
+</configure>
