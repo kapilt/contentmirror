@@ -9,7 +9,7 @@ setup(
     version=read('version.txt').strip(),
     url="http://contentmirror.googlecode.com",
     install_requires=['setuptools',
-                      'SQLAlchemy>=0.5',
+                      'SQLAlchemy>=0.5.5,<0.6',
                       'zope.sqlalchemy',
                       'zope.component',
                       'zope.event',
