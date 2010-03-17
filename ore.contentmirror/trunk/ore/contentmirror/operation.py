@@ -31,7 +31,7 @@ class Operation( object ):
         
     @property
     def document_id( self ):
-        return self.context.UID()
+        return id(self.context)
         
     def process( self ):
         raise NotImplementedError("subclass responsibility")

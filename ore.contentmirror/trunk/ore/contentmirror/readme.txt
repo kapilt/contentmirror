@@ -188,15 +188,27 @@ created, and the buffer automatically removes any pending operations
 for the content::
   
   >>> ops.delete()
-  >>> operation.get_buffer().get( content.UID() )
+  >>> operation.get_buffer().get( id(content) )
   
 if we create an add operation, and an update operation in a single
 transaction scope, it should collapse down to just the add operation::
 
   >>> ops.add()
   >>> ops.update()
-  >>> operation.get_buffer().get( content.UID() )
+  >>> operation.get_buffer().get( id(content) )
   <ore.contentmirror.operation.AddOperation object at ...>
+
+if we have modified the object's uid in the same transaction we should 
+have still one operation for the object::
+
+  >>> len(list(operation.get_buffer()))
+  1
+  >>> from ore.contentmirror.testing import make_uuid
+  >>> content.uid = make_uuid(content.id)
+  >>> ops.update()
+  >>> len(list(operation.get_buffer()))
+  1
+
 
 Operations in the transaction buffer are automatically processed at
 transaction boundaries, if we commit the transaction all operations
@@ -619,7 +631,7 @@ Commercial Support
 ------------------
 
 The contentmirror system is designed to be useable out of the box, but
-if you need commercial support, please contact us at info@objectrealms.net
+if you need commercial support, please contact us at kapil.foss@gmail.com
 
 
 
