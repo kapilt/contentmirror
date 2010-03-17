@@ -17,7 +17,7 @@ setup(
       '': ['*.txt', '*.zcml'],
     },
     zip_safe=False,
-    author='Tim Miho',
+    author='Tim Knapp',
     description="Extension for Content Mirror to Support Plone Form Gen",
     license='GPL',
     keywords="plone",
