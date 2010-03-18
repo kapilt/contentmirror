@@ -1,0 +1,13 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <class class="Products.TALESField.TALESString">
+    <implements interface=".interfaces.ITALESStringField"/>
+  </class>
+
+  <adapter
+     for=".interfaces.ITALESStringField
+          ore.contentmirror.interfaces.ISchemaTransformer"
+     provides="ore.contentmirror.interfaces.IFieldTransformer"
+     factory=".transform.TALESStringTransform"/>
+
+</configure>
