@@ -5,8 +5,9 @@
   </class>
 
   <adapter
-     for=".interfaces.ITALESStringField .interfaces.ISchemaTransformer"
-     provides=".interfaces.IFieldTransformer"
+     for=".interfaces.ITALESStringField
+          ore.contentmirror.interfaces.ISchemaTransformer"
+     provides="ore.contentmirror.interfaces.IFieldTransformer"
      factory=".transform.TALESStringTransform"/>
 
 </configure>
