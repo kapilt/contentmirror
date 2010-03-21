@@ -21,18 +21,17 @@ variable at
   >>> os.environ['CONTENTMIRROR_URI'] = db_url
   >>> from ore.contentmirror.tests.base import *
   >>> from ore.contentmirror import interfaces
-  >>> from ore.contentmirror.schema import metadata
+  >>> from ore.contentmirror.schema import metadata, content, relations
   >>> from ore.contentmirror import operation
   >>> from ore.contentmirror.loader import loader
   >>> import transaction
   >>> from ore.contentmirror.session import Session
   >>> setUp(None)
 
-
   >>> import sqlalchemy as rdb
   >>> from ore.contentmirror.schema import metadata
-  >>> metadata.bind = rdb.create_engine( db_url )
-  >>> engine=metadata.bind
+  >>> metadata.bind = rdb.create_engine( db_url, convert_unicode=True)
+  >>> engine = metadata.bind
   >>> session = Session()
 
 Unicode Content
@@ -54,8 +53,7 @@ out of the box.
 
 
   >>> loader.load( UnicodeContent )
-  >>> metadata.drop_all(checkfirst=True)
-  >>> metadata.create_all(checkfirst=True)
+  >>> reset_db()
   >>> uni1 = UnicodeContent( 'test', name= u'ﺎﻠﻋﺮﺒﻳﺓ', slug=u'简体中文' )
   >>> peer1 = interfaces.ISerializer( uni1 ).add()
   >>> transaction.commit()
@@ -72,8 +70,9 @@ Mixed Case Fields
 issue 25
 http://code.google.com/p/contentmirror/issues/detail?id=25
 
-contentmirror doesn't handle multicase field names correctly, this was an invalid issue, as this
-unit test worked out of the box.
+issue summary - contentmirror doesn't handle multicase field names correctly.
+
+This was an invalid issue, as this unit test worked out of the box.
 
   >>> class MixedCase( BaseContent ):
   ...     portal_type = "Mixed Case"
@@ -85,8 +84,7 @@ unit test worked out of the box.
   ...     ))
 
   >>> loader.load( MixedCase )
-  >>> metadata.drop_all(checkfirst=True)
-  >>> metadata.create_all(checkfirst=True)
+  >>> reset_db()
 
   >>> mixed1 = MixedCase( 'magic', Name="Magic", Slug="Woot", contactEmail2="zebra@example.com")
   >>> peer1 = interfaces.ISerializer( mixed1 ).add()
@@ -109,19 +107,18 @@ Deleting Files
 issue 24
 http://code.google.com/p/contentmirror/issues/detail?id=24
 
-create an image or file and try to delete it, it fails with a sqlalchemy error. There were a couple of things going on here, files as named scalar values triggered some interesting problems with a sqlalchemy optimization as relates 
+Create an image or file and try to delete it, it fails with a sqlalchemy error. There were a couple of things going on here, files as named scalar values triggered some interesting problems with a sqlalchemy optimization as relates
 
   >>> class FileContentTest( BaseContent ):
   ...     portal_type = "File Test"
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
-  ...                StringField('Name'),   
-  ...                FileField('file_content', required=True),   
+  ...                StringField('Name'),
+  ...                FileField('file_content', required=True),
   ...     ))
 
   >>> loader.load( FileContentTest )
-  >>> metadata.drop_all(checkfirst=True)
-  >>> metadata.create_all(checkfirst=True)
+  >>> reset_db()
 
   >>> file1 = FileContentTest('abc', Name="Rabbit", file_content=File("treaty.txt", "file text") )
   >>> peer1 = interfaces.ISerializer( file1 ).add()
@@ -134,7 +131,7 @@ Test Updating the File Content
   >>> transaction.commit()
 
 And verify deleting it, fixes the problem
- 
+
   >>> interfaces.ISerializer( file1 ).delete()
   >>> transaction.commit()
   >>> assert list(engine.execute('select count(*) from files  ') )[0][0] == 0
@@ -149,7 +146,7 @@ We want to verify that references are deleted from the database when there delet
 
 The only difference is multiValued=False is set on the type.  This means that the type should only
 have a single value.
-     
+
 First let's clear out any previous db state
 
   >>> transaction.abort()
@@ -158,18 +155,17 @@ First let's clear out any previous db state
   ...     portal_type = "My Asset"
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
-  ...         StringField('name'),   
-  ...         StringField('slug', required=True),   
-  ...         ReferenceField('related', relationship='ref',multiValued=False), 
+  ...         StringField('name'),
+  ...         StringField('slug', required=True),
+  ...         ReferenceField('related', relationship='ref',multiValued=False),
   ...         ReferenceField('sim', relationship='sim'),
   ...         DateTimeField('discoveredDate')
   ...     ))
 
 perform all of the necessary wiring to get the machinery working
-  
+
   >>> loader.load( MyAsset )
-  >>> metadata.drop_all(checkfirst=True)
-  >>> metadata.create_all(checkfirst=True)
+  >>> reset_db()
 
 create some test instances
 
@@ -180,53 +176,52 @@ create some test instances
   >>> transaction.commit()
 
 we create some lookup tables for testing verification due to the indeteriminate order these
-will go into the database ( ie. the primary key changes from one test run to another as the 
+will go into the database ( ie. the primary key changes from one test run to another as the
 session machinery utilizes a dict, and there is no definitive ordering determination for the inserts ).
 
   >>> id_pk_map = dict(list(engine.execute('select id, content_id from content order by id')))
   >>> pk_id_map = dict(list(engine.execute('select content_id, id from content order by id')))
   >>> assert 'home-page' in id_pk_map
   >>> assert 'ref1' in id_pk_map
-  
+
 the related item should be ref1
 
   >>> home_page.related[0].id
-  'ref1'  
+  'ref1'
   >>> rel = list(engine.execute('select source_id, target_id from relations order by source_id'))[0]
-  >>> pk_id_map[rel[0]]
-  u'home-page'
-  >>> pk_id_map[rel[1]]
-  u'ref1'
+  >>> str(pk_id_map[rel[0]])
+  'home-page'
+  >>> str(pk_id_map[rel[1]])
+  'ref1'
 
  now change the related item to ref2.  This should remove the relation for ref1 and add one for ref2
-  
+
   >>> home_page.related=ref2
   >>> peer = interfaces.ISerializer( home_page ).update()
   >>> transaction.commit()
   >>> id_pk_map = dict(list(engine.execute('select id, content_id from content order by id')))
   >>> pk_id_map = dict(list(engine.execute('select content_id, id from content order by id')))
-  >>> sorted( id_pk_map.keys() )
-  [u'home-page', u'ref1', u'ref2']
+  >>> map(str, sorted( id_pk_map.keys() ))
+  ['home-page', 'ref1', 'ref2']
   >>> rel =list(engine.execute('select source_id,target_id from relations order by source_id'))[0]
-  >>> pk_id_map[ rel[0] ]
-  u'home-page'
-  >>> pk_id_map[ rel[1] ]
-  u'ref2'
+  >>> str(pk_id_map[ rel[0] ])
+  'home-page'
+  >>> str(pk_id_map[ rel[1] ])
+  'ref2'
 
 
 Now retest with with multivalued relations
 
-  >>> metadata.drop_all(checkfirst=True)
-  >>> metadata.create_all(checkfirst=True)
- 
+  >>> reset_db()
+
 Create a content object with two references
- 
+
   >>> ref1 = MyAsset('ref1', name="Ref 1")
   >>> ref2 = MyAsset('ref2', name="Ref 2")
   >>> home_page = MyAsset( 'home-page', sim=[ ref1, ref2 ] )
   >>> peer = interfaces.ISerializer( home_page ).add()
-  >>> transaction.commit()  
-  
+  >>> transaction.commit()
+
 Update the content to have just one reference, and verify
 
   >>> home_page.sim = [ref1]
@@ -234,6 +229,46 @@ Update the content to have just one reference, and verify
   >>> transaction.commit()
   >>> rels = list(engine.execute('select source_id,target_id from relations order by source_id'))
   >>> assert len(rels) == 1
+
+Deleting Content with References
+--------------------------------
+
+ issue: http://code.google.com/p/contentmirror/issues/detail?id=52
+ issue-summary: Deleting content which has references causes a sqlalchemy error.
+
+ Changeset 94 Fixes the issue.
+
+ First let's create some content with a few references, and then delete it.
+
+  >>> reset_db()
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> home_page = MyAsset( 'home-page', sim=[ref1] )
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> operations = interfaces.IOperationFactory(home_page)
+  >>> operations.delete()
+  >>> transaction.commit()
+  >>> objects = content.select(order_by=content.c.id).execute()
+  >>> [ob.id for ob in objects]
+  [u'ref1']
+  >>> list(relations.select().execute())
+  []
+
+ Next, let's create some content with a few back references, and then delete it.
+
+  >>> reset_db()
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> home_page = MyAsset( 'home-page', sim=[ref1] )
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> operations = interfaces.IOperationFactory(ref1)
+  >>> operations.delete()
+  >>> transaction.commit()
+  >>> objects = content.select(order_by=content.c.id).execute()
+  >>> [ob.id for ob in objects]
+  [u'home-page']
+
+ SQLite doesn't actually handle cascades to the relations table, but other databases do.
 
 100% Coverage
 -------------

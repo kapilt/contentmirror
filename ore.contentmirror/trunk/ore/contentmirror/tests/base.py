@@ -63,6 +63,14 @@ def setUp(test):
 
 def tearDown(test):
     placelesssetup.tearDown()
+    schema.metadata.drop_all(checkfirst=True)
+
+def reset_db():
+    tables = schema.metadata.sorted_tables
+    tables.reverse()
+    for i in tables:
+        i.drop(checkfirst=True)
+    schema.metadata.create_all(checkfirst=True)
 
 
 class IntegrationTest(unittest.TestCase):
@@ -303,4 +311,5 @@ doctest_ns = {
     'BaseContent'   : BaseContent,
     'Schema'        : Schema,
     'DateTime'      : DateTime,
-    'File'          : File}
+    'File'          : File,
+    'reset_db'      : reset_db}

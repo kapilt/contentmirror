@@ -21,11 +21,12 @@ $Id: $
 
 import unittest
 
-
-import sqlalchemy
-import transaction
 from zope.testing import doctest
 from base import setUp, tearDown, doctest_ns
+
+optionflags = (
+    doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS |
+    doctest.REPORT_ONLY_FIRST_FAILURE)
 
 
 def test_suite():
@@ -34,11 +35,11 @@ def test_suite():
         doctest.DocFileSuite(
             '../readme.txt',
             setUp=setUp, tearDown=tearDown,
-            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
+            optionflags=optionflags,
             globs=doctest_ns),
         doctest.DocFileSuite(
             '../ref.txt',
             setUp=setUp, tearDown=tearDown,
-            optionflags=doctest.NORMALIZE_WHITESPACE|doctest.ELLIPSIS,
+            optionflags=optionflags,
             globs=doctest_ns),
     ))

@@ -65,18 +65,71 @@ content = rdb.Table(
 
 rdb.Index('content_uid_idx', content.c.uid, unique=True)
 
+relations = rdb.Table(
+   "relations",
+   metadata,
+   rdb.Column("source_id", rdb.Integer,
+               rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
+               primary_key=True),
+   rdb.Column("target_id", rdb.Integer,
+               rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
+               primary_key=True),
+   rdb.Column("relationship", rdb.String(128), primary_key=True))
+
+files = rdb.Table(
+    "files",
+    metadata,
+    rdb.Column("content_id", rdb.Integer,
+               rdb.ForeignKey('content.content_id', ondelete="CASCADE"),
+               primary_key=True),
+    rdb.Column("attribute", rdb.String(156), primary_key=True),
+    rdb.Column("type", rdb.String(30)),
+    rdb.Column("content", rdb.Binary),
+    rdb.Column("path", rdb.String(300)),
+    rdb.Column("size", rdb.Integer),
+    rdb.Column("checksum", rdb.String(33)),
+    rdb.Column("file_name", rdb.String(156)),
+    rdb.Column("mime_type", rdb.String(80)),
+   )
+
+rdb.Index('files_idx',
+      files.c.content_id,
+      files.c.attribute,
+      unique=True)
+
 
 class Content(object):
     type = "content"
     interface.implements(interfaces.IContentPeer)
 
 
+class Relation(object):
+
+    def __init__(self, source=None, target=None, relation=None):
+        self.source = source
+        self.target = target
+        self.relationship = relation
+
 orm.mapper(Content, content,
             polymorphic_on=content.c.type,
             polymorphic_identity='content',
-            properties = {'children': orm.relation(Content,
-                    backref=orm.backref('parent',
-                                        remote_side=[content.c.content_id]))})
+            properties = {
+               'children': orm.relation(
+                   Content,
+                   backref=orm.backref('parent',
+                                       remote_side=[content.c.content_id])),
+               'relations': orm.relation(
+                   Relation,
+                   cascade="all, delete-orphan",
+                   primaryjoin=(content.c.content_id==relations.c.source_id),
+                   backref=orm.backref("source",
+                                       remote_side=[relations.c.source_id]))})
+#               'backrefs': orm.relation(
+#                   Relation,
+#                   primaryjoin=(content.c.content_id==relations.c.target_id),
+#                   backref=orm.backref("target",
+#                                       remote_side=[relations.c.target_id]))})
+
 
 #class Node( object ): pass
 #orm.mapper( Node, content )
@@ -106,54 +159,15 @@ def fromUID(content_uid):
     return session.query(Content).autoflush(False).filter(
         content.c.uid == content_uid).first()
 
-relations = rdb.Table(
-   "relations",
-   metadata,
-   rdb.Column("source_id", rdb.Integer,
-               rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
-               primary_key=True),
-   rdb.Column("target_id", rdb.Integer,
-               rdb.ForeignKey('content.content_id', ondelete='CASCADE'),
-               primary_key=True),
-   rdb.Column("relationship", rdb.String(128), primary_key=True))
-
-
-class Relation(object):
-
-    def __init__(self, source=None, target=None, relation=None):
-        self.source = source
-        self.target = target
-        self.relationship = relation
 
 orm.mapper(Relation, relations,
            properties = {
-               'source': orm.relation(
-                   Content, uselist=False, backref='relations',
-                   primaryjoin=content.c.content_id==relations.c.source_id),
+#               'source': orm.relation(
+#                   Content, uselist=False, backref='relations',
+#                   primaryjoin=content.c.content_id==relations.c.source_id),
                'target': orm.relation(
                    Content, uselist=False,
                    primaryjoin=content.c.content_id==relations.c.target_id)})
-
-files = rdb.Table(
-    "files",
-    metadata,
-    rdb.Column("content_id", rdb.Integer,
-               rdb.ForeignKey('content.content_id', ondelete="CASCADE"),
-               primary_key=True),
-    rdb.Column("attribute", rdb.String(156), primary_key=True),
-    rdb.Column("type", rdb.String(30)),
-    rdb.Column("content", rdb.Binary),
-    rdb.Column("path", rdb.String(300)),
-    rdb.Column("size", rdb.Integer),
-    rdb.Column("checksum", rdb.String(33)),
-    rdb.Column("file_name", rdb.String(156)),
-    rdb.Column("mime_type", rdb.String(80)),
-   )
-
-rdb.Index('files_idx',
-      files.c.content_id,
-      files.c.attribute,
-      unique=True)
 
 
 class File(object):
@@ -162,3 +176,10 @@ class File(object):
 orm.mapper(File, files,
            polymorphic_on=files.c.type,
            polymorphic_identity='db-file')
+
+
+if __name__ == '__main__':
+    metadata.bind = rdb.create_engine('sqlite://')
+    metadata.create_all()
+    session = Session()
+    print session.query(Content).all()
