@@ -203,7 +203,7 @@ have still one operation for the object::
 
   >>> len(list(operation.get_buffer()))
   1
-  >>> from ore.contentmirror.testing import make_uuid
+  >>> from ore.contentmirror.tests.base import make_uuid
   >>> content.uid = make_uuid(content.id)
   >>> ops.update()
   >>> len(list(operation.get_buffer()))

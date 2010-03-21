@@ -17,17 +17,21 @@
 """
 Testing Infrastructure
 """
-
-from zope import interface, component
-from zope.component import testing as placelesssetup
-
 import time
+import unittest
 import random
 import md5
 import sqlalchemy
+from cStringIO import StringIO
 
+from zope import interface, component
+from zope.component import testing as placelesssetup
+from zope.configuration.xmlconfig import xmlconfig, XMLConfig
+from zope.component.tests import clearZCML
+
+from ore import contentmirror
 from ore.contentmirror import (
-    interfaces, transform, peer, serializer, operation)
+    interfaces, transform, peer, serializer, schema, operation)
 
 interface.classImplements(sqlalchemy.MetaData, interfaces.IMetaData)
 
@@ -59,6 +63,34 @@ def setUp(test):
 
 def tearDown(test):
     placelesssetup.tearDown()
+
+
+class IntegrationTest(unittest.TestCase):
+
+    sample_content = "ore.contentmirror.tests.base.SampleContent"
+    custom_content = "ore.contentmirror.tests.base.CustomContent"
+
+    def setUp(self):
+        setUp(self)
+        XMLConfig("meta.zcml", component)()
+        XMLConfig("meta.zcml", contentmirror)()
+        XMLConfig("base.zcml", contentmirror)()
+        schema.metadata.bind = sqlalchemy.create_engine("sqlite://")
+        schema.metadata.create_all()
+
+    def tearDown(self):
+        tearDown(self)
+        clearZCML()
+        schema.metadata.drop_all(checkfirst=True)
+
+    def _load(self, text):
+        template = """\
+        <configure xmlns='http://namespaces.zope.org/zope'
+                   xmlns:ore='http://namespaces.objectrealms.net/mirror'
+                   i18n_domain='mirror'>
+        %s
+        </configure>"""
+        xmlconfig(StringIO(template % text))
 
 
 def make_uuid(*args):
@@ -239,6 +271,23 @@ class SampleContent(BaseContent):
     porta_type = "Sample Content"
     interface.implements(interfaces.IMirrored)
     schema = Schema((StringField("stuff"),))
+
+
+class CustomContent(object):
+    """
+    Content which does not implement IMirrored by default.
+    """
+    schema = Schema(())
+
+    def __init__(self, id):
+        pass
+
+    def Schema(self):
+        return self.schema
+
+    def UID(self):
+        return "21"
+
 
 
 doctest_ns = {

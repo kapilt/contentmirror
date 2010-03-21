@@ -10,7 +10,7 @@ set up the same type of stuff in the readme.txt doctest
 
   >>> import zope.interface, os
   >>> from datetime import datetime
- 
+
 Testing Database environment variable setup
 
   >>> db_url = os.environ.get('CONTENTMIRROR_URI') or 'sqlite://'
@@ -19,14 +19,14 @@ This is the key that contentmirror expects to find its database
 variable at
 
   >>> os.environ['CONTENTMIRROR_URI'] = db_url
-  >>> from ore.contentmirror.testing import *
+  >>> from ore.contentmirror.tests.base import *
   >>> from ore.contentmirror import interfaces
   >>> from ore.contentmirror.schema import metadata
   >>> from ore.contentmirror import operation
   >>> from ore.contentmirror.loader import loader
-  >>> import transaction 
+  >>> import transaction
   >>> from ore.contentmirror.session import Session
-  >>> setUp(None)  
+  >>> setUp(None)
 
 
   >>> import sqlalchemy as rdb
@@ -48,8 +48,8 @@ out of the box.
   ...     portal_type = "Uni Content"
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
-  ...         StringField('name'),   
-  ...         StringField('slug', required=True),   
+  ...         StringField('name'),
+  ...         StringField('slug', required=True),
   ...     ))
 
 
@@ -61,12 +61,12 @@ out of the box.
   >>> transaction.commit()
 
 Not let's modify it
-  
+
   >>> uni1.name = u'Русский'
   >>> peer2 = interfaces.ISerializer( uni1 ).update()
   >>> transaction.commit()
 
-Mixed Case Fields 
+Mixed Case Fields
 -----------------
 
 issue 25
@@ -79,9 +79,9 @@ unit test worked out of the box.
   ...     portal_type = "Mixed Case"
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
-  ...         StringField('Name'),   
-  ...         StringField('Slug', required=True),   
-  ...         StringField('contactEmail2', required=True),   
+  ...         StringField('Name'),
+  ...         StringField('Slug', required=True),
+  ...         StringField('contactEmail2', required=True),
   ...     ))
 
   >>> loader.load( MixedCase )
@@ -244,7 +244,6 @@ Test some silly things to get to 100% code coverage
   >>> registry = component.getUtility( interfaces.IPeerRegistry )
   >>> len(registry.items())
   4
-
 
   >>> from ore.contentmirror import operation
   >>> operation.Operation(None).process()
