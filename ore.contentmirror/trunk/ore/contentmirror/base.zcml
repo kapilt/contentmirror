@@ -37,17 +37,10 @@
      for=".interfaces.IMirrored .interfaces.IOperation"
      />
 
-
-  <!-- Implements Declarations -->
-  <include file="implements.zcml"/>
-  
   <!-- Schema Transformers -->
   <include file="transform.zcml"/>
-  
+
   <!-- Subscribers -->
   <include file="subscriber.zcml"/>
-
-  <!-- Archetypes Dependency -->  
-  <include package="Products.Archetypes"/>
 
 </configure>

@@ -11,7 +11,7 @@ are happening in Plone, and is integrated with the zope transaction
 machinery.
 
 It allows the access of content from your Plone site in a language
-and platform neutral manner. 
+and platform neutral manner.
 
 It generically handles any archetypes content, with support for all
 archetype field types, as well as serializing containment information.
@@ -24,7 +24,7 @@ Features
  - Out of the Box support for Default Plone Content Types.
  - Out of the Box support for all builtin Archetypes Fields (including files, and references ).
  - Supports Any 3rd Party / Custom Archetypes Content.
- - Supports Capturing Containment / Content hierarchy in the serialized database. 
+ - Supports Capturing Containment / Content hierarchy in the serialized database.
  - Completely Automated Mirroring, zero configuration required beyond installation.
  - Easy customization via the Zope Component Architecture
  - Opensource ( GPLv3 )
@@ -36,7 +36,7 @@ Installation
 ------------
 
  see install.txt
-  
+
 Bootstrapping
 ------------
 
@@ -52,19 +52,19 @@ directive to third party components::
   >>> class MyPage( BaseContent ):
   ...     portal_type = 'My Page'
   ...     zope.interface.implements( interfaces.IMirrored )
-  ...     schema = Schema(( 
-  ...                StringField('title'),   
-  ...                StringField('slug', required=True),   
-  ...                IntegerField('days'), 
+  ...     schema = Schema((
+  ...                StringField('title'),
+  ...                StringField('slug', required=True),
+  ...                IntegerField('days'),
   ...                LinesField('people'),
   ...                DateTimeField('discovered_date')
   ...     ))
- 
+
   >>> content = MyPage('front-page', title="The Cloud Apps", slug="Miracle Cures for Rabbits")
-  >>> content.title = u"FooBar"  
+  >>> content.title = u"FooBar"
   >>> content.discovered_date = DateTime() # now
   >>> content.people = ["venkat", "tyrell", "johan", "arjun", "smithfield"]
-  
+
 Note on Examples
 ----------------
 
@@ -79,12 +79,12 @@ Schema Tranformation
 
 In order to serialize content to a relational database, we need to
 tranform our Archeypes schema to a relational database table. The package
-provides sensible default FieldTransformers for all builtin Archetypes fields. 
+provides sensible default FieldTransformers for all builtin Archetypes fields.
 
 First let's grab the sqlalchemy metadata structure to store our tables in::
 
   >>> from ore.contentmirror.schema import metadata
-  
+
 Now let's perform the transformation::
 
   >>> from ore.contentmirror import transform
@@ -97,7 +97,7 @@ Now let's perform the transformation::
     mypage.people Text(length=None, convert_unicode=False, assert_unicode=None)
     mypage.discovered_date DateTime(timezone=False)
 
-The default implementation of the ISchemaTransformer uses a common content 
+The default implementation of the ISchemaTransformer uses a common content
 table, to model common fields like dublin core attributes which are common to
 all content.
 
@@ -114,11 +114,11 @@ class for us, by using the peer factory::
   >>> factory = peer.PeerFactory( content, transformer )
   >>> peer_class = factory.make()
   >>> peer_class
-  <class 'ore.contentmirror.peer.MyPagePeer'>  
+  <class 'ore.contentmirror.peer.MyPagePeer'>
 
- 
+
 Model Loader
-------------  
+------------
 
 The model loader provides an abstraction for generating a relational
 schema and a peer in high level interface. It looks up and utilizes
@@ -129,12 +129,12 @@ into the mirroring system::
   >>> loader.load( MyPage )
 
 If we attempt to load the same class twice a KeyError is raised::
- 
+
   >>> loader.load( MyPage )
   Traceback (most recent call last):
   ...
   KeyError: "Duplicate <class 'MyPage'>"
-    
+
 
 Event Stream
 ------------
@@ -147,7 +147,7 @@ events from facilities like portal_factory. To combat that we
 aggregate events on transaction boundaries, and automatically collapse
 multiple operations for the same object.
 
-To process the event stream, first we need to setup the database 
+To process the event stream, first we need to setup the database
 connection, and database table structure::
 
   >>> import os
@@ -155,7 +155,7 @@ connection, and database table structure::
   >>> import sqlalchemy as rdb
   >>> metadata.bind = rdb.create_engine( db_url )
   >>> metadata.create_all()
-  
+
 
 Operation Factories
 -------------------
@@ -174,22 +174,22 @@ operations that process various content lifecycle events::
 
   >>> from ore.contentmirror import operation
   >>> ops = operation.OperationFactory( content )
-  
+
 We can confirm that multiple operations automatically collapse to the
 minimal set::
 
   >>> ops.add()
   >>> list(operation.get_buffer())
   [<ore.contentmirror.operation.AddOperation object at ...>]
-  
+
 If we delete the content in the same transaction scope, then
 effectively for the purposes of mirroring, the content was never
 created, and the buffer automatically removes any pending operations
 for the content::
-  
+
   >>> ops.delete()
   >>> operation.get_buffer().get( id(content) )
-  
+
 if we create an add operation, and an update operation in a single
 transaction scope, it should collapse down to just the add operation::
 
@@ -198,7 +198,7 @@ transaction scope, it should collapse down to just the add operation::
   >>> operation.get_buffer().get( id(content) )
   <ore.contentmirror.operation.AddOperation object at ...>
 
-if we have modified the object's uid in the same transaction we should 
+if we have modified the object's uid in the same transaction we should
 have still one operation for the object::
 
   >>> len(list(operation.get_buffer()))
@@ -217,7 +217,7 @@ held in the buffer are processed::
   >>> import transaction
   >>> transaction.get().commit()
   >>> list(operation.get_buffer())
-  [] 
+  []
 
 Alternatively if the transaction is aborted, all operations are discarded::
 
@@ -259,28 +259,28 @@ setting the filtered attribute of the operation, to True::
 
   >>> def content_filter( content, operation ):
   ...     operation.filtered = True
-   
+
 And let's register our filter with the component architecture::
 
   >>> from zope import component
-  >>> component.provideSubscriptionAdapter( 
+  >>> component.provideSubscriptionAdapter(
   ...      content_filter,
-  ... 	   (interfaces.IMirrored, interfaces.IOperation ),
+  ...      (interfaces.IMirrored, interfaces.IOperation ),
   ...      interfaces.IFilter )
 
 Now if we try create an operation for the content, it will automatically
 be filtered::
- 
+
   >>> ops.add()
   >>> list(operation.get_buffer())
   []
 
 Finally, let's remove the filter for other tests::
 
-  >>> component.getSiteManager().unregisterSubscriptionAdapter( 
-  ...    content_filter, 
-  ... 	   (interfaces.IMirrored, interfaces.IOperation ),
-  ...      interfaces.IFilter )
+  >>> component.getSiteManager().unregisterSubscriptionAdapter(
+  ...    content_filter,
+  ...    (interfaces.IMirrored, interfaces.IOperation ),
+  ...    interfaces.IFilter )
   True
 
 Serializer
@@ -332,7 +332,7 @@ and deleting them::
   []
 
 Due to the possibility of being installed and working with existing
-content all the methods need to be reentrant. For example deleting 
+content all the methods need to be reentrant. For example deleting
 non existent content shouldn't cause an exception::
 
   >>> content_serializer.delete()
@@ -361,11 +361,11 @@ it with the mirroring system::
   ...     portal_type = 'Simple Folder'
   ...     zope.interface.implements( interfaces.IMirrored )
   ...     schema = Schema((
-  ...                StringField('name'),   
-  ...                StringField('slug', required=True),   
-  ...                ReferenceField('related', relationship='inkind'), 
+  ...                StringField('name'),
+  ...                StringField('slug', required=True),
+  ...                ReferenceField('related', relationship='inkind'),
   ...                DateTimeField('discovered_date')
-  ...     ))          
+  ...     ))
 
   >>> loader.load( Folder )
   >>> metadata.create_all(checkfirst=True)
@@ -375,7 +375,7 @@ it with the mirroring system::
   >>> peer.parent.name == "Root"
   True
   >>> transaction.abort()
-  
+
 The content mirror automatically serializes a content's container if
 its not already serialized. Containment serialization is a recursive
 operation. In the course of normal operations, this has a nominal

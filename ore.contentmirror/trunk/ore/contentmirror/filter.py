@@ -15,21 +15,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ######################################################################
 
-def PortalFactory( content, operation ):
+def PortalFactory(content, operation):
     """
     filter any transient content in portal factory
     """
     # a simple check for factory in absolute url breaks portal factory..
     # no comment :-) as an alternative walk the chain.
-    
-    chain = getattr( content, 'aq_chain', None)
+
+    chain = getattr(content, 'aq_chain', None)
 
     if not chain:
         return
-    
+
     for ob in chain[:-1]: # slice out request
         if ob.__name__ == 'portal_factory':
             operation.filtered = True
             return
-    
-    

@@ -33,36 +33,40 @@ A couple of concrete examples that we want to fulfill
  - Capturing schemata for customizing mirror front end display.
 """
 
-import simplejson, os, sys
+import simplejson
+import os
+import sys
 
 from ore.contentmirror import interfaces
 from zope import component
 
-def extract_vocabulary( vocabulary ):
-    
+
+def extract_vocabulary(vocabulary):
+
     # string denotes dynamic vocabulary based on instance method, skip
-    if isinstance( vocabulary, str ):
+    if isinstance(vocabulary, str):
         return
 
     # process simple values directly specified as vocabulary
-    if isinstance( vocabulary, (list, tuple ) ):
-        if isinstance( vocabulary[0], (list, tuple )):
-            return [ (v[0], v[1]) for v in vocabulary]
-        if isinstance( vocabulary[0], basestring ):
-            return [ (v, v) for v in vocabulary]
+    if isinstance(vocabulary, (list, tuple)):
+        if isinstance(vocabulary[0], (list, tuple)):
+            return [(v[0], v[1]) for v in vocabulary]
+        if isinstance(vocabulary[0], basestring):
+            return [(v, v) for v in vocabulary]
 
     # process something displaylist like
-    if interfaces.IDisplayList.providedBy( vocabulary ):
+    if interfaces.IDisplayList.providedBy(vocabulary):
         return vocabulary.items()
 
-def serialize_schema( info ):
+
+def serialize_schema(info):
     klass, peer_klass = info
     instance = klass('transient')
     schema = instance.Schema()
 
     fields = []
     for f in schema.fields():
-        ftransform = component.getMultiAdapter( (f, peer_klass.transformer ) )
+        ftransform = component.getMultiAdapter((f, peer_klass.transformer))
         fd = dict(
             name = f.__name__,
             column_name = getattr(ftransform, 'name', ''),
@@ -70,30 +74,26 @@ def serialize_schema( info ):
             schemata = f.schemata,
             )
         if f.vocabulary:
-            vocabulary = extract_vocabulary( f.vocabulary )
+            vocabulary = extract_vocabulary(f.vocabulary)
             if vocabulary:
                 fd['vocabulary'] = vocabulary
-        fields.append( fd )
-        
+        fields.append(fd)
+
     cd = dict(
         name = klass.__name__,
         table_name = peer_klass.transformer.name,
-        fields = fields
-        )
+        fields = fields)
     return cd
 
-def main( ):
 
-    if len( sys.argv ) == 2:
-        fh = open( os.path.expanduser( os.path.expandvars( sys.argv[1].strip() ) ), 'w')
+def main():
+    if len(sys.argv) == 2:
+        fh = open(os.path.expanduser(
+            os.path.expandvars(sys.argv[1].strip())), 'w')
     else:
         fh = sys.stdout
-        
-    registry = component.getUtility( interfaces.IPeerRegistry )
-    values = map( serialize_schema, registry.items() )
-    fh.write(  simplejson.dumps( {'types':values } ) )
+
+    registry = component.getUtility(interfaces.IPeerRegistry)
+    values = map(serialize_schema, registry.items())
+    fh.write(simplejson.dumps({'types': values}))
     fh.close()
-
-                 
-
-    

@@ -17,15 +17,18 @@
 
 import interfaces
 
-def objectAdded( object, event ):
-    interfaces.IOperationFactory( object ).add()
-    
-def objectModified( object, event ):
-    interfaces.IOperationFactory( object ).update()
-    
-def objectDeleted( object, event ):
-    interfaces.IOperationFactory( object ).delete()
 
-def objectMoved( object, event ):
-    interfaces.IOperationFactory( object ).update()
+def objectAdded(object, event):
+    interfaces.IOperationFactory(object).add()
 
+
+def objectModified(object, event):
+    interfaces.IOperationFactory(object).update()
+
+
+def objectDeleted(object, event):
+    interfaces.IOperationFactory(object).delete()
+
+
+def objectMoved(object, event):
+    interfaces.IOperationFactory(object).update()

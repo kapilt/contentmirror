@@ -20,54 +20,56 @@ from zope import interface
 
 from ore.contentmirror import schema, interfaces
 
-class PeerFactory( object ):
-    
-    interface.implements( interfaces.IPeerFactory )
-    
-    def __init__( self, context, transformer ):
+
+class PeerFactory(object):
+
+    interface.implements(interfaces.IPeerFactory)
+
+    def __init__(self, context, transformer):
         self.context = context
         self.transformer = transformer
-        
+
     @property
     def name(self):
         return self.context.__class__.__name__ + 'Peer'
-        
-    def make( self ):
-        klass = type( self.name, (schema.Content,),
-                      dict(transformer=self.transformer) )
 
-        orm.mapper( klass, 
-                    self.transformer.table,
-                    properties=dict(self.transformer.properties),
-                    inherits=schema.Content,
-                    polymorphic_on=schema.content.c.type,
-                    polymorphic_identity=self.name )
+    def make(self):
+        klass = type(self.name, (schema.Content,),
+                     dict(transformer=self.transformer))
+
+        orm.mapper(klass,
+                   self.transformer.table,
+                   properties=dict(self.transformer.properties),
+                   inherits=schema.Content,
+                   polymorphic_on=schema.content.c.type,
+                   polymorphic_identity=self.name)
         return klass
-        
-class PeerRegistry( object ):
-    
-    interface.implements( interfaces.IPeerRegistry )
-    
-    def __init__( self ):
+
+
+class PeerRegistry(object):
+
+    interface.implements(interfaces.IPeerRegistry)
+
+    def __init__(self):
         self._peer_classes = {}
-        
-    def __setitem__( self, key, value ):
-        self._peer_classes[ key ] = value        
-        
-    def __getitem__( self, key ):
+
+    def __setitem__(self, key, value):
+        self._peer_classes[key] = value
+
+    def __getitem__(self, key):
         try:
-            return self._peer_classes[ key ]
+            return self._peer_classes[key]
         except KeyError:
             for base in key.mro():
-                factory = self._peer_classes.get( base, None )
+                factory = self._peer_classes.get(base, None)
                 if factory is not None:
-                    self._peer_classes[ key ] = factory # cache
+                    self._peer_classes[key] = factory # cache
                     break
-            return self._peer_classes[ key ]
-        
-    def __contains__( self, key ):
+            return self._peer_classes[key]
+
+    def __contains__(self, key):
         # must not check base classes here
         return key in self._peer_classes
 
-    def items( self ):
+    def items(self):
         return self._peer_classes.items()

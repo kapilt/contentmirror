@@ -1,5 +1,5 @@
 <configure xmlns="http://namespaces.zope.org/zope"
-	   xmlns:ore="http://namespaces.objectrealms.net/mirror"> 
+           xmlns:ore="http://namespaces.objectrealms.net/mirror">
     <ore:mirror content="Products.ATContentTypes.content.document.ATDocument" />
     <ore:mirror content="Products.ATContentTypes.content.event.ATEvent" />
     <ore:mirror content="Products.ATContentTypes.content.favorite.ATFavorite" />
@@ -9,4 +9,4 @@
     <ore:mirror content="Products.ATContentTypes.content.image.ATImage" />
     <ore:mirror content="Products.ATContentTypes.content.link.ATLink" />
     <ore:mirror content="Products.ATContentTypes.content.newsitem.ATNewsItem" />
-</configure>  
+</configure>

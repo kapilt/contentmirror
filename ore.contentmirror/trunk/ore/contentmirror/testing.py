@@ -21,181 +21,232 @@ Testing Infrastructure
 from zope import interface, component
 from zope.component import testing as placelesssetup
 
-import time, random, md5, sqlalchemy
-import interfaces, transform, peer, schema, serializer, operation
+import time
+import random
+import md5
+import sqlalchemy
 
-interface.classImplements( sqlalchemy.MetaData, interfaces.IMetaData )
-                           
-def setUp( test ):
+from ore.contentmirror import (
+    interfaces, transform, peer, serializer, operation)
+
+interface.classImplements(sqlalchemy.MetaData, interfaces.IMetaData)
+
+
+def setUp(test):
     placelesssetup.setUp()
-    component.provideAdapter( transform.StringTransform )
-    component.provideAdapter( transform.IntegerTransform )
-    component.provideAdapter( transform.FloatTransform )
-    component.provideAdapter( transform.DateTimeTransform )
-    component.provideAdapter( transform.LinesTransform )    
-    component.provideAdapter( transform.BooleanTransform )
-    component.provideAdapter( transform.FileTransform )
-    component.provideAdapter( transform.PhotoTransform )
-    component.provideAdapter( transform.ReferenceTransform )
+    component.provideAdapter(transform.StringTransform)
+    component.provideAdapter(transform.IntegerTransform)
+    component.provideAdapter(transform.FloatTransform)
+    component.provideAdapter(transform.DateTimeTransform)
+    component.provideAdapter(transform.LinesTransform)
+    component.provideAdapter(transform.BooleanTransform)
+    component.provideAdapter(transform.FileTransform)
+    component.provideAdapter(transform.PhotoTransform)
+    component.provideAdapter(transform.ReferenceTransform)
+
+    component.provideUtility(peer.PeerRegistry())
+    component.provideAdapter(
+        peer.PeerFactory,
+        (interfaces.IMirrored, interfaces.ISchemaTransformer))
+
+    component.provideAdapter(transform.SchemaTransformer,
+                             (interfaces.IMirrored, interfaces.IMetaData))
+    component.provideAdapter(serializer.Serializer, (interfaces.IMirrored,))
+    component.provideAdapter(
+        operation.OperationFactory, (interfaces.IMirrored,))
+    component.provideUtility(operation.OperationBufferFactory())
 
 
-    component.provideUtility( peer.PeerRegistry() )
-    component.provideAdapter( peer.PeerFactory,
-                              ( interfaces.IMirrored, interfaces.ISchemaTransformer ) )
-    component.provideAdapter( transform.SchemaTransformer, 
-                              ( interfaces.IMirrored, interfaces.IMetaData ) )
-    component.provideAdapter( serializer.Serializer, (interfaces.IMirrored,) )
-    component.provideAdapter( operation.OperationFactory, ( interfaces.IMirrored,) )
-    component.provideUtility( operation.OperationBufferFactory() )
-                              
-    
-def tearDown( test ):
+def tearDown(test):
     placelesssetup.tearDown()
+
 
 def make_uuid(*args):
     t = str(time.time() * 1000L)
     r = str(random.random()*100000000000000000L)
-    data = t +' '+ r +' '+ str(random.random()*100000000000000000L)+' '+ str(args)
+    data = t +' '+ r +' '+ \
+           str(random.random()*100000000000000000L)+' '+ str(args)
     uid = md5.md5(data).hexdigest()
     return uid
 
-class WorkflowTool( object ):
 
-    def getCatalogVariablesFor( self, instance ):
-        return {'review_state':getattr( instance, 'workflow_state', 'published') }
-        
-class BaseContent( object ):
+class WorkflowTool(object):
 
-    interface.implements( interfaces.IPortalContent )
-    
+    def getCatalogVariablesFor(self, instance):
+        return {'review_state':
+                getattr(instance, 'workflow_state', 'published')}
+
+
+class Jar(object):
+
+    def incrgc(self):
+        return
+
+    @property
+    def _cache(self):
+        return self
+
+
+class BaseContent(object):
+
+    interface.implements(interfaces.IPortalContent)
+
     portal_type = ""
     schema = None
     portal_workflow = WorkflowTool()
-    
-    def __init__( self, id, container=None, **kw ):
+    _p_jar = Jar()
+
+    def __init__(self, id, container=None, **kw):
         self.id = id
         self.uid = make_uuid(id)
-        
-        for k,v in kw.items():
+
+        for k, v in kw.items():
             if k in self.schema:
-                setattr(self,k,v)
-                
+                setattr(self, k, v)
+
         self.container = container
-        
-    def Schema( self ):
-        return self.schema
-        
-    def UID( self ):
-        return self.uid
-        
-    def getParentNode( self ):
+
+    @property
+    def __name__(self):
+        return self.id
+
+    @property
+    def __parent__(self):
         return self.container
 
-    def getPhysicalPath( self ):
+    def Schema(self):
+        return self.schema
+
+    def UID(self):
+        return self.uid
+
+    def getParentNode(self):
+        return self.container
+
+    def getPhysicalPath(self):
         path = []
         ob = self
         while True:
-            path.append( ob.id )
+            path.append(ob. id)
             ob = ob.container
             if ob is None:
                 break
         path.reverse()
         return path
-    
-class Schema( object ):
 
-    def __init__(self, fields ):
+
+class Schema(object):
+
+    def __init__(self, fields):
         self._fields = fields
-        
-    def fields( self ):
+
+    def fields(self):
         return self._fields
-        
-    def __contains__( self, name ):
+
+    def __contains__(self, name):
         for f in self._fields:
             if f.__name__ == name:
                 return True
 
-class DateTime( object ):
-    # mock zope2 datetime
-    def __init__( self ):
-        self.value = time.time()
-    
-    def timeTime( self ):
-        return self.value
-        
 
-class File( object ):
-    
-    def __init__( self, id, content, mime_type="text/plain"):
+class DateTime(object):
+    # mock zope2 datetime
+    def __init__(self):
+        self.value = time.time()
+
+    def timeTime(self):
+        return self.value
+
+
+class File(object):
+
+    def __init__(self, id, content, mime_type="text/plain"):
         self.id = id
         self.data = content
         self.mime_type = mime_type
-    
-    def getId( self ):
-        return self.id     
-        
-    
-    
-class MockField( object ):
-    
-    defaults = { 'required':False, 'default':'' }
-        
-    def __init__( self, name=None, **kw ):
+
+    def getId(self):
+        return self.id
+
+
+class MockField(object):
+
+    defaults = {'required': False, 'default': ''}
+
+    def __init__(self, name=None, **kw):
 
         self.__name__ = name
         # copy
         values = dict(self.defaults)
         values.update(kw)
-        self.__dict__.update( values )
-        
-    def getAccessor( self, instance ):
-        return lambda : getattr( instance, 
-                                 self.__name__, 
-                                 self.default )
-    
-class StringField( MockField ):
-    interface.implements( interfaces.IStringField )  
+        self.__dict__.update(values)
 
-class IntegerField( MockField ):
-    interface.implements( interfaces.IIntegerField )  
+    def getAccessor(self, instance):
+        return lambda: getattr(instance,
+                                self.__name__,
+                                self.default)
 
-class FloatField( MockField ):
-    interface.implements( interfaces.IFloatField )  
-    
-class ReferenceField( MockField ):
+
+class StringField(MockField):
+    interface.implements(interfaces.IStringField)
+
+
+class IntegerField(MockField):
+    interface.implements(interfaces.IIntegerField)
+
+
+class FloatField(MockField):
+    interface.implements(interfaces.IFloatField)
+
+
+class ReferenceField(MockField):
     multiValued = True
-    interface.implements( interfaces.IReferenceField )  
-    
-class LinesField( MockField ):
-    interface.implements( interfaces.ILinesField )  
-    
-class TextField( MockField ):
-    interface.implements( interfaces.ITextField )  
+    interface.implements(interfaces.IReferenceField)
 
-class FileField( MockField ):
-    interface.implements( interfaces.IFileField )  
 
-    def getContentType( self, instance ):
-        return self.getAccessor( instance )().mime_type
+class LinesField(MockField):
+    interface.implements(interfaces.ILinesField)
 
-class BooleanField( MockField ):
-    interface.implements( interfaces.IBooleanField )  
 
-class ImageField( MockField ):
-    interface.implements( interfaces.IImageField )  
-    
-class DateTimeField( MockField ):
-    interface.implements( interfaces.IDateTimeField )  
+class TextField(MockField):
+    interface.implements(interfaces.ITextField)
 
-class PhotoField( MockField ):
-    interface.implements( interfaces.IPhotoField )  
-    
+
+class FileField(MockField):
+    interface.implements(interfaces.IFileField)
+
+    def getContentType(self, instance):
+        return self.getAccessor(instance)().mime_type
+
+
+class BooleanField(MockField):
+    interface.implements(interfaces.IBooleanField)
+
+
+class ImageField(MockField):
+    interface.implements(interfaces.IImageField)
+
+
+class DateTimeField(MockField):
+    interface.implements(interfaces.IDateTimeField)
+
+
+class PhotoField(MockField):
+    interface.implements(interfaces.IPhotoField)
+
+
+class SampleContent(BaseContent):
+    porta_type = "Sample Content"
+    interface.implements(interfaces.IMirrored)
+    schema = Schema((StringField("stuff"),))
+
+
 doctest_ns = {
     'IntegerField'  : IntegerField,
     'FloatField'    : FloatField,
     'TextField'     : TextField,
     'StringField'   : StringField,
-    'FileField'     : FileField,    
+    'FileField'     : FileField,
     'ImageField'    : ImageField,
     'DateTimeField' : DateTimeField,
     'ReferenceField': ReferenceField,
@@ -203,5 +254,4 @@ doctest_ns = {
     'BaseContent'   : BaseContent,
     'Schema'        : Schema,
     'DateTime'      : DateTime,
-    'File'          : File
-    }        
+    'File'          : File}

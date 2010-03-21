@@ -15,159 +15,172 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
 
-import threading, transaction
+import threading
+import transaction
 from zope import interface, component
 from ore.contentmirror.session import Session
 from ore.contentmirror import interfaces
 
-class Operation( object ):
-    
-    interface.implements( interfaces.IOperation )
+
+class Operation(object):
+
+    interface.implements(interfaces.IOperation)
 
     filtered = False
-    
-    def __init__( self, context ):
+
+    def __init__(self, context):
         self.context = context
-        
+
     @property
-    def document_id( self ):
+    def document_id(self):
         return id(self.context)
-        
-    def process( self ):
+
+    def process(self):
         raise NotImplementedError("subclass responsibility")
 
-class AddOperation( Operation ):
 
-    interface.implements( interfaces.IAddOperation )
+class AddOperation(Operation):
 
-    def process( self ):
-        interfaces.ISerializer( self.context).add()
-        
-class UpdateOperation( Operation ):
+    interface.implements(interfaces.IAddOperation)
 
-    interface.implements( interfaces.IUpdateOperation )
+    def process(self):
+        interfaces.ISerializer(self.context).add()
 
-    def process( self ):
-        interfaces.ISerializer( self.context).update()
-        
-class DeleteOperation( Operation ):
-    
-    interface.implements( interfaces.IDeleteOperation )
-    
-    def process( self ):
-        interfaces.ISerializer( self.context ).delete()
-        
-class OperationFactory( object ):
 
-    interface.implements( interfaces.IOperationFactory )
+class UpdateOperation(Operation):
+
+    interface.implements(interfaces.IUpdateOperation)
+
+    def process(self):
+        interfaces.ISerializer(self.context).update()
+
+
+class DeleteOperation(Operation):
+
+    interface.implements(interfaces.IDeleteOperation)
+
+    def process(self):
+        interfaces.ISerializer(self.context).delete()
+
+
+class OperationFactory(object):
+
+    interface.implements(interfaces.IOperationFactory)
 
     __slots__ = ('context',)
 
-    def __init__( self, context ):
+    def __init__(self, context):
         self.context = context
-    
-    def add( self ):
-        return self._store( AddOperation( self.context ) )
 
-    def update( self ):
-        return self._store( UpdateOperation( self.context ) )
+    def add(self):
+        return self._store(AddOperation(self.context))
 
-    def delete( self ):
-        return self._store( DeleteOperation( self.context ) )
-        
-    def _store( self, op ):
+    def update(self):
+        return self._store(UpdateOperation(self.context))
+
+    def delete(self):
+        return self._store(DeleteOperation(self.context))
+
+    def _store(self, op):
         # apply filters to operation
-        component.subscribers( (self.context, op ), interfaces.IFilter )
+        component.subscribers((self.context, op), interfaces.IFilter)
         if op.filtered:
             return
-        get_buffer().add( op )
-        
-class BufferManager( object ):
+        get_buffer().add(op)
 
-    def __init__( self, context ):
+
+class BufferManager(object):
+
+    def __init__(self, context):
         self.context = context
 
-    def abort( self, *args ):
+    def abort(self, *args):
         self.context.clear()
 
-    def nothing( self, *args ): pass
+    def nothing(self, *args):
+        pass
 
-    def sortKey( self ):
+    def sortKey(self):
         return "content-mirror-2008"
-    
+
     tpc_abort = abort
     commit = tpc_begin = tpc_vote = tpc_finish = nothing
 
-class OperationBufferFactory( object ):
+
+class OperationBufferFactory(object):
     # we componentize this so we can plugin alternate implementations
     # that can do async processing
-    interface.implements( interfaces.IOperationBufferFactory )
-    
-    def new( self ):
+    interface.implements(interfaces.IOperationBufferFactory)
+
+    def new(self):
         return OperationBuffer()
-    
-class OperationBuffer( object ):
+
+
+class OperationBuffer(object):
     """
     an operation buffer aggregates operations across a transaction
     """
 
-    interface.implements( interfaces.IOperationBuffer )
-    
-    def __init__( self ):
+    interface.implements(interfaces.IOperationBuffer)
+
+    def __init__(self):
         self.ops = {}
         self.registered = False
 
-    def add( self, op ):
-        """add an operation to the buffer, aggregating with existing operations"""
+    def add(self, op):
+        """
+        Add an operation to the buffer, aggregating with existing operations.
+        """
+
         doc_id = op.document_id
-        previous = self.ops.get( doc_id )
+        previous = self.ops.get(doc_id)
         if previous is not None:
-            op = self._choose( previous, op)
+            op = self._choose(previous, op)
         if op is None: # none returned when ops cancel
-            del self.ops[ doc_id ]
+            del self.ops[doc_id]
             return
-        self.ops[ doc_id ] = op
+        self.ops[doc_id] = op
         if not self.registered:
             self._register()
 
-    def clear( self ):
+    def clear(self):
         self.ops = {}
         self.registered = False
         self.manager = None
 
-    def flush( self ):
+    def flush(self):
         for op in self:
             op.process()
         Session().flush()
         self.clear()
-        
-    def get( self, doc_id ):
-        return self.ops.get( doc_id )
-        
-    def __iter__( self ):
+
+    def get(self, doc_id):
+        return self.ops.get(doc_id)
+
+    def __iter__(self):
         for op in self.ops.values():
             yield op
-            
-    def _register( self ):
-        self.registered = True
-        transaction.get().addBeforeCommitHook( self.flush )
-        transaction.get().join( BufferManager( self ) )
 
-    def _choose( self, previous, new ):
+    def _register(self):
+        self.registered = True
+        transaction.get().addBeforeCommitHook(self.flush)
+        transaction.get().join(BufferManager(self))
+
+    def _choose(self, previous, new):
         """
         for a given content object, choose one operation to perform given
         two candidates. can also return no operations.
         """
-        p_kind = (interfaces.IDeleteOperation.providedBy( previous ) and 2) \
-                 or (interfaces.IAddOperation.providedBy( previous ) and 1) \
-                 or (interfaces.IUpdateOperation.providedBy( previous ) and 0)
-                 
-        n_kind = (interfaces.IDeleteOperation.providedBy( new ) and 2) \
-                 or (interfaces.IAddOperation.providedBy( new ) and 1) \
-                 or (interfaces.IUpdateOperation.providedBy( new ) and 0)
+        p_kind = (interfaces.IDeleteOperation.providedBy(previous) and 2) \
+                 or (interfaces.IAddOperation.providedBy(previous) and 1) \
+                 or (interfaces.IUpdateOperation.providedBy(previous) and 0)
+
+        n_kind = (interfaces.IDeleteOperation.providedBy(new) and 2) \
+                 or (interfaces.IAddOperation.providedBy(new) and 1) \
+                 or (interfaces.IUpdateOperation.providedBy(new) and 0)
 
         # if we have an add and then a delete, its an effective no-op
-        if ( p_kind == 1 and n_kind == 2 ):
+        if (p_kind == 1 and n_kind == 2):
             return None
         if p_kind > n_kind:
             return previous
@@ -175,10 +188,11 @@ class OperationBuffer( object ):
 
 _buffer = threading.local()
 
-def get_buffer( ):
-    op_buffer = getattr( _buffer, 'buffer', None)
+
+def get_buffer():
+    op_buffer = getattr(_buffer, 'buffer', None)
     if op_buffer is not None:
         return op_buffer
-    op_buffer = component.getUtility( interfaces.IOperationBufferFactory ).new()
+    op_buffer = component.getUtility(interfaces.IOperationBufferFactory).new()
     _buffer.buffer = op_buffer
     return op_buffer
