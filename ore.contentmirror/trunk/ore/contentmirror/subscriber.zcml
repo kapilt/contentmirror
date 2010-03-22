@@ -2,7 +2,6 @@
            xmlns="http://namespaces.zope.org/zope">
 
   <subscriber
-     zcml:condition="installed zope.lifecycleevent"
      for=".interfaces.IMirrored
           zope.lifecycleevent.IObjectModifiedEvent"
      handler=".subscriber.objectModified" 
@@ -10,6 +9,7 @@
 
   <!-- CMF Workflow transition success event -->
   <subscriber
+     zcml:condition="installed Products.CMFCore.WorkflowCore.ActionSucceedEvent"
      for=".interfaces.IMirrored
 	  Products.CMFCore.interfaces.IActionSucceededEvent"
      handler=".subscriber.objectModified"
