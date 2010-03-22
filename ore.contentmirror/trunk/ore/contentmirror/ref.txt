@@ -269,6 +269,8 @@ Deleting Content with References
   [u'home-page']
 
  SQLite doesn't actually handle cascades to the relations table, but other databases do.
+ else we all verify that list(relations.select().execute()) = []
+
 
 100% Coverage
 -------------

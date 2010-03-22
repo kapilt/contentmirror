@@ -10,7 +10,6 @@
 
   <!-- CMF Workflow transition success event -->
   <subscriber
-     zcml:condition="installed Products.CMFCore.interfaces.IActionSucceededEvent"
      for=".interfaces.IMirrored
 	  Products.CMFCore.interfaces.IActionSucceededEvent"
      handler=".subscriber.objectModified"
