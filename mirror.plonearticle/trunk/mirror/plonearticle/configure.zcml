@@ -1,0 +1,43 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <class class="Products.PloneArticle.field.fileinnercontent.FileInnerContentField">
+     <implements interface=".interfaces.IFileInnerContentField"/>
+  </class>
+
+  <class class="Products.PloneArticle.field.imageinnercontent.ImageInnerContentField">
+     <implements interface=".interfaces.IImageInnerContentField"/>
+  </class>
+
+  <class class="Products.PloneArticle.field.linkinnercontent.LinkInnerContentField">
+     <implements interface=".interfaces.ILinkInnerContentField"/>
+  </class>
+
+  <class class="Products.PloneArticle.field.smartlist.SmartListField">
+     <implements interface=".interfaces.ISmartListField"/>
+  </class>
+
+  <adapter
+     for=".interfaces.IFileInnerContentField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.NullTranform"
+     />
+
+  <adapter
+     for=".interfaces.IImageInnerContentField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.NullTransform"
+     />
+
+  <adapter
+     for=".interfaces.ILinkInnerContentField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory=".transform.NullTransform"
+     />
+
+  <adapter
+     for=".interfaces.ISmartListField .interfaces.ISchemaTransformer"
+     provides=".interfaces.IFieldTransformer"
+     factory="ore.contentmirror.transform.ReferenceTransform"
+     />
+
+</configure>
