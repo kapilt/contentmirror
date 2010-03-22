@@ -176,10 +176,3 @@ class File(object):
 orm.mapper(File, files,
            polymorphic_on=files.c.type,
            polymorphic_identity='db-file')
-
-
-if __name__ == '__main__':
-    metadata.bind = rdb.create_engine('sqlite://')
-    metadata.create_all()
-    session = Session()
-    print session.query(Content).all()

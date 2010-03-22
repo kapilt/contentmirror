@@ -65,6 +65,7 @@ def tearDown(test):
     placelesssetup.tearDown()
     schema.metadata.drop_all(checkfirst=True)
 
+
 def reset_db():
     tables = schema.metadata.sorted_tables
     tables.reverse()
@@ -73,7 +74,7 @@ def reset_db():
     schema.metadata.create_all(checkfirst=True)
 
 
-class IntegrationTest(unittest.TestCase):
+class IntegrationTestCase(unittest.TestCase):
 
     sample_content = "ore.contentmirror.tests.base.SampleContent"
     custom_content = "ore.contentmirror.tests.base.CustomContent"
@@ -154,6 +155,17 @@ class BaseContent(object):
     def __parent__(self):
         return self.container
 
+    @property
+    def aq_chain(self):
+        chain = [self]
+        if self.container:
+            parent_chain = self.container.aq_chain
+            if parent_chain:
+                chain.extend(parent_chain)
+        else:
+            return None
+        return filter(None, chain)
+
     def Schema(self):
         return self.schema
 
@@ -211,7 +223,10 @@ class File(object):
 
 class MockField(object):
 
-    defaults = {'required': False, 'default': ''}
+    defaults = {'required': False,
+                'default': '',
+                'vocabulary': '',
+                'schemata': 'default'}
 
     def __init__(self, name=None, **kw):
 
@@ -288,7 +303,10 @@ class CustomContent(object):
     schema = Schema(())
 
     def __init__(self, id):
-        pass
+        self.id = id
+
+    def __repr__(self):
+        return "<CustomContent %r>"%(self.id)
 
     def Schema(self):
         return self.schema

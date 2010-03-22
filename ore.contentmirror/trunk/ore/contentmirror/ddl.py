@@ -38,11 +38,11 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    if not len(sys.argv) == 2:
-        print HELP
+    if not len(args) == 1:
+        parser.print_usage()
         sys.exit(1)
 
-    db_type = sys.argv[1].strip()
+    db_type = args[0].strip()
     buf = StringIO()
 
     def write_statement(statement, parameters=''):

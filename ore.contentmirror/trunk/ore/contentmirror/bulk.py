@@ -75,14 +75,20 @@ def main(app, instance_path, threshold=500):
 
         if count % threshold == 0:
             transaction.commit()
-            print "Processed ", count, "in", "%0.2f s"%(time.time()-batch_time)
+            output = ("Processed ", str(count), "in",
+                      "%0.2f s"%(time.time()-batch_time))
+            sys.stdout.write(" ".join(output)+"\n")
             ob._p_jar._cache.incrgc()
             batch_time = time.time()
 
     # commit the last batch
     transaction.commit()
-    print "Processed ", count, "in", "%0.2f s"%(time.time()-batch_time)
-    print "Finished in", time.time()-start_time
+    output = ("Processed ", str(count), "in",
+              "%0.2f s"%(time.time()-batch_time))
+    sys.stdout.write(" ".join(output)+"\n")
+
+    output = ("Finished in", str(time.time()-start_time))
+    sys.stdout.write(" ".join(output)+"\n")
 
 if __name__ == '__main__':
     if not len(sys.argv) == 2:

@@ -1,18 +1,12 @@
 
-import sqlalchemy
-import transaction
 from unittest import defaultTestLoader
 
+import sqlalchemy
 
-from zope import interface, component, event
-from zope.configuration.xmlconfig import XMLConfig
-from zope.lifecycleevent import ObjectModifiedEvent
-from zope.app.container.contained import ObjectAddedEvent, ObjectRemovedEvent
+from zope import interface, component
 
-from ore import contentmirror
 from ore.contentmirror import interfaces, schema
-
-from base import IntegrationTest, SampleContent, CustomContent
+from base import IntegrationTestCase, SampleContent, CustomContent
 
 
 def CustomSerializer(context):
@@ -30,7 +24,7 @@ class CustomTransformer(object):
         pass
 
 
-class ZCMLTest(IntegrationTest):
+class ZCMLTestCase(IntegrationTestCase):
 
     def testMirror(self):
         snippet = """
@@ -105,25 +99,6 @@ class ZCMLTest(IntegrationTest):
         registry = component.getUtility(interfaces.IPeerRegistry)
         factory = registry[CustomSub]
         self.assertTrue(factory)
-
-    def testEventSubscribers(self):
-        snippet = """
-        <ore:mirror content='%s'/>
-        """ % (self.sample_content)
-        # plone 3 -> 4 incompatibility
-        #XMLConfig("configure.zcml", component)() # plone 4
-        import zope.component.event # side effect setups object events (plone3)
-        zope.component.event # pyflakes
-
-        XMLConfig("subscriber.zcml", contentmirror)()
-        self._load(snippet)
-        instance = SampleContent("foobar")
-        event.notify(ObjectAddedEvent(instance))
-        event.notify(ObjectModifiedEvent(instance))
-        event.notify(ObjectRemovedEvent(instance))
-        transaction.commit()
-        all = schema.content.select().execute()
-        self.assertEqual(list(all), [])
 
     def testListNonStringValue(self):
         snippet = """

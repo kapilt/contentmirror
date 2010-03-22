@@ -21,7 +21,6 @@ def PortalFactory(content, operation):
     """
     # a simple check for factory in absolute url breaks portal factory..
     # no comment :-) as an alternative walk the chain.
-
     chain = getattr(content, 'aq_chain', None)
 
     if not chain:
