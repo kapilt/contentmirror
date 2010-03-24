@@ -61,7 +61,10 @@ class Serializer(object):
         peer.id = self.context.id
 
         peer.path = '/'.join(self.context.getPhysicalPath())
-
+        portal_url = getattr(self.context, 'portal_url', None)
+        if portal_url:
+            peer.relative_path = "/".join(
+                portal_url.getRelativeContentPath(self.context))
         wf_tool = getattr(self.context, 'portal_workflow', None)
         if wf_tool is None:
             return

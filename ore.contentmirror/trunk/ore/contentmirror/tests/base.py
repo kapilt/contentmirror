@@ -118,6 +118,12 @@ class WorkflowTool(object):
                 getattr(instance, 'workflow_state', 'published')}
 
 
+class URLTool(object):
+
+    def getRelativeContentPath(self, instance):
+        return instance.getPhysicalPath()
+
+
 class Jar(object):
 
     def incrgc(self):
@@ -134,7 +140,10 @@ class BaseContent(object):
 
     portal_type = ""
     schema = None
+
     portal_workflow = WorkflowTool()
+    portal_url = URLTool()
+
     _p_jar = Jar()
 
     def __init__(self, id, container=None, **kw):
