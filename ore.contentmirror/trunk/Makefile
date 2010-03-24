@@ -1,4 +1,7 @@
 
+sphinx:
+	cd docs && make html
+
 build:
 	python2.4 bootstrap.py
 	./bin/buildout -c plone-3.3.cfg
