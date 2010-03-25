@@ -627,11 +627,26 @@ as an example this is the configuration to setup ATDocuments::
   </configure>
 
 
+Development
+-----------
+
+The project homepage is http://contentmirror.googlecode.com which
+contains links to documentation, issue trackers, code repositories, and
+mailing lists.
+
 Commercial Support
 ------------------
 
 The contentmirror system is designed to be useable out of the box, but
 if you need commercial support, please contact us at kapil.foss@gmail.com
+
+Credits
+-------
+Kapil Thangavelu
+Alan Runyan
+Laurence Rowe
+Tim Knapp
+Wichert Akkerman
 
 
 
