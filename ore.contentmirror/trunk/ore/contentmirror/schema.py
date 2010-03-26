@@ -65,6 +65,7 @@ content = rdb.Table(
 
 
 rdb.Index('content_uid_idx', content.c.uid, unique=True)
+rdb.Index('content_modification_date_idx', content.c.modification_date)
 
 relations = rdb.Table(
    "relations",

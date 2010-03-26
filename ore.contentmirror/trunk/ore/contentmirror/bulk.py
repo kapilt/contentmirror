@@ -23,10 +23,14 @@ a content mirror bulk importer
 import transaction
 import time
 import sys
-from ore.contentmirror import interfaces
+import optparse
 
-# installs the zope transaction sqlalchemy integration
-from ore.contentmirror.session import Session
+import sqlalchemy as rdb
+from ore.contentmirror import interfaces, session, schema
+from DateTime import DateTime
+
+# pyflakes
+session
 
 
 def expunge(ob):
@@ -36,35 +40,94 @@ def expunge(ob):
         pass
 
 
-def main(app, instance_path, threshold=500):
+def setup_parser():
+    parser = optparse.OptionParser(
+        usage=" usage: %prog [options] portal_path")
+    parser.add_option(
+        '-i', '--incremental', dest="incremental", action="store_true",
+        help="Serialize content modified since last run", default=False)
+    parser.add_option(
+        '-t', '--types', dest="types", default="",
+        help="Only Serialize Specified Types (comma separated)")
+    parser.add_option(
+        '-p', '--path', dest="path", default="",
+        help="Serialize content from the specified path")
+    parser.add_option(
+        '-q', '--quiet', dest='verbose', action='store_false',
+        help="Quiet/Silent Output", default=True)
+    parser.add_option(
+        '-b', '--batch', dest='threshold', type="int",
+        help="Batch commit every N objects", default=500)
+    return parser
 
+
+def setup_query(options):
+    """
+    Setup a portal catalog query based on query parameters.
+
+    Any filtering of content will still automatically pull in containers and
+    referenced items of matched content regardless of whether they match
+    the query to maintain consistency.
+    """
+    # sorting on created, gets us containers before children
+    query = {'sort_on': 'created'}
+
+    # sync by type
+    if options.types:
+        types = filter(None, [t.strip() for t in options.types.split(',')])
+        if types:
+            query['portal_type'] = {'query': types, 'operator': 'or'}
+
+    # sync by folder
+    if options.path:
+        path = filter(None, [p.strip() for p in options.path.split(',')])
+        if path:
+            query['path'] = {'query': path, 'depth': 0, 'operator': 'or'}
+
+    # incremental sync, based on most recent database content date.
+    if options.incremental:
+        last_sync_query = rdb.select(
+            rdb.func.max((schema.content.c.modification_date)))
+        last_sync = last_sync_query.execute().scalar()
+        last_sync = DateTime(time.mktime(last_sync.timetuple()))
+        query['modified'] = {'query': last_sync, 'range': 'min'}
+
+    return query
+
+
+def main(app=None, instance_path=None, threshold=500):
+    parser = setup_parser()
+    options, args = parser.parse_args()
+
+    if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+        return
+
+    instance_path = args[0]
     portal = app.unrestrictedTraverse(instance_path)
 
-    from AccessControl.SecurityManagement import newSecurityManager
-    admin=app.acl_users.getUserById("admin")
-    newSecurityManager(None, admin)
-
-    count = 0
+    count = 0 # how many objects have we processed
 
     start_time = time.time()
-    batch_time = start_time
+    batch_time = start_time # we track the time for each batch
+    # sorting on created, gets us containers before children
+    query = {'sort_on': 'created'}
 
-    portal_catalog = portal.portal_catalog
-    for brain in portal_catalog.unrestrictedSearchResults(sort_on='created'):
-
+    query = setup_query(options)
+    for brain in portal.portal_catalog.unrestrictedSearchResults(**query):
         try:
             ob = brain.getObject()
             # skip broken objects
             if not ob.UID():
                 continue
-        except:
+        except: # got to keep on moving
             continue
 
         serializer = interfaces.ISerializer(ob, None)
         if serializer is None:
             expunge(ob)
             continue
-
         count += 1
 
         # the object may have been processed by as a dependency
@@ -75,23 +138,24 @@ def main(app, instance_path, threshold=500):
 
         if count % threshold == 0:
             transaction.commit()
-            output = ("Processed ", str(count), "in",
-                      "%0.2f s"%(time.time()-batch_time))
-            sys.stdout.write(" ".join(output)+"\n")
+            if options.verbose:
+                output = ("Processed ", str(count), "in",
+                          "%0.2f s"%(time.time()-batch_time))
+                sys.stdout.write(" ".join(output)+"\n")
             ob._p_jar._cache.incrgc()
             batch_time = time.time()
 
     # commit the last batch
     transaction.commit()
-    output = ("Processed ", str(count), "in",
-              "%0.2f s"%(time.time()-batch_time))
-    sys.stdout.write(" ".join(output)+"\n")
 
-    output = ("Finished in", str(time.time()-start_time))
-    sys.stdout.write(" ".join(output)+"\n")
+    if options.verbose:
+        output = ("Processed ", str(count), "in",
+                  "%0.2f s"%(time.time()-batch_time))
+        sys.stdout.write(" ".join(output)+"\n")
+
+    if options.verbose:
+        output = ("Finished in", str(time.time()-start_time))
+        sys.stdout.write(" ".join(output)+"\n")
 
 if __name__ == '__main__':
-    if not len(sys.argv) == 2:
-        print "mirror-batch portal_path"
-        sys.exit(1)
-    main(app = app, instance_path=sys.argv[1].strip())
+    main(app = app)

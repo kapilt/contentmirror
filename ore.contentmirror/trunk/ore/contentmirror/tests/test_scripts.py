@@ -3,7 +3,7 @@ import sys
 import unittest
 import tempfile
 
-from mocker import MockerTestCase, MATCH, CONTAINS, ANY, IN
+from mocker import MockerTestCase, MATCH, CONTAINS
 
 from zope import interface
 
@@ -13,7 +13,6 @@ from ore.contentmirror.ddl import main as ddl
 from ore.contentmirror.jsonschema import main as jsonschema
 
 from base import IntegrationTestCase, SampleContent, CustomContent
-
 
 
 class MockApp(object):
@@ -26,7 +25,24 @@ class MockApp(object):
 
             @staticmethod
             def unrestrictedSearchResults(**kw):
-                return map(MockApp.Brain, MockApp.results)
+                results = MockApp.results
+                if 'portal_type' in kw:
+                    query = kw['portal_type']
+                    results = [r for r in results
+                               if r.portal_type == query]
+                if 'path' in kw:
+                    query = kw['path']
+                    results = [
+                        r for r in results
+                        if "/".join(r.getPhysicalPath()).startswith(query)]
+                if 'modified' in kw:
+                    query = kw['modified']
+                    results = filter(
+                        lambda x: getattr(x, 'modified', None), results)
+                    results = [
+                        r for r in results
+                        if r.modified > query]
+                return map(MockApp.Brain, results)
 
     class acl_users(object):
 
@@ -91,6 +107,17 @@ class BulkScriptTest(ScriptTestCase):
     def tearDown(self):
         schema.metadata.drop_all(checkfirst=True)
         super(BulkScriptTest, self).tearDown()
+
+    def testNoPortalPath(self):
+        self._setup_args("")
+        mock_exit = self.mocker.replace("sys.exit")
+        mock_stdout = self.mocker.replace("sys.stdout")
+        mock_stdout.write(CONTAINS("usage:"))
+        mock_exit(1)
+        self.mocker.result(None)
+        self.mocker.replay()
+        MockApp.results = []
+        bulk(MockApp)
 
     def testBulk(self):
         self._setup_args("", "portal")
