@@ -87,10 +87,13 @@ def setup_query(options):
     # incremental sync, based on most recent database content date.
     if options.incremental:
         last_sync_query = rdb.select(
-            rdb.func.max((schema.content.c.modification_date)))
+            [rdb.func.max((schema.content.c.modification_date))])
         last_sync = last_sync_query.execute().scalar()
-        last_sync = DateTime(time.mktime(last_sync.timetuple()))
-        query['modified'] = {'query': last_sync, 'range': 'min'}
+        if last_sync: # increment 1s
+            time_tuple = list(last_sync.timetuple())
+            time_tuple[4] = time_tuple[4]+1
+            last_sync = DateTime(time.mktime(tuple(time_tuple)))
+            query['modified'] = {'query': last_sync, 'range': 'min'}
 
     return query
 

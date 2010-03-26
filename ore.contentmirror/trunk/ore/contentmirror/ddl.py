@@ -56,7 +56,7 @@ def main():
         schema.metadata.drop_all(db)
     if not options.create:
         schema.metadata.create_all(db)
-    print buf.getvalue()
+    sys.stdout.write(buf.getvalue())
 
 if __name__ == '__main__':
     main()

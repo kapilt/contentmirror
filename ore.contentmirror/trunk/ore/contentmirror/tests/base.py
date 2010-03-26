@@ -300,9 +300,10 @@ class PhotoField(MockField):
 
 
 class SampleContent(BaseContent):
-    porta_type = "Sample Content"
+    portal_type = "Sample Content"
     interface.implements(interfaces.IMirrored)
-    schema = Schema((StringField("stuff"),))
+    schema = Schema((StringField("stuff"),
+                     DateTimeField("modification_date")))
 
 
 class CustomContent(object):

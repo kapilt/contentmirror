@@ -2,10 +2,12 @@ import new
 import sys
 import unittest
 import tempfile
+import transaction
 
 from mocker import MockerTestCase, MATCH, CONTAINS
 
 from zope import interface
+from DateTime import DateTime
 
 from ore.contentmirror import schema
 from ore.contentmirror.bulk import main as bulk
@@ -31,17 +33,22 @@ class MockApp(object):
                     results = [r for r in results
                                if r.portal_type == query]
                 if 'path' in kw:
-                    query = kw['path']
-                    results = [
-                        r for r in results
-                        if "/".join(r.getPhysicalPath()).startswith(query)]
+                    query = kw['path']['query']
+                    res = []
+                    for r in results:
+                        path = "/".join(r.getPhysicalPath())
+                        for qp in query:
+                            if path.startswith(qp):
+                                res.append(r)
+                    results = res
                 if 'modified' in kw:
-                    query = kw['modified']
+                    query = kw['modified']['query']
                     results = filter(
-                        lambda x: getattr(x, 'modified', None), results)
+                        lambda x: getattr(
+                            x, 'modification_date', None), results)
                     results = [
                         r for r in results
-                        if r.modified > query]
+                        if r.modification_date > query]
                 return map(MockApp.Brain, results)
 
     class acl_users(object):
@@ -107,6 +114,69 @@ class BulkScriptTest(ScriptTestCase):
     def tearDown(self):
         schema.metadata.drop_all(checkfirst=True)
         super(BulkScriptTest, self).tearDown()
+        transaction.abort()
+
+    def _sample_content(self):
+        a = SampleContent("a")
+        b = SampleContent("b", a)
+        c = SampleContent("c")
+        d = SampleContent("e", b)
+        return [a, b, c, d]
+
+    def _fetch_rows(self):
+        return list(schema.content.select().execute())
+
+    def _capture_standard_output(self, replay=True):
+        stdout_mock = self.mocker.replace("sys.stdout")
+        stdout_mock.write(CONTAINS("Processed"))
+        stdout_mock.write(CONTAINS("Finished"))
+        if replay:
+            self.mocker.replay()
+
+    def testSyncIncremental(self):
+        self._setup_args("", "--incremental", "portal")
+        MockApp.results = content = self._sample_content()
+        content[-1].modification_date = DateTime()
+        # Mock output of both runs
+        stdout_mock = self.mocker.replace("sys.stdout")
+        stdout_mock.write(MATCH(TextMatch("Processed", '  4')))
+        stdout_mock.write(MATCH(TextMatch("Finished")))
+        # second run we'll only have two new objects
+        stdout_mock.write(MATCH(TextMatch("Processed", '  2')))
+        stdout_mock.write(CONTAINS("Finished"))
+        self.mocker.replay()
+
+        bulk(MockApp)
+        self.assertEqual(len(self._fetch_rows()), len(content))
+        new_content = SampleContent("e", content[-1])
+        new_content.modification_date = DateTime()+2
+        modified_content = content[0]
+        modified_content.modification_date = DateTime()+1
+        MockApp.results.append(new_content)
+        bulk(MockApp)
+        self.assertEqual(len(self._fetch_rows()), len(content))
+
+    def testPath(self):
+        self._setup_args("", "--path", "c", "portal")
+        MockApp.results = self._sample_content()
+        stdout_mock = self.mocker.replace("sys.stdout")
+        stdout_mock.write(MATCH(TextMatch("Processed", '  1')))
+        stdout_mock.write(MATCH(TextMatch("Finished")))
+        self.mocker.replay()
+        bulk(MockApp)
+        self.assertEqual(len(self._fetch_rows()), 1)
+
+    def testDumpTypes(self):
+        content = self._sample_content()
+        content[0].portal_type = "Folder"
+        content[-1].portal_type = "Article"
+        MockApp.results = content
+        self._setup_args("", "--types", '"Folder, Article"', "portal")
+        self._capture_standard_output()
+        bulk(MockApp)
+
+    def testDumpFolder(self):
+        pass
 
     def testNoPortalPath(self):
         self._setup_args("")
@@ -114,7 +184,7 @@ class BulkScriptTest(ScriptTestCase):
         mock_stdout = self.mocker.replace("sys.stdout")
         mock_stdout.write(CONTAINS("usage:"))
         mock_exit(1)
-        self.mocker.result(None)
+        #self.mocker.result(None)
         self.mocker.replay()
         MockApp.results = []
         bulk(MockApp)
@@ -145,11 +215,17 @@ class BulkScriptTest(ScriptTestCase):
 
 class TextMatch(object):
 
-    def __init__(self, target):
-        self.target = target
+    def __init__(self, *targets):
+        self.targets = targets
 
     def __call__(self, value):
-        return self.target in value
+        for m in self.targets:
+            if not m:
+                continue
+            m = str(m)
+            if not m in value:
+                return False
+        return True
 
 
 class DDLScriptTest(ScriptTestCase):
@@ -162,7 +238,6 @@ class DDLScriptTest(ScriptTestCase):
             return ("CREATE" in output) and ("DROP" not in output)
 
         stdout_mock.write(MATCH(match_output))
-        stdout_mock.write("\n")
         self.mocker.replay()
         ddl()
 
@@ -174,7 +249,6 @@ class DDLScriptTest(ScriptTestCase):
             return ("CREATE" not in output) and ("DROP" in output)
 
         stdout_mock.write(MATCH(match_output))
-        stdout_mock.write("\n")
         self.mocker.replay()
         ddl()
 
@@ -186,7 +260,6 @@ class DDLScriptTest(ScriptTestCase):
             return ("CREATE" in output) and ("DROP" in output)
 
         stdout_mock.write(MATCH(match_output))
-        stdout_mock.write("\n")
         self.mocker.replay()
         ddl()
 

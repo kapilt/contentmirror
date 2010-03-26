@@ -315,7 +315,7 @@ We can directly check the database to see the serialized content there::
   >>> session = Session()
   >>> session.flush()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
-  [(1, u'Miracle Cures for Rabbits')]
+  [(..., u'Miracle Cures for Rabbits')]
 
 Serializers are also responsible for updating database respresentations::
 
@@ -342,7 +342,7 @@ or attempting to update content which does not exist, should in turn add it::
   >>> peer = content_serializer.update()
   >>> session.flush()
   >>> list(rdb.select( [table.c.content_id, table.c.slug] ).execute())
-  [(1, u'Find a home in the clouds')]
+  [(..., u'Find a home in the clouds')]
 
 
 Containment
