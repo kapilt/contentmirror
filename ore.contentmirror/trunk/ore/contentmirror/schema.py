@@ -39,10 +39,10 @@ content = rdb.Table(
    metadata,
    rdb.Column("content_id", rdb.Integer, ContentSequence, primary_key=True),
    rdb.Column("id", rdb.String(256), nullable=False),
-   rdb.Column("uid", rdb.String(36), nullable=False),
-   rdb.Column("portal_type", rdb.String(64)),
+   rdb.Column("content_uid", rdb.String(36), nullable=False),
+   rdb.Column("object_type", rdb.String(64)),
    rdb.Column("status", rdb.String(64)),
-   rdb.Column("type", rdb.String(64)),
+   rdb.Column("portal_type", rdb.String(64)),
    rdb.Column("container_id", rdb.Integer,
               rdb.ForeignKey('content.content_id', ondelete="CASCADE")),
    rdb.Column("path", rdb.Text),
@@ -64,7 +64,7 @@ content = rdb.Table(
    rdb.Column("excludefromnav", rdb.Boolean))
 
 
-rdb.Index('content_uid_idx', content.c.uid, unique=True)
+rdb.Index('content_content_uid_idx', content.c.content_uid, unique=True)
 rdb.Index('content_modification_date_idx', content.c.modification_date)
 
 relations = rdb.Table(
@@ -88,7 +88,7 @@ files = rdb.Table(
     rdb.Column("type", rdb.String(30)),
     rdb.Column("content", rdb.Binary),
     rdb.Column("path", rdb.String(300)),
-    rdb.Column("size", rdb.Integer),
+    rdb.Column("file_size", rdb.Integer),
     rdb.Column("checksum", rdb.String(33)),
     rdb.Column("file_name", rdb.String(156)),
     rdb.Column("mime_type", rdb.String(80)),
@@ -113,7 +113,7 @@ class Relation(object):
         self.relationship = relation
 
 orm.mapper(Content, content,
-            polymorphic_on=content.c.type,
+            polymorphic_on=content.c.object_type,
             polymorphic_identity='content',
             properties = {
                'children': orm.relation(
@@ -146,7 +146,7 @@ class UIDFilter(object):
     def __call__(self, ob):
         if not interfaces.IContentPeer.providedBy(ob):
             return False
-        return ob.uid == self.uid
+        return ob.content_uid == self.uid
 
 
 def fromUID(content_uid):
@@ -159,7 +159,7 @@ def fromUID(content_uid):
     if peers:
         return peers.pop()
     return session.query(Content).autoflush(False).filter(
-        content.c.uid == content_uid).first()
+        content.c.content_uid == content_uid).first()
 
 
 orm.mapper(Relation, relations,

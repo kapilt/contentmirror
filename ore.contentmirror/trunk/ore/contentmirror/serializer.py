@@ -57,7 +57,7 @@ class Serializer(object):
 
     def _copyPortalAttributes(self, peer):
         peer.portal_type = self.context.portal_type
-        peer.uid = self.context.UID()
+        peer.content_uid = self.context.UID()
         peer.id = self.context.id
 
         peer.path = '/'.join(self.context.getPhysicalPath())

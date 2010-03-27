@@ -41,7 +41,7 @@ class PeerFactory(object):
                    self.transformer.table,
                    properties=dict(self.transformer.properties),
                    inherits=schema.Content,
-                   polymorphic_on=schema.content.c.type,
+                   polymorphic_on=schema.content.c.object_type,
                    polymorphic_identity=self.name)
         return klass
 
