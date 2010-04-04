@@ -4,14 +4,14 @@
   <subscriber
      for=".interfaces.IMirrored
           zope.lifecycleevent.IObjectModifiedEvent"
-     handler=".subscriber.objectModified" 
+     handler=".subscriber.objectModified"
      />
 
   <!-- CMF Workflow transition success event -->
   <subscriber
      zcml:condition="installed Products.CMFCore.WorkflowCore.ActionSucceedEvent"
      for=".interfaces.IMirrored
-	  Products.CMFCore.interfaces.IActionSucceededEvent"
+          Products.CMFCore.interfaces.IActionSucceededEvent"
      handler=".subscriber.objectModified"
      />
 
@@ -20,13 +20,13 @@
           zope.app.container.interfaces.IObjectAddedEvent"
      handler=".subscriber.objectAdded"
      />
-     
+
   <subscriber
      for=".interfaces.IMirrored
           zope.app.container.interfaces.IObjectMovedEvent"
      handler=".subscriber.objectMoved"
      />
-          
+
   <subscriber
      for=".interfaces.IMirrored
           zope.app.container.interfaces.IObjectRemovedEvent"
