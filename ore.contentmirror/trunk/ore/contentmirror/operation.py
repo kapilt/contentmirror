@@ -33,7 +33,7 @@ class Operation(object):
 
     @property
     def document_id(self):
-        return id(self.context)
+        return hash(self.context)
 
     def process(self):
         raise NotImplementedError("subclass responsibility")
