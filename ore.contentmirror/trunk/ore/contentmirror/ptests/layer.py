@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 
 from ore.contentmirror.tests.base import reset_db
 
+
 class MirrorLayer(PloneSite):
 
     @classmethod
@@ -12,6 +13,7 @@ class MirrorLayer(PloneSite):
         from ore.contentmirror import ptests, schema
         zcml.load_config("testing.zcml", ptests)
         schema.metadata.bind = create_engine("sqlite://")
+        schema.metadata.create_all()
 
     @classmethod
     def tearDown(cls):

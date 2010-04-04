@@ -38,6 +38,9 @@ class Operation(object):
     def process(self):
         raise NotImplementedError("subclass responsibility")
 
+    def __compare__(self, other):
+        return cmp(self.context.getPhysicalPath(), other.getPhysicalPath())
+
 
 class AddOperation(Operation):
 
@@ -158,7 +161,9 @@ class OperationBuffer(object):
         return self.ops.get(doc_id)
 
     def __iter__(self):
-        for op in self.ops.values():
+        ops = self.ops.values()
+        ops.sort()
+        for op in ops:
             yield op
 
     def _register(self):
