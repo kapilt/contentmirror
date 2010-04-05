@@ -15,7 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ####################################################################
 
+import sqlalchemy as rdb
 from zope import interface, component
+from zope.app.container.interfaces import IContainer
+
 from ore.contentmirror import schema, interfaces
 from ore.contentmirror.session import Session
 
@@ -49,6 +52,31 @@ class Serializer(object):
         session = Session()
         session.delete(peer)
         session.flush()
+
+    def move(self):
+        if not IContainer.providedBy(self.context):
+            return self.update()
+        # update contained children paths when the container moves
+        peer = schema.fromUID(self.context.UID())
+        contained = Session().query(schema.Content).filter(
+            rdb.and_(schema.Content.path.startswith(peer.path),
+                     schema.Content.id != peer.id))
+
+        # get old and new paths to update contained
+        old_containment_path = peer.path
+        old_relative_path = peer.relative_path
+        interfaces.ISerializer(self.context).update()
+        new_containment_path = peer.path
+        new_relative_path = peer.relative_path
+
+        # for large trees this might be more efficient sans the
+        # peer.
+        for content in contained:
+            content.path = content.path.replace(
+                old_containment_path, new_containment_path)
+            content.relative_path = content.relative_path.replace(
+                old_relative_path, new_relative_path)
+        Session().flush()
 
     def _copy(self, peer):
         self._copyPortalAttributes(peer)

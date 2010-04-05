@@ -31,4 +31,4 @@ def objectDeleted(object, event):
 
 
 def objectMoved(object, event):
-    interfaces.IOperationFactory(object).update()
+    interfaces.IOperationFactory(object).move()

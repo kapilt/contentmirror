@@ -86,15 +86,19 @@ class IFilter(interface.Interface):
 
 
 class IDeleteOperation(IOperation):
-    """ """
+    """Operation for when content is deleted."""
 
 
 class IUpdateOperation(IOperation):
-    """ """
+    """Operation for when content is updated."""
 
 
 class IAddOperation(IOperation):
-    """ """
+    """Operation for when content is added."""
+
+
+class IMoveOperation(IOperation):
+    """Operation for when content is moved."""
 
 
 class IOperationBuffer(interface.Interface):

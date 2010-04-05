@@ -15,7 +15,9 @@ setup(
                       "zope.component",
                       "zope.event",
                       "zope.schema",
-#                      "zope.configuration",
+#                      "zope.app.container",
+#                      "zope.app.event",
+#                      "zope.configuration"
 #                      "zope.security",
 #                      "zope.app.component",
 #                      "ZODB3",

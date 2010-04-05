@@ -18,6 +18,7 @@
 import threading
 import transaction
 from zope import interface, component
+
 from ore.contentmirror.session import Session
 from ore.contentmirror import interfaces
 
@@ -27,6 +28,7 @@ class Operation(object):
     interface.implements(interfaces.IOperation)
 
     filtered = False
+    precedence = None
 
     def __init__(self, context):
         self.context = context
@@ -38,13 +40,15 @@ class Operation(object):
     def process(self):
         raise NotImplementedError("subclass responsibility")
 
-    def __compare__(self, other):
-        return cmp(self.context.getPhysicalPath(), other.getPhysicalPath())
+    def __cmp__(self, other):
+        return cmp(
+            self.context.getPhysicalPath(), other.context.getPhysicalPath())
 
 
 class AddOperation(Operation):
 
     interface.implements(interfaces.IAddOperation)
+    precedence = 1
 
     def process(self):
         interfaces.ISerializer(self.context).add()
@@ -53,14 +57,25 @@ class AddOperation(Operation):
 class UpdateOperation(Operation):
 
     interface.implements(interfaces.IUpdateOperation)
+    precedence = 0
 
     def process(self):
         interfaces.ISerializer(self.context).update()
 
 
+class MoveOperation(Operation):
+
+    interface.implements(interfaces.IMoveOperation)
+    precedence = -1
+
+    def process(self):
+        interfaces.ISerializer(self.context).move()
+
+
 class DeleteOperation(Operation):
 
     interface.implements(interfaces.IDeleteOperation)
+    precedence = 2
 
     def process(self):
         interfaces.ISerializer(self.context).delete()
@@ -83,6 +98,9 @@ class OperationFactory(object):
 
     def delete(self):
         return self._store(DeleteOperation(self.context))
+
+    def move(self):
+        return self._store(MoveOperation(self.context))
 
     def _store(self, op):
         # apply filters to operation
@@ -176,13 +194,8 @@ class OperationBuffer(object):
         for a given content object, choose one operation to perform given
         two candidates. can also return no operations.
         """
-        p_kind = (interfaces.IDeleteOperation.providedBy(previous) and 2) \
-                 or (interfaces.IAddOperation.providedBy(previous) and 1) \
-                 or (interfaces.IUpdateOperation.providedBy(previous) and 0)
-
-        n_kind = (interfaces.IDeleteOperation.providedBy(new) and 2) \
-                 or (interfaces.IAddOperation.providedBy(new) and 1) \
-                 or (interfaces.IUpdateOperation.providedBy(new) and 0)
+        p_kind = previous.precedence
+        n_kind = new.precedence
 
         # if we have an add and then a delete, its an effective no-op
         if (p_kind == 1 and n_kind == 2):
