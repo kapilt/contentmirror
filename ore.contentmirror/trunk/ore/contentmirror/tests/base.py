@@ -21,6 +21,7 @@ import time
 import unittest
 import random
 import md5
+import os
 import sqlalchemy
 from cStringIO import StringIO
 
@@ -31,7 +32,7 @@ from zope.component.tests import clearZCML
 
 from ore import contentmirror
 from ore.contentmirror import (
-    interfaces, transform, peer, serializer, schema, operation)
+    interfaces, transform, peer, serializer, schema, operation, session)
 
 interface.classImplements(sqlalchemy.MetaData, interfaces.IMetaData)
 
@@ -74,6 +75,13 @@ def reset_db():
     schema.metadata.create_all(checkfirst=True)
 
 
+def test_db_uri():
+    db_uri = os.environ.get('CONTENTMIRROR_URI')
+    if db_uri is None:
+        db_uri = 'sqlite://'
+    return db_uri
+
+
 class IntegrationTestCase(unittest.TestCase):
 
     sample_content = "ore.contentmirror.tests.base.SampleContent"
@@ -84,13 +92,14 @@ class IntegrationTestCase(unittest.TestCase):
         XMLConfig("meta.zcml", component)()
         XMLConfig("meta.zcml", contentmirror)()
         XMLConfig("base.zcml", contentmirror)()
-        schema.metadata.bind = sqlalchemy.create_engine("sqlite://")
-        schema.metadata.create_all()
+        schema.metadata.bind = sqlalchemy.create_engine(test_db_uri())
+        schema.metadata.create_all(checkfirst=True)
 
     def tearDown(self):
         tearDown(self)
         clearZCML()
         schema.metadata.drop_all(checkfirst=True)
+        session.Session().expunge_all()
 
     def _load(self, text):
         template = """\
@@ -340,4 +349,5 @@ doctest_ns = {
     'Schema'        : Schema,
     'DateTime'      : DateTime,
     'File'          : File,
+    'test_db_uri'   : test_db_uri,
     'reset_db'      : reset_db}

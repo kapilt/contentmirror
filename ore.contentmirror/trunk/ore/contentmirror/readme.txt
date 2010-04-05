@@ -151,10 +151,9 @@ To process the event stream, first we need to setup the database
 connection, and database table structure::
 
   >>> import os
-  >>> db_url = os.environ.get('DATABASE_URL') or 'sqlite://'
   >>> import sqlalchemy as rdb
-  >>> metadata.bind = rdb.create_engine( db_url )
-  >>> metadata.create_all()
+  >>> metadata.bind = rdb.create_engine(test_db_uri())
+  >>> metadata.create_all(checkfirst=True)
 
 
 Operation Factories

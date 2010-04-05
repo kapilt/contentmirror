@@ -37,10 +37,22 @@ class PeerFactory(object):
         klass = type(self.name, (schema.Content,),
                      dict(transformer=self.transformer))
 
+        # With single value references creating additional foreign
+        # keys to the content table, we need to distinguish the
+        # join condition for the class inheritance.
+        if self.transformer.table:
+            # unit tests exercise a custom transformer without a table.
+            join_clause = (
+                self.transformer.table.c.content_id == \
+                schema.content.c.content_id)
+        else:
+            join_clause = None
+
         orm.mapper(klass,
                    self.transformer.table,
                    properties=dict(self.transformer.properties),
                    inherits=schema.Content,
+                   inherit_condition=join_clause,
                    polymorphic_on=schema.content.c.object_type,
                    polymorphic_identity=self.name)
         return klass

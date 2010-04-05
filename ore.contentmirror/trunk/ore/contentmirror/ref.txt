@@ -157,7 +157,7 @@ First let's clear out any previous db state
   ...     schema = Schema((
   ...         StringField('name'),
   ...         StringField('slug', required=True),
-  ...         ReferenceField('related', relationship='ref',multiValued=False),
+  ...         ReferenceField('related', relationship='ref'),
   ...         ReferenceField('sim', relationship='sim'),
   ...         DateTimeField('discoveredDate')
   ...     ))

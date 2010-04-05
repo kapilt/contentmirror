@@ -9,7 +9,7 @@ from zope.app.container.contained import ObjectAddedEvent, ObjectRemovedEvent
 
 from ore import contentmirror
 from ore.contentmirror import schema
-from base import IntegrationTestCase, SampleContent, CustomContent
+from base import IntegrationTestCase, SampleContent
 
 try:
     from Products.CMFCore.WorkflowCore import ActionSucceededEvent

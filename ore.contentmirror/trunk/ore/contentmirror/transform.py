@@ -81,7 +81,31 @@ class SchemaTransformer(object):
                 yield result
 
 
-class BaseFieldTransformer(object):
+class NamedFieldTransform(object):
+    """
+    Encapsulates database column naming.
+    """
+
+    @property
+    def name(self):
+        name = self.context.__name__.lower()
+        return self._get_name(name)
+
+    def _get_name(self, name):
+        name = name.replace(' ', '_')
+        if name in self._reserved_names:
+            name = "at_" + name
+        return name
+
+    @property
+    def _reserved_names(self):
+        e = self.transformer.metadata.bind
+        if e is None:
+            return ()
+        return e.dialect.preparer.reserved_words
+
+
+class BaseFieldTransformer(NamedFieldTransform):
 
     interface.implements(interfaces.IFieldTransformer)
 
@@ -106,21 +130,6 @@ class BaseFieldTransformer(object):
         accessor = self.context.getAccessor(instance)
         value = accessor and accessor()
         setattr(peer, self.name, value)
-
-    @property
-    def name(self):
-        name = self.context.__name__.lower()
-        name = name.replace(' ', '_')
-        if name in self._reserved_names:
-            name = "at_" + name
-        return name
-
-    @property
-    def _reserved_names(self):
-        e = self.transformer.metadata.bind
-        if e is None:
-            return ()
-        return e.dialect.preparer.reserved_words
 
     def _extractDefaults(self):
         args = []
@@ -180,7 +189,7 @@ class LinesTransform(StringTransform):
         setattr(peer, self.name, value)
 
 
-class FileTransform(object):
+class FileTransform(NamedFieldTransform):
     """
     a file field serializer that utilizes a file peer.
     """
@@ -212,11 +221,6 @@ class FileTransform(object):
             return
         self._copyPeer(file_peer, instance, value)
         setattr(peer, self.name, file_peer)
-
-    # implementation details
-    @property
-    def name(self):
-        return self.context.__name__.lower().replace(' ', '_')
 
     def new(self):
         return schema.File()
@@ -283,7 +287,7 @@ class DateTimeTransform(BaseFieldTransformer):
         setattr(peer, self.name, value)
 
 
-class ReferenceTransform(object):
+class ReferenceTransform(NamedFieldTransform):
     component.adapts(interfaces.IReferenceField, interfaces.ISchemaTransformer)
     interface.implements(interfaces.IReferenceField)
 
@@ -292,13 +296,55 @@ class ReferenceTransform(object):
         self.transformer = transformer
 
     def transform(self):
-        return
+        """
+        For multi-valued references do nothing, as we'll use the generic
+        relation table. For single valued references we'll directly create
+        a foreign key reference to the content table.
+        """
+        if self.context.multiValued:
+            return
+        column_name = self.name+'_id'
+        column = rdb.Column(
+            column_name, rdb.Integer(),
+            rdb.ForeignKey("content.content_id", ondelete="SET NULL"))
+        relation = orm.relation(
+            schema.Content,
+            uselist=False,
+            primaryjoin=(column == schema.content.c.content_id))
+        self.transformer.properties[self.name] = relation
+        self.transformer.properties[column_name] = column
+        return column
+
+    def copySingleValue(self, instance, peer):
+        value = self.context.getAccessor(instance)()
+        if isinstance(value, (list, tuple)):
+            if len(value) >= 1:
+                value = value[0]
+            else:
+                value = None
+        if not value:
+            setattr(peer, self.name+'_id', None)
+        else:
+            reference_peer = self._fetch_peer(value)
+            if not reference_peer:
+                return
+            setattr(peer, self.name, reference_peer)
+
+    def _fetch_peer(self, ob):
+        peer_ob = schema.fromUID(ob.UID())
+        if peer_ob is None:
+            serializer = interfaces.ISerializer(ob, None)
+            if serializer is None:
+                return None
+            peer_ob = serializer.add()
+        return peer_ob
 
     def copy(self, instance, peer):
-        value = self.context.getAccessor(instance)()
-
         single_value = not self.context.multiValued
+        if single_value:
+            return self.copySingleValue(instance, peer)
 
+        value = self.context.getAccessor(instance)()
         if not value:
             return
 
@@ -317,28 +363,16 @@ class ReferenceTransform(object):
             related = (self.context.relationship, t_oid) in rel_map
             if related:
                 continue
-            # if single value and not the same value, delete previous value
-            elif single_value:
-                relationship = self.context.relationship
-                for r in peer.relations:
-                    if r.relationship == relationship:
-                        Session().delete(r)
 
             # fetch the remote side's peer
-            peer_ob = schema.fromUID(ob.UID())
-            if peer_ob is None:
-                serializer = interfaces.ISerializer(ob, None)
-                if serializer is None:
-                    continue
-                peer_ob = serializer.add()
+            reference_peer = self._fetch_peer(ob)
+            if not reference_peer:
+                continue
 
             # create the relation
             relation = schema.Relation(peer,
-                                       peer_ob,
+                                       reference_peer,
                                        self.context.relationship)
-
-        if single_value:
-            return
 
         # delete old values for multi valued relations
         rel_oids = set([oid for rel_type, oid in rel_map
