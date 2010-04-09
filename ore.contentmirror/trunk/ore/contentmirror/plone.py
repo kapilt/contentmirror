@@ -5,7 +5,8 @@ been attached to the object graph. In order to cope when this when loading the
 classes, we can either push and pop a local component manager with the required
 local utilities. Or we can push and pop the utility directly to the class,
 doing the latter is signficantly simpler and avoids having depending on
-mimetypes tool in the test or runtime environment.
+mimetypes tool in the test or runtime environment. More importantly it makes
+much easier to maintain compatibility between mulitple plone versions.
 """
 
 
