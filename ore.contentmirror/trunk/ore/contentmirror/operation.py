@@ -152,7 +152,6 @@ class OperationBuffer(object):
         """
         Add an operation to the buffer, aggregating with existing operations.
         """
-
         doc_id = op.document_id
         previous = self.ops.get(doc_id)
         if previous is not None:

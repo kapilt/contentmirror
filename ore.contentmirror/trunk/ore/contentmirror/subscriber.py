@@ -19,16 +19,24 @@ import interfaces
 
 
 def objectAdded(object, event):
-    interfaces.IOperationFactory(object).add()
+    operations = interfaces.IOperationFactory(object, None)
+    if operations:
+        operations.add()
 
 
 def objectModified(object, event):
-    interfaces.IOperationFactory(object).update()
+    operations = interfaces.IOperationFactory(object, None)
+    if operations:
+        operations.add()
 
 
 def objectDeleted(object, event):
-    interfaces.IOperationFactory(object).delete()
+    operations = interfaces.IOperationFactory(object, None)
+    if operations:
+        operations.delete()
 
 
 def objectMoved(object, event):
-    interfaces.IOperationFactory(object).move()
+    operations = interfaces.IOperationFactory(object, None)
+    if operations:
+        operations.move()
