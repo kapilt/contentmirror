@@ -21,7 +21,7 @@ and creating the rdb mapped peer classes.
 
 """
 from zope import component
-from ore.contentmirror import schema, interfaces
+from ore.contentmirror import schema, interfaces, plone
 
 
 class ModelLoader(object):
@@ -30,7 +30,11 @@ class ModelLoader(object):
         self.metadata = metadata
 
     def load(self, klass):
-        instance = klass("transient")
+        plone.push(klass) # simulate required plone environment for content
+        try:
+            instance = klass("transient")
+        finally:
+            plone.pop(klass) # remove simulated environment
 
         registry = component.queryUtility(interfaces.IPeerRegistry)
         if klass in registry:
