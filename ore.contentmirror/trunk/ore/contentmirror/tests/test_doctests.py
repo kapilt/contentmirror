@@ -20,7 +20,7 @@ $Id: $
 """
 
 import unittest
-
+import os
 from zope.testing import doctest
 from base import setUp, tearDown, doctest_ns
 
@@ -30,15 +30,19 @@ optionflags = (
 
 
 def test_suite():
+    if os.environ.get("NO_DOC"):
+        return unittest.TestSuite()
 
     return unittest.TestSuite((
         doctest.DocFileSuite(
-            '../readme.txt',
+            'readme.txt',
+            package="ore.contentmirror",
             setUp=setUp, tearDown=tearDown,
             optionflags=optionflags,
             globs=doctest_ns),
         doctest.DocFileSuite(
-            '../ref.txt',
+            'ref.txt',
+            package="ore.contentmirror",
             setUp=setUp, tearDown=tearDown,
             optionflags=optionflags,
             globs=doctest_ns),
