@@ -625,6 +625,20 @@ as an example this is the configuration to setup ATDocuments::
     <ore:mirror content="Products.ATContentTypes.content.document.ATDocument" />
   </configure>
 
+Limitations
+-----------
+
+Undo is not supported as it directly relies on ZODB level features without
+any application awareness. Content mirror relies on application level events
+for proper functioning. Even in that case, Content mirror will become eventually
+consistent with the ZODB state as application level events are triggered for
+content affected by the Undo, the one exception to this is new content added,
+that is removed by the Undo functionality of the ZODB. Typically on a Plone
+site with active content creation, the utility of Undo is limited in practice.
+There are no plans to address this at this time. If its of significant concern,
+utilizing the serializer scripts in cron fashion instead of the synchronous
+replication offered by the runtime might be more effective.
+
 
 Development
 -----------
