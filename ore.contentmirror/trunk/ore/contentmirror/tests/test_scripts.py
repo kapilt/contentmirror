@@ -1,8 +1,11 @@
 import new
 import sys
+import os
 import unittest
 import tempfile
 import transaction
+
+import sqlalchemy as rdb
 
 from mocker import MockerTestCase, MATCH, CONTAINS
 
@@ -142,11 +145,29 @@ class BulkScriptTest(ScriptTestCase):
         app = MockApp
         app.results = self._sample_content()
         self._setup_args("", "portal")
-        stdout_mock = self.mocker.replace("sys.stdout")
-        stdout_mock.write(MATCH(TextMatch("Processed", '  4')))
-        stdout_mock.write(MATCH(TextMatch("Finished")))
-        self.mocker.replay()
+        self._capture_standard_output()
         bulk()
+
+    def test_specify_database(self):
+        """
+        The database can be specified as a command line option.
+
+        We need to first create the database schema in the given
+        database.
+        """
+        db_path = self.makeFile(suffix="_mirror_test.db")
+        # populate tables
+        schema.metadata.bind = rdb.create_engine("sqlite:///%s"%db_path)
+        schema.metadata.create_all()
+        # reset engine
+        schema.metadata.bind = None
+
+        self._setup_args("", "-d", "sqlite:///%s"%db_path, "portal")
+        self._capture_standard_output()
+        MockApp.results = self._sample_content()
+        bulk(MockApp)
+        self.assertTrue(os.path.exists(db_path))
+        self.assertTrue(os.path.getsize(db_path) > 1024)
 
     def test_sync_incremental(self):
         """
