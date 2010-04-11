@@ -24,11 +24,11 @@ import sqlalchemy as rdb
 import sys
 import optparse
 
-HELP = "zopectl|instance run ddl.py database_type"
+HELP = "usage: ./bin/instance run %prog database_type"
 
 
 def main():
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser(usage=HELP)
     parser.add_option('-d', '--drop', dest="drop",
                       action="store_true", default=False,
                       help="Generate Drop Tables DDL")
@@ -39,8 +39,9 @@ def main():
     (options, args) = parser.parse_args()
 
     if not len(args) == 1:
-        parser.print_usage()
+        parser.print_help()
         sys.exit(1)
+        return
 
     db_type = args[0].strip()
     buf = StringIO()
@@ -57,6 +58,3 @@ def main():
     if not options.create:
         schema.metadata.create_all(db)
     sys.stdout.write(buf.getvalue())
-
-if __name__ == '__main__':
-    main()

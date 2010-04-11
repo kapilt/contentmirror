@@ -42,25 +42,26 @@ def expunge(ob):
 
 def setup_parser():
     parser = optparse.OptionParser(
-        usage=" usage: %prog [options] portal_path")
+        usage="usage: ./bin/instance run ./bin/%prog [options] portal_path")
     parser.add_option(
         '-i', '--incremental', dest="incremental", action="store_true",
-        help="Serialize content modified since last run", default=False)
+        help="serialize content modified/created since last run",
+        default=False)
     parser.add_option(
         '-t', '--types', dest="types", default="",
-        help="Only Serialize Specified Types (comma separated)")
+        help="only serialize specified types (comma separated)")
     parser.add_option(
         '-p', '--path', dest="path", default="",
-        help="Serialize content from the specified path")
+        help="serialize content from the specified path")
     parser.add_option(
         '-q', '--quiet', dest='verbose', action='store_false',
-        help="Quiet/Silent Output", default=True)
+        help="quiet/silent output", default=True)
     parser.add_option(
         '-b', '--batch', dest='threshold', type="int",
-        help="Batch commit every N objects", default=500)
+        help="batch commit every N objects (default %s)"%(500), default=500)
     parser.add_option(
         '-d', '--db', dest='database', default="",
-        help="Use the specified database uri")
+        help="use the specified database uri")
     return parser
 
 
@@ -173,6 +174,3 @@ def main(app=None, instance_path=None, threshold=500):
     if options.verbose:
         output = ("Finished in", str(time.time()-start_time))
         sys.stdout.write(" ".join(output)+"\n")
-
-if __name__ == '__main__':
-    main(app = app)
