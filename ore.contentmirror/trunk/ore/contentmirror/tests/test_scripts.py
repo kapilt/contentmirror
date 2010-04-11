@@ -263,6 +263,25 @@ class BulkScriptTest(ScriptTestCase):
         self.mocker.replay()
         bulk(MockApp, "portal", 1)
 
+    def _snapshot_clean_environ(self):
+        environ = dict(os.environ)
+
+        def cleanup():
+            os.environ.update(environ)
+            old_keys = set(environ.keys())
+            new_keys = set(os.environ.keys())
+            for new_key in (new_keys - old_keys):
+                del os.environ[new_key]
+        self.addCleanup(cleanup)
+
+    def test_db_from_environment(self):
+        self._snapshot_clean_environ()
+        db_path = self.makeFile(suffix="_mirror_test.db")
+        os.environ["CONTENTMIRROR_URI"] = "sqlite:///%s"%db_path
+        schema.environ_db()
+        self.assertEqual(str(schema.metadata.bind.url),
+                         "sqlite:///%s"%db_path)
+
 
 class TextMatch(object):
 

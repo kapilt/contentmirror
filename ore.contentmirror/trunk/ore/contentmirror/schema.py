@@ -29,8 +29,12 @@ from ore.contentmirror import interfaces
 
 metadata = rdb.MetaData()
 
-if os.environ.get('CONTENTMIRROR_URI'):
-    metadata.bind=create_engine(os.environ['CONTENTMIRROR_URI'])
+
+def environ_db():
+    if os.environ.get('CONTENTMIRROR_URI'):
+        metadata.bind=create_engine(os.environ['CONTENTMIRROR_URI'])
+
+environ_db() # set database from the environment
 
 ContentSequence = rdb.Sequence('content_sequence')
 
