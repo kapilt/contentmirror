@@ -16,6 +16,10 @@ build-3.1:
 	python2.4 bootstrap.py
 	./bin/buildout -c plone-3.1.cfg
 
+test-pg:
+	dropdb mirror-test
+	createdb mirror-test
+	NO_DOC="1" CONTENTMIRROR_URI="postgres:///mirror-test" ./bin/test -v -p
 
 coverage-html:
 	./bin/coverage run ./bin/test -s ore.contentmirror --exit-with-status && ./bin/coverage html -d report ore/contentmirror/*py
