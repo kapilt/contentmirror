@@ -15,7 +15,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
     def _create_content(self, id):
         self.loginAsPortalOwner()
         self.portal.invokeFactory("Document", id)
-        self.flush() # flush the op buffer
+        transaction.commit()
         self.assertEqual(len(list(schema.content.select().execute())), 1)
         return self.portal[id]
 
@@ -26,7 +26,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         container = self.portal[container_id]
         for content_id in ids:
             container.invokeFactory("Document", content_id)
-        self.flush() # flush the op buffer
+        transaction.commit()
         return container
 
     def _verify_path(self, path):
@@ -42,7 +42,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         self.portal.invokeFactory("Folder", "cut_content")
         folder = self.portal["cut_content"]
         folder.manage_pasteObjects(cp)
-        self.flush()
+        transaction.commit()
         # verify number of objects
         self.assertEqual(len(list(schema.content.select().execute())), 2)
         # verify path of moved content
@@ -56,7 +56,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         self.portal.invokeFactory("Folder", "cut_content_2")
         folder = self.portal["cut_content_2"]
         folder.manage_pasteObjects(cp)
-        self.flush()
+        transaction.commit()
         # verify number of objects
         self.assertEqual(len(list(schema.content.select().execute())), 3)
         # verify path of moved content
@@ -67,7 +67,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         document = self._create_content("content_xyz")
         cp = self.portal.manage_copyObjects([document.getId()])
         self.portal.manage_pasteObjects(cp)
-        self.flush()
+        transaction.commit()
         # verify new content added
         self.assertEqual(len(list(schema.content.select().execute())), 2)
         # verify new content path
@@ -82,7 +82,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         transaction.commit()
         cp = self.portal.manage_copyObjects([container.getId()])
         self.portal.manage_pasteObjects(cp)
-        self.flush()
+        transaction.commit()
         self.assertEqual(self.portal.copy_of_folder_b.objectIds(), ["doc_b"])
         self.assertEqual(len(list(schema.content.select().execute())), 4)
         # verify new content path
@@ -95,7 +95,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         container = self._create_tree(["folder_c", "doc_c"])
         transaction.commit()
         self.portal.manage_clone(container, "folder_d")
-        self.flush()
+        transaction.commit()
         self.assertEqual(len(list(schema.content.select().execute())), 4)
         self.assertEqual(self.portal.folder_d.objectIds(), ["doc_c"])
         # verify new content path
@@ -105,7 +105,7 @@ class CopyPasteRemoveTest(MirrorTestCase):
         document = self._create_content("content_123")
         transaction.commit()
         self.portal.manage_renameObject(document.getId(), "content_111")
-        self.flush()
+        transaction.commit()
         # verify number of objects
         self.assertEqual(len(list(schema.content.select().execute())), 1)
         # verify new path
@@ -115,13 +115,10 @@ class CopyPasteRemoveTest(MirrorTestCase):
     def test_rename_container(self):
         container = self._create_tree(["folder_e", "doc_e"])
         transaction.commit()
-
         self.portal.manage_renameObject(container.getId(), "folder_f")
-        self.flush()
-
+        transaction.commit()
         # verify rename of contained content in db.
         self.assertEqual(self.portal.folder_f.objectIds(), ["doc_e"])
-
         results = self._verify_path("folder_f/doc_e")
         self.assertEqual(len(results), 1)
 

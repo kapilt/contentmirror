@@ -4,6 +4,7 @@ Plone functional tests for serialization of container order
 
 from unittest import defaultTestLoader
 
+import transaction
 import sqlalchemy as rdb
 
 from OFS.interfaces import IOrderedContainer
@@ -22,7 +23,7 @@ class ContainerPositionTest(MirrorTestCase):
         self.folder.invokeFactory("Document", "doc-a")
         self.folder.invokeFactory("Document", "doc-b")
         self.assertEqual(self.folder.objectIds(), ["doc-a", "doc-b"])
-        self.flush()
+        transaction.commit()
 
     def _query_position(self, ids=("doc-a", "doc-b"), ids_only=True):
         fields = [schema.content.c.folder_position, schema.content.c.id]
@@ -45,7 +46,7 @@ class ContainerPositionTest(MirrorTestCase):
         self.folder.moveObjectsUp(["doc-b"])
         self.assertEqual(self.folder.objectIds(), ["doc-b", "doc-a"])
         self.folder.plone_utils.reindexOnReorder(self.folder)
-        self.flush()
+        transaction.commit()
         results = self._query_position()
         self.assertEqual(results, [u'doc-b', u'doc-a'])
 
@@ -55,7 +56,7 @@ class ContainerPositionTest(MirrorTestCase):
         self.assertEqual(self.folder.objectIds(), ["doc-b", "doc-a"])
         # plone's ui does this after all moves to update the catalog
         self.folder.plone_utils.reindexOnReorder(self.folder)
-        self.flush()
+        transaction.commit()
         results = self._query_position()
         self.assertEqual(results, [u'doc-b', u'doc-a'])
 
@@ -66,10 +67,10 @@ class ContainerPositionTest(MirrorTestCase):
         """
         self.portal.invokeFactory("Document", "doc-c")
         self.assertEqual(self.portal.objectIds()[-1], "doc-c")
-        self.flush() # serialize the content
+        transaction.commit()# serialize the content
         self.portal.moveObjectsToTop(["doc-c"])
         self.portal.plone_utils.reindexOnReorder(self.portal)
-        self.flush()
+        transaction.commit()
         results = self._query_position(ids=("doc-c",), ids_only=False)
         # it moves to the top of the content in the portal
         self.assertEqual(results, [(59, u"doc-c")])
