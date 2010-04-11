@@ -58,6 +58,9 @@ def setup_parser():
     parser.add_option(
         '-b', '--batch', dest='threshold', type="int",
         help="Batch commit every N objects", default=500)
+    parser.add_option(
+        '-d', '--db', dest='database', default="",
+        help="Use the specified database uri")
     return parser
 
 
@@ -98,6 +101,11 @@ def setup_query(options):
     return query
 
 
+def get_app():
+    frame = sys._getframe(2)
+    return frame.f_locals.get('app')
+
+
 def main(app=None, instance_path=None, threshold=500):
     parser = setup_parser()
     options, args = parser.parse_args()
@@ -106,6 +114,12 @@ def main(app=None, instance_path=None, threshold=500):
         parser.print_help()
         sys.exit(1)
         return
+
+    if app is None:
+        app = get_app()
+
+    if options.database:
+        schema.metadata.bind = rdb.create_engine(options.database)
 
     instance_path = args[0]
     portal = app.unrestrictedTraverse(instance_path)
