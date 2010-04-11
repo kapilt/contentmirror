@@ -304,6 +304,9 @@ class DDLScriptTest(ScriptTestCase):
         ddl()
 
     def test_drop_and_create(self):
+        """
+        Script can be configured to issue drop and then create table statements
+        """
         self._setup_args("", "-d", "sqlite")
         stdout_mock = self.mocker.replace("sys.stdout")
 
@@ -311,6 +314,19 @@ class DDLScriptTest(ScriptTestCase):
             return ("CREATE" in output) and ("DROP" in output)
 
         stdout_mock.write(MATCH(match_output))
+        self.mocker.replay()
+        ddl()
+
+    def test_no_dialect_specified(self):
+        """
+        Not specifying a dialect results in the script exiting with a usage
+        message.
+        """
+        self._setup_args("")
+        mock_exit = self.mocker.replace("sys.exit")
+        mock_stdout = self.mocker.replace("sys.stdout")
+        mock_stdout.write(CONTAINS("usage:"))
+        mock_exit(1)
         self.mocker.replay()
         ddl()
 
