@@ -40,3 +40,9 @@ def objectMoved(object, event):
     operations = interfaces.IOperationFactory(object, None)
     if operations:
         operations.move()
+
+
+def containerReordered(object, event):
+    operations = interfaces.IOperationFactory(object, None)
+    if operations:
+        operations.reposition()

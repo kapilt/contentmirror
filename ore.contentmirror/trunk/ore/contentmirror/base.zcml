@@ -1,9 +1,24 @@
-<configure xmlns="http://namespaces.zope.org/zope">
+<configure xmlns:zcml="http://namespaces.zope.org/zcml"
+           xmlns="http://namespaces.zope.org/zope">
 
   <adapter
      for=".interfaces.IMirrored"
      provides=".interfaces.IOperationFactory"
      factory=".operation.OperationFactory"
+     />
+
+  <adapter
+     zcml:condition="installed Products.CMFPlone"
+     for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+     provides=".interfaces.IOperationFactory"
+     factory=".operation.PortalOperationFactory"
+     />
+
+  <adapter
+     zcml:condition="installed Products.CMFPlone"
+     for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+     provides=".interfaces.ISerializer"
+     factory=".serializer.PortalSerializer"
      />
 
   <adapter

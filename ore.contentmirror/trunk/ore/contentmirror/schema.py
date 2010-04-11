@@ -43,6 +43,7 @@ content = rdb.Table(
    rdb.Column("object_type", rdb.String(64)),
    rdb.Column("status", rdb.String(64)),
    rdb.Column("portal_type", rdb.String(64)),
+   rdb.Column("folder_position", rdb.Integer),
    rdb.Column("container_id", rdb.Integer,
               rdb.ForeignKey('content.content_id', ondelete="CASCADE")),
    rdb.Column("path", rdb.Text),

@@ -9,7 +9,7 @@
 
   <!-- CMF Workflow transition success event -->
   <subscriber
-     zcml:condition="installed Products.CMFCore.WorkflowCore.ActionSucceedEvent"
+     zcml:condition="installed Products.CMFCore.WorkflowCore"
      for=".interfaces.IMirrored
           Products.CMFCore.interfaces.IActionSucceededEvent"
      handler=".subscriber.objectModified"
@@ -31,6 +31,13 @@
      for=".interfaces.IMirrored
           zope.app.container.interfaces.IObjectRemovedEvent"
      handler=".subscriber.objectDeleted"
+     />
+
+  <subscriber
+     zcml:condition="installed OFS.interfaces"
+     for="OFS.interfaces.IOrderedContainer
+          .interfaces.IContainerOrderChangedEvent"
+     handler=".subscriber.containerReordered"
      />
 
 </configure>

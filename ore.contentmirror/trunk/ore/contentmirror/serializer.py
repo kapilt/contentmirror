@@ -19,6 +19,11 @@ import sqlalchemy as rdb
 from zope import interface, component
 from zope.app.container.interfaces import IContainer
 
+try: # mock test environment compatibility
+    from OFS.interfaces import IOrderedContainer
+except:
+    class IOrderedContainer(interface.Interface): pass
+
 from ore.contentmirror import schema, interfaces
 from ore.contentmirror.session import Session
 
@@ -60,7 +65,7 @@ class Serializer(object):
         peer = schema.fromUID(self.context.UID())
         contained = Session().query(schema.Content).filter(
             rdb.and_(schema.Content.path.startswith(peer.path),
-                     schema.Content.id != peer.id))
+                     schema.Content.content_id != peer.content_id))
 
         # get old and new paths to update contained
         old_containment_path = peer.path
@@ -77,6 +82,15 @@ class Serializer(object):
             content.relative_path = content.relative_path.replace(
                 old_relative_path, new_relative_path)
         Session().flush()
+
+    def reposition(self):
+        """
+        Only fired on Ordered Containers, reserialize the folder positions of
+        all contained objects. Do so without loading the contained children
+        from the ZODB.
+        """
+        peer = schema.fromUID(self.context.UID())
+        serialize_positions(self.context, peer.content_id)
 
     def _copy(self, peer):
         self._copyPortalAttributes(peer)
@@ -99,6 +113,13 @@ class Serializer(object):
         peer.status = wf_tool.getCatalogVariablesFor(
             self.context).get('review_state')
 
+        container = self.context.getParentNode()
+        if not IOrderedContainer.providedBy(container):
+            return
+
+        peer.folder_position = container.getObjectPosition(
+            self.context.getId())
+
     def _copyContainment(self, peer):
         container = self.context.getParentNode()
         if container is None:
@@ -114,3 +135,28 @@ class Serializer(object):
                 return
             container_peer = serializer.add()
         peer.parent = container_peer
+
+
+class PortalSerializer(object):
+
+    def __init__(self, context):
+        self.context = context
+
+    def reposition(self):
+        serialize_positions(self.context, None)
+
+
+def serialize_positions(container, container_id):
+    contained = Session().query(schema.Content).filter(
+        schema.Content.container_id == container_id)
+    contained_map = dict([
+        (obj.id, obj) for obj in contained])
+    position = 0
+    for ob_id in container.objectIds():
+        if not ob_id in contained_map:
+            position += 1
+            continue
+        content = contained_map[ob_id]
+        content.folder_position = position
+        position += 1
+    Session().flush()

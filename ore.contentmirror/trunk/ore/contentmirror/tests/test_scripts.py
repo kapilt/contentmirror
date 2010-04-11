@@ -133,7 +133,11 @@ class BulkScriptTest(ScriptTestCase):
         if replay:
             self.mocker.replay()
 
-    def testSyncIncremental(self):
+    def test_sync_incremental(self):
+        """
+        Content can be sync'd incrementally based on the last
+        timestamp of content in the db.
+        """
         self._setup_args("", "--incremental", "portal")
         MockApp.results = content = self._sample_content()
         content[-1].modification_date = DateTime()
@@ -156,7 +160,10 @@ class BulkScriptTest(ScriptTestCase):
         bulk(MockApp)
         self.assertEqual(len(self._fetch_rows()), len(content))
 
-    def testPath(self):
+    def test_path(self):
+        """
+        Content can be serialized only from a given path.
+        """
         self._setup_args("", "--path", "c", "portal")
         MockApp.results = self._sample_content()
         stdout_mock = self.mocker.replace("sys.stdout")
@@ -166,7 +173,11 @@ class BulkScriptTest(ScriptTestCase):
         bulk(MockApp)
         self.assertEqual(len(self._fetch_rows()), 1)
 
-    def testDumpTypes(self):
+    def test_dump_types(self):
+        """
+        Content only of the given types (and their containers) can be specified
+        for serialization.
+        """
         content = self._sample_content()
         content[0].portal_type = "Folder"
         content[-1].portal_type = "Article"
@@ -175,10 +186,11 @@ class BulkScriptTest(ScriptTestCase):
         self._capture_standard_output()
         bulk(MockApp)
 
-    def testDumpFolder(self):
-        pass
-
-    def testNoPortalPath(self):
+    def test_no_portal_path(self):
+        """
+        Not specifying a portal path results in an the script exit
+        and the usage information.
+        """
         self._setup_args("")
         mock_exit = self.mocker.replace("sys.exit")
         mock_stdout = self.mocker.replace("sys.stdout")
@@ -189,7 +201,10 @@ class BulkScriptTest(ScriptTestCase):
         MockApp.results = []
         bulk(MockApp)
 
-    def testBulk(self):
+    def test_bulk(self):
+        """
+        Bulk serialization of all content is done by default.
+        """
         self._setup_args("", "portal")
         c1 = SampleContent("a")
         # what happens when we don't have a uid for an object

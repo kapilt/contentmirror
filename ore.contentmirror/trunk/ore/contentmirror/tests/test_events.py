@@ -31,7 +31,10 @@ class EventSubcriberTest(IntegrationTestCase):
         """ % (self.sample_content)
         self._load(snippet)
 
-    def testDeleteAfterAddCancelsAll(self):
+    def test_delete_after_add_cancels_all(self):
+        """
+        Adding and deleting content results in no serialized content in the db.
+        """
         instance = SampleContent("foobar")
         event.notify(ObjectAddedEvent(instance))
         event.notify(ObjectRemovedEvent(instance))
@@ -39,7 +42,10 @@ class EventSubcriberTest(IntegrationTestCase):
         all = schema.content.select().execute()
         self.assertEqual(list(all), [])
 
-    def testModifyAndDeleteCancelsAll(self):
+    def test_modify_and_delete_cancels_all(self):
+        """
+        Creating content and then deleting it results in no content in the db.
+        """
         instance = SampleContent("foobar")
         event.notify(ObjectModifiedEvent(instance))
         event.notify(ObjectRemovedEvent(instance))
@@ -47,7 +53,7 @@ class EventSubcriberTest(IntegrationTestCase):
         all = schema.content.select().execute()
         self.assertEqual(list(all), [])
 
-    def testPortalFactoryFilter(self):
+    def test_portal_factory_filter(self):
         """
         Content in portal factory never serializes.
         """

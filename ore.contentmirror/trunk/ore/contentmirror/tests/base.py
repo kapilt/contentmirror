@@ -145,8 +145,6 @@ class Jar(object):
 
 class BaseContent(object):
 
-    interface.implements(interfaces.IPortalContent)
-
     portal_type = ""
     schema = None
 

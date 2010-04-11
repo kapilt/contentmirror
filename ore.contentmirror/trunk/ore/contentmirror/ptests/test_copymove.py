@@ -6,16 +6,11 @@ from unittest import defaultTestLoader
 
 import transaction
 
-from ore.contentmirror.tests.base import reset_db
-from ore.contentmirror.ptests.base import MirrorTestCase
 from ore.contentmirror import schema
+from ore.contentmirror.ptests.base import MirrorTestCase
 
 
 class CopyPasteRemoveTest(MirrorTestCase):
-
-    def setUp(self):
-        super(MirrorTestCase, self).setUp()
-        reset_db()
 
     def _create_content(self, id):
         self.loginAsPortalOwner()

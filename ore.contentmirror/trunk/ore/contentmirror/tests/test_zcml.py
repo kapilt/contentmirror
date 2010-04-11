@@ -26,7 +26,7 @@ class CustomTransformer(object):
 
 class ZCMLTestCase(IntegrationTestCase):
 
-    def testMirror(self):
+    def test_mirror_statement(self):
         snippet = """
         <ore:mirror content='%s'/>
         """ % (self.sample_content)
@@ -35,7 +35,7 @@ class ZCMLTestCase(IntegrationTestCase):
         serializer = interfaces.ISerializer(content)
         self.assertTrue(serializer)
 
-    def testNonMirrored(self):
+    def test_non_mirrored(self):
         snippet = """
         <ore:mirror content='%s'/>
         """ % (self.custom_content)
@@ -44,7 +44,7 @@ class ZCMLTestCase(IntegrationTestCase):
         serializer = interfaces.ISerializer(content)
         self.assertTrue(serializer)
 
-    def testMirrorCustomSerializer(self):
+    def test_mirror_custom_serializer(self):
         snippet = """\
         <ore:mirror content='%s' serializer="%s"/>
         """%(self.sample_content,
@@ -54,7 +54,7 @@ class ZCMLTestCase(IntegrationTestCase):
         serializer = interfaces.ISerializer(content)
         self.assertEqual(serializer, 42)
 
-    def testMirrorCustomTransformer(self):
+    def test_mirror_custom_transformer(self):
         snippet = """\
         <ore:mirror content='%s' transformer="%s"/>
         """%(self.sample_content,
@@ -66,7 +66,7 @@ class ZCMLTestCase(IntegrationTestCase):
                                                 interfaces.ISchemaTransformer)
         self.assertTrue(isinstance(transformer, CustomTransformer))
 
-    def testBind(self):
+    def test_bind(self):
         engine = sqlalchemy.create_engine("sqlite://")
         interface.directlyProvides(engine, (interfaces.IDatabaseEngine))
         component.provideUtility(engine, name="sample")
@@ -76,7 +76,7 @@ class ZCMLTestCase(IntegrationTestCase):
         self._load(snippet)
         self.assertEqual(schema.metadata.bind, engine)
 
-    def testEngine(self):
+    def test_engine(self):
         snippet = """\
         <ore:engine name='sample'
                     url='sqlite://'
@@ -87,7 +87,7 @@ class ZCMLTestCase(IntegrationTestCase):
         db = component.getUtility(interfaces.IDatabaseEngine, name="sample")
         self.assertTrue(db)
 
-    def testSubclass(self):
+    def test_subclass(self):
 
         class CustomSub(SampleContent):
             pass
@@ -100,7 +100,7 @@ class ZCMLTestCase(IntegrationTestCase):
         factory = registry[CustomSub]
         self.assertTrue(factory)
 
-    def testListNonStringValue(self):
+    def test_list_non_string_value(self):
         snippet = """
         <ore:mirror content='%s'/>
         """ % (self.sample_content)
@@ -110,7 +110,11 @@ class ZCMLTestCase(IntegrationTestCase):
         self.assertEqual(peer.id, "bar")
         self.assertEqual(peer.stuff, "\n".join(list("abc")))
 
-    def testOtherNonStringValue(self):
+    def test_other_non_string_value(self):
+        """
+        Serialization of arbitrary value results in the serializing
+        of the string value.
+        """
         snippet = """
         <ore:mirror content='%s'/>
         """ % (self.sample_content)

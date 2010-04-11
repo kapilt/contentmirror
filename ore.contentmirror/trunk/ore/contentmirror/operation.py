@@ -41,6 +41,7 @@ class Operation(object):
         raise NotImplementedError("subclass responsibility")
 
     def __cmp__(self, other):
+        """Sort so content is serialized after their containers."""
         return cmp(
             self.context.getPhysicalPath(), other.context.getPhysicalPath())
 
@@ -81,7 +82,21 @@ class DeleteOperation(Operation):
         interfaces.ISerializer(self.context).delete()
 
 
-class OperationFactory(object):
+class RepositionOperation(Operation):
+
+    interface.implements(interfaces.IRepositionOperation)
+    # precendence might be tricky if the container moves, a reposition
+    # is always done on the container. The only operation that effectively
+    # cancels a reposition is a delete. All others would need to be
+    # applied in parallel. also the sort comparison is wrong by default
+    # since we want containers after the content has been renamed.
+    precendence = -2
+
+    def process(self):
+        interfaces.ISerializer(self.context).reposition()
+
+
+class BaseOperationFactory(object):
 
     interface.implements(interfaces.IOperationFactory)
 
@@ -89,6 +104,16 @@ class OperationFactory(object):
 
     def __init__(self, context):
         self.context = context
+
+    def _store(self, op):
+        # apply filters to operation
+        component.subscribers((self.context, op), interfaces.IFilter)
+        if op.filtered:
+            return
+        get_buffer().add(op)
+
+
+class OperationFactory(BaseOperationFactory):
 
     def add(self):
         return self._store(AddOperation(self.context))
@@ -102,12 +127,18 @@ class OperationFactory(object):
     def move(self):
         return self._store(MoveOperation(self.context))
 
-    def _store(self, op):
-        # apply filters to operation
-        component.subscribers((self.context, op), interfaces.IFilter)
-        if op.filtered:
-            return
-        get_buffer().add(op)
+    def reposition(self):
+        return self._store(RepositionOperation(self.context))
+
+
+class PortalOperationFactory(BaseOperationFactory):
+    """
+    Operation Factory for the portal. Content mirror only defines one
+    one operation on the portal to capture the position of its children.
+    """
+
+    def reposition(self):
+        return self._store(RepositionOperation(self.context))
 
 
 class BufferManager(object):

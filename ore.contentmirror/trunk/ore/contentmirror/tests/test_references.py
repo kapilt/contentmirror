@@ -74,7 +74,7 @@ class SingleValueReferenceTestCase(IntegrationTestCase):
         self.assertEqual(peer.article_text, None)
 
     def test_reference_delete_referenced(self):
-        """Deleting the referenced content sets the refation to None."""
+        """Deleting the referenced content sets the relation to None."""
         article = SReferenceContent("article")
         news_item = SReferenceContent("news_item", article_text=article)
         interfaces.ISerializer(news_item).add()

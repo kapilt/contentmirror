@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ######################################################################
 from zope import interface, schema
+from zope.component.interfaces import IObjectEvent
 
 
 class IDatabaseEngine(interface.Interface):
@@ -27,13 +28,6 @@ class IMirrored(interface.Interface):
     """
     Marker interface, signifying that the content should be mirrored
     to a database """
-
-# Base Generic Interface to Attach Default Adapters to
-try:
-    from Product.Archetypes.interfaces import IBaseContent as IPortalContent
-except ImportError:
-    class IPortalContent(interface.Interface):
-        pass
 
 
 class IMetaData(interface.Interface):
@@ -64,6 +58,24 @@ DUBLIN_CORE= [
     "allowDiscussion",
     "excludeFromNav",
     ]
+
+#########################################
+# Custom Events
+#########################################
+
+class IContainerOrderChangedEvent(IObjectEvent):
+    """
+    A container event fired when an object within a container has its position.
+    Distinguished from container modified events as its more specific to
+    positioning events, rather than generic to containment.
+    """
+
+
+class ContainerOrderChanged(object):
+    interface.implements(IContainerOrderChangedEvent)
+
+    def __init__(self, object):
+        self.object = object
 
 #########################################
 # Runtime Serialization
@@ -101,6 +113,10 @@ class IMoveOperation(IOperation):
     """Operation for when content is moved."""
 
 
+class IRepositionOperation(IOperation):
+    """Operation for when a container has its content ordering changed."""
+
+
 class IOperationBuffer(interface.Interface):
     """ transactional operation buffer """
 
@@ -135,6 +151,16 @@ class ISerializer(interface.Interface):
     def update():
         """
         update the object state in the database
+        """
+
+    def move():
+        """
+        move the content's container
+        """
+
+    def reposition():
+        """
+        serialize a container's contained content positions
         """
 
 ########################################
