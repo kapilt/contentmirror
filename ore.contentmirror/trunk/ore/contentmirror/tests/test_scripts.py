@@ -133,6 +133,21 @@ class BulkScriptTest(ScriptTestCase):
         if replay:
             self.mocker.replay()
 
+    def test_acquire_app(self):
+        """
+        The script will attempt to acquire the app from the
+        call stack so that its compatible with usage via
+        ./bin/instance run ./bin/script
+        """
+        app = MockApp
+        app.results = self._sample_content()
+        self._setup_args("", "portal")
+        stdout_mock = self.mocker.replace("sys.stdout")
+        stdout_mock.write(MATCH(TextMatch("Processed", '  4')))
+        stdout_mock.write(MATCH(TextMatch("Finished")))
+        self.mocker.replay()
+        bulk()
+
     def test_sync_incremental(self):
         """
         Content can be sync'd incrementally based on the last
