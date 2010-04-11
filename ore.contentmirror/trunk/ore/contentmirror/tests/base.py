@@ -23,6 +23,8 @@ import random
 import md5
 import os
 import sqlalchemy
+import transaction
+
 from cStringIO import StringIO
 
 from zope import interface, component
@@ -64,6 +66,7 @@ def setUp(test):
 
 def tearDown(test):
     placelesssetup.tearDown()
+    transaction.abort()
     schema.metadata.drop_all(checkfirst=True)
 
 
