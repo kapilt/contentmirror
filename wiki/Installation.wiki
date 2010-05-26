@@ -25,6 +25,7 @@ for example if you where inheriting an existing plone buildout the minimal confi
 eggs += ore.contentmirror
 zcml +=
   ore.contentmirror:meta.zcml
+  ore.contentmirror:settings.zcml
   ore.contentmirror
 
 [zopepy]
