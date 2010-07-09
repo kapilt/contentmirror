@@ -137,10 +137,6 @@ orm.mapper(Content, content,
 #                   backref=orm.backref("target",
 #                                       remote_side=[relations.c.target_id]))})
 
-
-#class Node( object ): pass
-#orm.mapper( Node, content )
-
 class UIDFilter(object):
 
     __slots__ = ('uid',)
