@@ -6,15 +6,26 @@ Changes
 
 `Full set of issues fixed <http://code.google.com/p/contentmirror/issues/list?can=1&q=milestone=Release0.6&colspec=ID%20Type%20Status%20Priority%20Milestone%20Owner%20Summary>`_
 
- - Reference fix for deleting content [hazmat]
+ - Reference fix when deleting content [hazmat]
 
  - New bulk cli options for incremental, or sync by type or path [hazmat]
+
+ - cli scripts via setuptools and runnable via instance runner [hazmat]
 
  - Content ordered container position serialization [hazmat]
 
  - Move support for folders [hazmat]
 
+ - Single value archetypes references exposed as a foreign key
+   with scalar value in the orm. [hazmat]
+
+ - Support for running test with different db implementations. [hazmat]
+
  - Plone integration tests [hazmat]
+
+ - Lots of additional reference and cli script tests [hazmat]
+
+ - Support for content which depends on mimetype registry on instantiation [hazmat]
 
  - Separate core zcml into base.zcml for when default content types do not need mirroring.
    [laurencerowe]

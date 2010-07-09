@@ -1,14 +1,16 @@
 """
 Plone Environment Construction for Transient Content Creation.
 
-Some of plone products (including those form zope skel) will attempt to utilize
+Some of plone products (including those from zope skel) will attempt to utilize
 utilities that depend on either acquisition or a local site before they've
 been attached to the object graph. In order to cope when this when loading the
 classes, we can either push and pop a local component manager with the required
 local utilities. Or we can push and pop the utility directly to the class,
 doing the latter is signficantly simpler and avoids having depending on
 mimetypes tool in the test or runtime environment. More importantly it makes
-it much easier to maintain compatibility between mulitple plone versions.
+it much easier to maintain compatibility between mulitple plone versions and
+the underlying differences in the component architecture with the resulting
+zope versions.
 """
 
 import sys
