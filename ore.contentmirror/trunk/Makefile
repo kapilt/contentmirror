@@ -1,7 +1,8 @@
 test:
 	./bin/test
+	gnome-open docs/_build/html/index.html
 
-sphinx:
+doc:
 	cd docs && make html
 
 build-3.3:
