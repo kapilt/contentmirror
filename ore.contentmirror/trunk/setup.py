@@ -1,16 +1,17 @@
 import os
 from setuptools import setup, find_packages
 
+VERSION = "0.6.0-rc2"
 
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
 setup(
     name="ore.contentmirror",
-    version=read("version.txt").strip(),
+    version=VERSION,
     url="http://contentmirror.googlecode.com",
     install_requires=["setuptools",
-                      "SQLAlchemy>=0.5.5,<0.6",
+                      "SQLAlchemy>=0.5.5",
                       "zope.sqlalchemy",
                       "zope.component",
                       "zope.event",
@@ -24,10 +25,9 @@ setup(
                       "mocker"],
     packages=find_packages(exclude=["*.tests"]),
     namespace_packages=["ore"],
-    package_data = {
-      "": ["*.txt", "*.zcml", "*.pt"],
-    },
+    include_package_data=True,
     zip_safe=False,
+    setup_requires = ["setuptools_bzr"],
     author="Kapil Thangavelu",
     author_email="kapil.foss@gmail.com",
     description="Deploy/Rescue Content from Plone to a Relational Database",
