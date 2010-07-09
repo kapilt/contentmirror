@@ -351,6 +351,8 @@ class ReferenceTransform(NamedFieldTransform):
         if not isinstance(value, (list, tuple)):
             value= [value]
 
+        value = filter(None, value) # filter empty values, ie. bad data
+
         rel_map = dict([((r.relationship, r.target.content_uid), r)
                         for r in peer.relations])
         oids_seen = set() # oids of the current reference values of this field
