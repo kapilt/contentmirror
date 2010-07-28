@@ -1,0 +1,25 @@
+<configure
+   xmlns="http://namespaces.zope.org/zope"
+   xmlns:meta="http://namespaces.zope.org/meta">
+
+  <meta:directives namespace="http://namespaces.objectrealms.net/mirror">
+    <meta:directive
+       name="mirror"
+       schema=".zcml.IContentMirror"
+       handler=".zcml.mirror" />
+
+    <meta:directive
+        name="engine"
+        schema=".zcml.IEngineDirective"
+        handler=".zcml.engine"
+        />
+
+    <meta:directive
+        name="bind"
+        schema=".zcml.IBindDirective"
+        handler=".zcml.bind"
+        />
+
+  </meta:directives>
+
+</configure>

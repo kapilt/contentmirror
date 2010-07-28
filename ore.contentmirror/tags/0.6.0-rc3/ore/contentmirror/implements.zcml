@@ -1,0 +1,69 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <class class="sqlalchemy.MetaData">
+     <implements interface=".interfaces.IMetaData"/>
+  </class>
+
+  <!--
+  <class class="Products.Archetypes.BaseContent.BaseContent">
+     <implements interface=".interfaces.IMirrored"/>
+  </class>
+    -->
+
+  <class class="Products.Archetypes.Field.ComputedField">
+     <implements interface=".interfaces.IComputedField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.StringField">
+     <implements interface=".interfaces.IStringField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.IntegerField">
+     <implements interface=".interfaces.IIntegerField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.FloatField">
+     <implements interface=".interfaces.IFloatField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.FixedPointField">
+     <implements interface=".interfaces.IFixedPointField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.TextField">
+     <implements interface=".interfaces.ITextField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.DateTimeField">
+     <implements interface=".interfaces.IDateTimeField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.BooleanField">
+     <implements interface=".interfaces.IBooleanField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.ReferenceField">
+     <implements interface=".interfaces.IReferenceField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.FileField">
+     <implements interface=".interfaces.IFileField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.ImageField">
+     <implements interface=".interfaces.IImageField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.PhotoField">
+     <implements interface=".interfaces.IPhotoField"/>
+  </class>
+
+  <class class="Products.Archetypes.Field.LinesField">
+     <implements interface=".interfaces.ILinesField"/>
+  </class>
+
+  <class class="Products.Archetypes.utils.DisplayList">
+     <implements interface=".interfaces.IDisplayList"/>
+  </class>
+
+</configure>
