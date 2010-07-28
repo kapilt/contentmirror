@@ -5,11 +5,13 @@ ZopeSkel for a folder content type.
 """
 
 from unittest import defaultTestLoader
-from mocker import MockerTestCase
+
 
 from zope.component import getUtility
 from zope.app.component.hooks import getSite, setSite
+
 from ore.contentmirror import loader, interfaces
+from ore.contentmirror.tests.mocker import MockerTestCase
 from ore.contentmirror.ptests.base import MirrorTestCase
 
 from Products.Archetypes import atapi
