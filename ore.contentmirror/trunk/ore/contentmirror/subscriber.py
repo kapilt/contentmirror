@@ -27,7 +27,7 @@ def objectAdded(object, event):
 def objectModified(object, event):
     operations = interfaces.IOperationFactory(object, None)
     if operations:
-        operations.add()
+        operations.update()
 
 
 def objectDeleted(object, event):

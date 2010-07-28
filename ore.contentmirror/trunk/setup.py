@@ -1,7 +1,8 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = "0.6.0-rc2"
+VERSION = "0.6.0-rc3"
+
 
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
@@ -11,7 +12,7 @@ setup(
     version=VERSION,
     url="http://contentmirror.googlecode.com",
     install_requires=["setuptools",
-                      "SQLAlchemy>=0.5.5",
+                      "SQLAlchemy==0.5.8",
                       "zope.sqlalchemy",
                       "zope.component",
                       "zope.event",
@@ -27,12 +28,11 @@ setup(
     include_package_data=True,
     package_data = {
       "": ["*.txt", "*.zcml"],
-      "ore.contentmirror": ["*.zcml", "*.txt"]
-      },
+      "ore.contentmirror": ["*.zcml", "*.txt"]},
     zip_safe=False,
     author="Kapil Thangavelu",
     author_email="kapil.foss@gmail.com",
-    description="Deploy/Rescue Content from Plone to a Relational Database",
+    description="Deploy Content from Plone to a Relational Database",
     long_description=read("ore", "contentmirror", "readme.txt"),
     license="GPL",
     keywords="plone zope zope3",

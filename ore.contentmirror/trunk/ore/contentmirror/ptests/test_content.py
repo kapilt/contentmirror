@@ -6,17 +6,21 @@ ZopeSkel for a folder content type.
 
 from unittest import defaultTestLoader
 
+import transaction
 
 from zope.component import getUtility
+from zope.event import notify
 from zope.app.component.hooks import getSite, setSite
 
-from ore.contentmirror import loader, interfaces
+from ore.contentmirror import loader, interfaces, operation, schema
 from ore.contentmirror.tests.mocker import MockerTestCase
 from ore.contentmirror.ptests.base import MirrorTestCase
 
 from Products.Archetypes import atapi
 from Products.ATContentTypes.content import folder
 from Products.ATContentTypes.content import schemata
+from Products.CMFCore.WorkflowCore import ActionSucceededEvent
+from Products.CMFCore.interfaces import IWorkflowTool
 
 ExampleTypeSchema = folder.ATFolderSchema.copy()
 ExampleTypeSchema['title'].storage = atapi.AnnotationStorage()
@@ -64,6 +68,25 @@ class ContentCreationTest(MockerTestCase, MirrorTestCase):
         loader.load(ExampleType)
         registry = getUtility(interfaces.IPeerRegistry)
         self.assertTrue(ExampleType in registry)
+
+
+class ContentWorkflowTest(MockerTestCase, MirrorTestCase):
+
+    def _create_content(self, id):
+        self.loginAsPortalOwner()
+        self.portal.invokeFactory("Document", id)
+        transaction.commit()
+        self.assertEqual(len(list(schema.content.select().execute())), 1)
+        return self.portal[id]
+
+    def test_content_workflow_event_generates_update(self):
+        content = self._create_content("wf-test-1")
+        event = ActionSucceededEvent(content, None, None, None)
+        notify(event)
+        ops = operation.get_buffer().ops.values()
+        self.assertEqual(len(ops), 1)
+        self.assertTrue(isinstance(ops[0],
+                                   operation.UpdateOperation))
 
 
 def test_suite():
