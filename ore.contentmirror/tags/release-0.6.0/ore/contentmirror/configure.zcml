@@ -1,0 +1,14 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <include file="base.zcml"/>
+
+  <!-- Implements Declarations -->
+  <include file="implements.zcml"/>
+
+  <!-- Archetypes Dependency -->
+  <include package="Products.Archetypes"/>
+
+  <!-- Plone Default Content -->
+  <include file="content.zcml" />
+
+</configure>

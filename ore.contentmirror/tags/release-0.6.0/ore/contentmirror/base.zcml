@@ -1,0 +1,61 @@
+<configure xmlns:zcml="http://namespaces.zope.org/zcml"
+           xmlns="http://namespaces.zope.org/zope">
+
+  <adapter
+     for=".interfaces.IMirrored"
+     provides=".interfaces.IOperationFactory"
+     factory=".operation.OperationFactory"
+     />
+
+  <adapter
+     zcml:condition="installed Products.CMFPlone"
+     for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+     provides=".interfaces.IOperationFactory"
+     factory=".operation.PortalOperationFactory"
+     />
+
+  <adapter
+     zcml:condition="installed Products.CMFPlone"
+     for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+     provides=".interfaces.ISerializer"
+     factory=".serializer.PortalSerializer"
+     />
+
+  <adapter
+     for=".interfaces.IMirrored"
+     provides=".interfaces.ISerializer"
+     factory=".serializer.Serializer"
+     />
+
+  <adapter
+     for=".interfaces.IMirrored .interfaces.IMetaData"
+     provides=".interfaces.ISchemaTransformer"
+     factory=".transform.SchemaTransformer"
+     />
+
+  <adapter
+     for=".interfaces.IMirrored .interfaces.ISchemaTransformer"
+     provides=".interfaces.IPeerFactory"
+     factory=".peer.PeerFactory"
+     />
+
+  <utility
+     factory=".peer.PeerRegistry"/>
+
+  <utility
+     factory=".operation.OperationBufferFactory"/>
+
+  <!-- Filter for Portal Factory Content    -->
+  <subscriber
+     factory=".filter.PortalFactory"
+     provides=".interfaces.IFilter"
+     for=".interfaces.IMirrored .interfaces.IOperation"
+     />
+
+  <!-- Schema Transformers -->
+  <include file="transform.zcml"/>
+
+  <!-- Subscribers -->
+  <include file="subscriber.zcml"/>
+
+</configure>

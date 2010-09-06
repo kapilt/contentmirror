@@ -1,0 +1,10 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+
+  <!-- Zope 2.9 Support -->
+  <subscriber
+     for=".interfaces.IMirrored
+          zope.app.event.interfaces.IObjectModifiedEvent"
+     handler=".subscriber.objectModified" 
+     />
+     
+</configure>     
