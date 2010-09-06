@@ -1,0 +1,89 @@
+Changes
+-------
+
+0.6.0
+=====
+
+`Full set of issues fixed <http://code.google.com/p/contentmirror/issues/list?can=1&q=milestone=Release0.6&colspec=ID%20Type%20Status%20Priority%20Milestone%20Owner%20Summary>`_
+
+ - Reference fix when deleting content [hazmat]
+
+ - New bulk cli options for incremental, or sync by type or path [hazmat]
+
+ - cli scripts via setuptools and runnable via instance runner [hazmat]
+
+ - Content ordered container position serialization [hazmat]
+
+ - Move support for folders [hazmat]
+
+ - Single value archetypes references exposed as a foreign key
+   with scalar value in the orm. [hazmat]
+
+ - Support for running test with different db implementations. [hazmat]
+
+ - Plone integration tests [hazmat]
+
+ - Lots of additional reference and cli script tests [hazmat]
+
+ - Support for content which depends on mimetype registry on instantiation [hazmat]
+
+ - Separate core zcml into base.zcml for when default content types do not need mirroring.
+   [laurencerowe]
+
+ - Peer handling for subclasses of IMirrored.
+   (An alternative would be for the class to provide rather than implement IMirrored)
+   [laurencerowe]
+
+ - Transform handling for write-only fields.
+   [laurencerowe]
+
+0.5.2
+=====
+
+ - Issue 38: Support FixedPoint Field
+   [stefan.eletzhofer]
+
+ - Issue 26: bulk.py now sets security context to Superuser so that all content 
+   is mirrored. 
+   [witchert, redinnovation]
+
+ - Issue 46: Avoid incorrect delete of references  
+   [tesdal]
+
+
+0.5.1
+=====
+
+ - Packaging fix
+   [hazmat]
+
+0.5.0 
+=====
+
+ - fixes for file fields deletion / updates as scalar values [ hazmat ]
+
+ - fixes for reference fields to delete old db relations values when values are changed
+   and the old values are no longer valid. ( Thanks to Bryan Davis for a doctest demonstrating
+   the issue. ) [hazmat]
+
+ - copied ore.alchemist.zcml and meta.zcml directives into ore.contentmirror to
+   support zcml directives [ runyaga + hazmat ]
+
+ - remove deprecation warning change [ runyaga + hazmat ]
+
+ - allow environment variable CONTENTMIRROR_URI for database configuration no need for zcml
+   use a SQLAlchemy engine URI. [ runyaga + hazmat ]
+
+ - replace ore.alchemist dependency with zope.sqlalchemy [ runyaga + hazmat ]
+
+ - replace zope.app.container with zope.{event,schema,component} [ runyaga + hazmat ]
+
+ - add 'excludefromnav' in the base attributes that are mapped to RDBMs.
+   register workflow transition events to .subscribers.objectModified handler
+   [runyaga]
+   
+ - content physical path is serialized. [hazmat]
+ 
+ - fixed a bug when copy and pasting in plone. [hazmat]
+   http://code.google.com/p/contentmirror/issues/detail?id=11
+
