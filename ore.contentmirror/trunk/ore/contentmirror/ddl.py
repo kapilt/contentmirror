@@ -47,7 +47,7 @@ def main():
     buf = StringIO()
 
     def write_statement(statement, parameters=''):
-        ddl = statement + parameters
+        ddl = str(statement) + parameters
         buf.write(ddl.strip() + ';\n\n')
 
     db = rdb.create_engine('%s://'%(db_type),
