@@ -1,0 +1,289 @@
+--------------
+Bug Test Cases
+--------------
+
+Additional tests for verifying bug fixes. This doc is not particularly narrative.
+
+Bootstrapping
+-------------
+set up the same type of stuff in the readme.txt doctest
+
+  >>> import zope.interface, os
+  >>> from datetime import datetime
+
+Testing Database environment variable setup
+
+  >>> db_url = os.environ.get('CONTENTMIRROR_URI') or 'sqlite://'
+
+This is the key that contentmirror expects to find its database
+variable at
+
+  >>> os.environ['CONTENTMIRROR_URI'] = db_url
+  >>> from ore.contentmirror.tests.base import *
+  >>> from ore.contentmirror import interfaces
+  >>> from ore.contentmirror.schema import metadata, content, relations
+  >>> from ore.contentmirror import operation
+  >>> from ore.contentmirror.loader import loader
+  >>> import transaction
+  >>> from ore.contentmirror.session import Session
+  >>> setUp(None)
+
+  >>> import sqlalchemy as rdb
+  >>> from ore.contentmirror.schema import metadata
+  >>> metadata.bind = rdb.create_engine( db_url, convert_unicode=True)
+  >>> engine = metadata.bind
+  >>> session = Session()
+
+Unicode Content
+---------------
+
+issue 22
+http://code.google.com/p/contentmirror/issues/detail?id=22
+
+This issue was not reproducible, as the following test worked
+out of the box.
+
+  >>> class UnicodeContent( BaseContent ):
+  ...     portal_type = "Uni Content"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...         StringField('name'),
+  ...         StringField('slug', required=True),
+  ...     ))
+
+
+  >>> loader.load( UnicodeContent )
+  >>> reset_db()
+  >>> uni1 = UnicodeContent( 'test', name= u'ﺎﻠﻋﺮﺒﻳﺓ', slug=u'简体中文' )
+  >>> peer1 = interfaces.ISerializer( uni1 ).add()
+  >>> transaction.commit()
+
+Not let's modify it
+
+  >>> uni1.name = u'Русский'
+  >>> peer2 = interfaces.ISerializer( uni1 ).update()
+  >>> transaction.commit()
+
+Mixed Case Fields
+-----------------
+
+issue 25
+http://code.google.com/p/contentmirror/issues/detail?id=25
+
+issue summary - contentmirror doesn't handle multicase field names correctly.
+
+This was an invalid issue, as this unit test worked out of the box.
+
+  >>> class MixedCase( BaseContent ):
+  ...     portal_type = "Mixed Case"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...         StringField('Name'),
+  ...         StringField('Slug', required=True),
+  ...         StringField('contactEmail2', required=True),
+  ...     ))
+
+  >>> loader.load( MixedCase )
+  >>> reset_db()
+
+  >>> mixed1 = MixedCase( 'magic', Name="Magic", Slug="Woot", contactEmail2="zebra@example.com")
+  >>> peer1 = interfaces.ISerializer( mixed1 ).add()
+  >>> assert peer1.name == mixed1.Name
+  >>> assert peer1.contactemail2 == mixed1.contactEmail2
+  >>> transaction.commit()
+
+  >>> mixed2 = MixedCase( 'rabbit', Name="Rabbit", Slug="Swallow Question",contactEmail2="zebra@example.com")
+  >>> peer2 = interfaces.ISerializer( mixed2 ).add()
+  >>> assert peer2.contactemail2 == mixed2.contactEmail2
+  >>> transaction.commit()
+  >>> object_map = dict( [ (o.id, o) for o in list( Session().query( peer1.__class__ ).all() )] )
+  >>> assert object_map['magic'].contactemail2 == mixed1.contactEmail2
+  >>> transaction.abort()
+
+
+Deleting Files
+--------------
+
+issue 24
+http://code.google.com/p/contentmirror/issues/detail?id=24
+
+Create an image or file and try to delete it, it fails with a sqlalchemy error. There were a couple of things going on here, files as named scalar values triggered some interesting problems with a sqlalchemy optimization as relates
+
+  >>> class FileContentTest( BaseContent ):
+  ...     portal_type = "File Test"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...                StringField('Name'),
+  ...                FileField('file_content', required=True),
+  ...     ))
+
+  >>> loader.load( FileContentTest )
+  >>> reset_db()
+
+  >>> file1 = FileContentTest('abc', Name="Rabbit", file_content=File("treaty.txt", "file text") )
+  >>> peer1 = interfaces.ISerializer( file1 ).add()
+  >>> transaction.commit()
+
+Test Updating the File Content
+
+  >>> file1.Name = "Tweak"
+  >>> peer1 = interfaces.ISerializer( file1 ).update()
+  >>> transaction.commit()
+
+And verify deleting it, fixes the problem
+
+  >>> interfaces.ISerializer( file1 ).delete()
+  >>> transaction.commit()
+  >>> assert list(engine.execute('select count(*) from files  ') )[0][0] == 0
+
+Deleting References
+-------------------
+
+issue 29
+http://code.google.com/p/contentmirror/issues/detail?id=29
+
+We want to verify that references are deleted from the database when there deleted in Plone.
+
+The only difference is multiValued=False is set on the type.  This means that the type should only
+have a single value.
+
+First let's clear out any previous db state
+
+  >>> transaction.abort()
+
+  >>> class MyAsset( BaseContent ):
+  ...     portal_type = "My Asset"
+  ...     zope.interface.implements( interfaces.IMirrored )
+  ...     schema = Schema((
+  ...         StringField('name'),
+  ...         StringField('slug', required=True),
+  ...         ReferenceField('related', relationship='ref'),
+  ...         ReferenceField('sim', relationship='sim'),
+  ...         DateTimeField('discoveredDate')
+  ...     ))
+
+perform all of the necessary wiring to get the machinery working
+
+  >>> loader.load( MyAsset )
+  >>> reset_db()
+
+create some test instances
+
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> ref2 = MyAsset('ref2', name="Ref 2")
+  >>> home_page = MyAsset( 'home-page', related=[ ref1 ] )
+  >>> peer = interfaces.ISerializer( home_page ).add()
+  >>> transaction.commit()
+
+we create some lookup tables for testing verification due to the indeteriminate order these
+will go into the database ( ie. the primary key changes from one test run to another as the
+session machinery utilizes a dict, and there is no definitive ordering determination for the inserts ).
+
+  >>> id_pk_map = dict(list(engine.execute('select id, content_id from content order by id')))
+  >>> pk_id_map = dict(list(engine.execute('select content_id, id from content order by id')))
+  >>> assert 'home-page' in id_pk_map
+  >>> assert 'ref1' in id_pk_map
+
+the related item should be ref1
+
+  >>> home_page.related[0].id
+  'ref1'
+  >>> rel = list(engine.execute('select source_id, target_id from relations order by source_id'))[0]
+  >>> str(pk_id_map[rel[0]])
+  'home-page'
+  >>> str(pk_id_map[rel[1]])
+  'ref1'
+
+ now change the related item to ref2.  This should remove the relation for ref1 and add one for ref2
+
+  >>> home_page.related=ref2
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> id_pk_map = dict(list(engine.execute('select id, content_id from content order by id')))
+  >>> pk_id_map = dict(list(engine.execute('select content_id, id from content order by id')))
+  >>> map(str, sorted( id_pk_map.keys() ))
+  ['home-page', 'ref1', 'ref2']
+  >>> rel =list(engine.execute('select source_id,target_id from relations order by source_id'))[0]
+  >>> str(pk_id_map[ rel[0] ])
+  'home-page'
+  >>> str(pk_id_map[ rel[1] ])
+  'ref2'
+
+
+Now retest with with multivalued relations
+
+  >>> reset_db()
+
+Create a content object with two references
+
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> ref2 = MyAsset('ref2', name="Ref 2")
+  >>> home_page = MyAsset( 'home-page', sim=[ ref1, ref2 ] )
+  >>> peer = interfaces.ISerializer( home_page ).add()
+  >>> transaction.commit()
+
+Update the content to have just one reference, and verify
+
+  >>> home_page.sim = [ref1]
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> rels = list(engine.execute('select source_id,target_id from relations order by source_id'))
+  >>> assert len(rels) == 1
+
+Deleting Content with References
+--------------------------------
+
+ issue: http://code.google.com/p/contentmirror/issues/detail?id=52
+ issue-summary: Deleting content which has references causes a sqlalchemy error.
+
+ Changeset 94 Fixes the issue.
+
+ First let's create some content with a few references, and then delete it.
+
+  >>> reset_db()
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> home_page = MyAsset( 'home-page', sim=[ref1] )
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> operations = interfaces.IOperationFactory(home_page)
+  >>> operations.delete()
+  >>> transaction.commit()
+  >>> objects = content.select(order_by=content.c.id).execute()
+  >>> [ob.id for ob in objects]
+  [u'ref1']
+  >>> list(relations.select().execute())
+  []
+
+ Next, let's create some content with a few back references, and then delete it.
+
+  >>> reset_db()
+  >>> ref1 = MyAsset('ref1', name="Ref 1")
+  >>> home_page = MyAsset( 'home-page', sim=[ref1] )
+  >>> peer = interfaces.ISerializer( home_page ).update()
+  >>> transaction.commit()
+  >>> operations = interfaces.IOperationFactory(ref1)
+  >>> operations.delete()
+  >>> transaction.commit()
+  >>> objects = content.select(order_by=content.c.id).execute()
+  >>> [ob.id for ob in objects]
+  [u'home-page']
+
+ SQLite doesn't actually handle cascades to the relations table, but other databases do.
+ else we all verify that list(relations.select().execute()) = []
+
+
+100% Coverage
+-------------
+
+Test some silly things to get to 100% code coverage
+
+  >>> from zope import component
+  >>> registry = component.getUtility( interfaces.IPeerRegistry )
+  >>> len(registry.items())
+  4
+
+  >>> from ore.contentmirror import operation
+  >>> operation.Operation(None).process()
+  Traceback (most recent call last):
+  ...
+  NotImplementedError: subclass responsibility

@@ -1,0 +1,43 @@
+<configure xmlns:zcml="http://namespaces.zope.org/zcml"
+           xmlns="http://namespaces.zope.org/zope">
+
+  <subscriber
+     for=".interfaces.IMirrored
+          zope.lifecycleevent.IObjectModifiedEvent"
+     handler=".subscriber.objectModified"
+     />
+
+  <!-- CMF Workflow transition success event -->
+  <subscriber
+     zcml:condition="installed Products.CMFCore.WorkflowCore"
+     for=".interfaces.IMirrored
+          Products.CMFCore.interfaces.IActionSucceededEvent"
+     handler=".subscriber.objectModified"
+     />
+
+  <subscriber
+     for=".interfaces.IMirrored
+          zope.app.container.interfaces.IObjectAddedEvent"
+     handler=".subscriber.objectAdded"
+     />
+
+  <subscriber
+     for=".interfaces.IMirrored
+          zope.app.container.interfaces.IObjectMovedEvent"
+     handler=".subscriber.objectMoved"
+     />
+
+  <subscriber
+     for=".interfaces.IMirrored
+          zope.app.container.interfaces.IObjectRemovedEvent"
+     handler=".subscriber.objectDeleted"
+     />
+
+  <subscriber
+     zcml:condition="installed OFS.interfaces"
+     for="OFS.interfaces.IOrderedContainer
+          .interfaces.IContainerOrderChangedEvent"
+     handler=".subscriber.containerReordered"
+     />
+
+</configure>
