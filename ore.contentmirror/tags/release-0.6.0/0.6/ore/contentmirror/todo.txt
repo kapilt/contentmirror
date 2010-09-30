@@ -1,0 +1,59 @@
+---------
+Todo List
+---------
+
+
+containment order
+-----------------
+
+so with container positions off the root, what if the a serialized content has
+no container... then it would get pulled out for the portal query. the only
+way to distinguish it would be on the basis of contained's relative_path or path
+attributes. in conjunction with having some serialized content in non serializable
+containers, this could lead to situations where we're loading unesc. content peers
+from the database. they could potentially match on id with content in the portal
+root and there by become serialized with an invalid portal id.
+
+for serializable content in non serializable containers, effectively we won't be
+serializing folder positions as their won't be an applicable operation factory
+or serializer for them.
+
+with positioning going through the event/operation system, ideally we need to support
+more than one event per transaction for content, as repositions on the container
+are orthogonal to other events. realistically its not a concern, the only api
+method that would trigger a reposition is rename which we handle specially to
+filter out as its redundant. all the other repositions are triggered as a result
+of ui scripts afaics.
+
+script execution
+----------------
+
+currently we utilize instance run path_to_script.py, which is more than a little
+painful, esp. as we switch out to primarily egg installations. we should use a
+trick to get access the app variable for the scripts.
+
+- frame tricks for making scripts easy to run without pointing to egg source files.
+
+additional tests
+----------------
+
+ - need some tests for content in an unserializable container
+ - tests with references to non serializable content
+
+
+Maybe Items
+-----------
+
+ - Files on Disk Support
+
+ - Workflow History ? does any one want this
+
+ - Content Versions ? or this
+
+ - Lazy Asynchronous Synchronization  ( preferrably funded / contributed )
+
+ - LinguaPlone Compatibility
+
+ - Staging Support
+
+ - cmfedition versions
