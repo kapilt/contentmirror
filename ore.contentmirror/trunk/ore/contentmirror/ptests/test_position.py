@@ -54,14 +54,12 @@ class ContainerPositionTest(MirrorTestCase):
     def test_move_content_down(self):
         """Moving content in a container is serialized to the db."""
         transaction.commit()
-        events = self.capture_events()
         self.folder.moveObjectsDown(["doc-a"])
         self.assertEqual(self.folder.objectIds(), ["doc-b", "doc-a"])
         # plone's ui does this after all moves to update the catalog
         self.folder.plone_utils.reindexOnReorder(self.folder)
         transaction.commit()
         results = self._query_position()
-        self.pprint_events(events)
         self.assertEqual(results, [u'doc-b', u'doc-a'])
 
     def test_portal_move_content_down(self):

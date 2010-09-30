@@ -76,7 +76,7 @@ class MoveOperation(Operation):
 class DeleteOperation(Operation):
 
     interface.implements(interfaces.IDeleteOperation)
-    precedence = 2
+    precedence = 3
 
     def process(self):
         interfaces.ISerializer(self.context).delete()
@@ -90,7 +90,14 @@ class RepositionOperation(Operation):
     # cancels a reposition is a delete. All others would need to be
     # applied in parallel. also the sort comparison is wrong by default
     # since we want containers after the content has been renamed.
-    precedence = -2
+
+    # Container Modified events generate an update event, on reposition,
+    # we generate a separate event that creates this operation, we modify
+    # it in place to ignore the update event in this context, and to
+    # let the reposition event take precendence. alternatively could have
+    # have intelligence to the update event subscriber to filter container
+    # modified events.
+    precedence = 2
 
     def process(self):
         interfaces.ISerializer(self.context).reposition()
@@ -228,7 +235,8 @@ class OperationBuffer(object):
         n_kind = new.precedence
 
         # if we have an add and then a delete, its an effective no-op
-        if (p_kind == 1 and n_kind == 2):
+        if (p_kind == AddOperation.precedence \
+            and n_kind == DeleteOperation.precedence):
             return None
         if p_kind > n_kind:
             return previous

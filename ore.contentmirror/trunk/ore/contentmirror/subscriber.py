@@ -45,5 +45,4 @@ def objectMoved(object, event):
 def containerReordered(object, event):
     operations = interfaces.IOperationFactory(object, None)
     if operations:
-        import pdb; pdb.set_trace()
         operations.reposition()

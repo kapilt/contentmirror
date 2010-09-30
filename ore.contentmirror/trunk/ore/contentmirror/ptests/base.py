@@ -51,10 +51,10 @@ class MirrorTestCase(Sandboxed, PloneTestCase.PloneTestCase):
         self.addCleanup(event.subscribers.remove, capture)
         return events
 
-    def pprint_events(self, events_capture):
-
+    def pprint_events(self, events_capture, traces=False):
         print "Events Capture and Traces"
         for event, trace in events_capture:
             print event
-            print trace.getvalue()
+            if traces:
+                print trace.getvalue()
             print
