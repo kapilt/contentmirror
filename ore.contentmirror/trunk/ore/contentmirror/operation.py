@@ -91,12 +91,12 @@ class RepositionOperation(Operation):
     # applied in parallel. also the sort comparison is wrong by default
     # since we want containers after the content has been renamed.
 
-    # Container Modified events generate an update event, on reposition,
-    # we generate a separate event that creates this operation, we modify
-    # it in place to ignore the update event in this context, and to
-    # let the reposition event take precendence. alternatively could have
-    # have intelligence to the update event subscriber to filter container
-    # modified events.
+    # Container Modified events generate an update event, on
+    # reposition, we generate a separate event that creates this
+    # operation, we have a higher precedence in place to ignore the
+    # update event in this context, and to let the reposition event
+    # take precendence. alternatively could have have intelligence to
+    # the update event subscriber to filter container modified events.
     precedence = 2
 
     def process(self):
