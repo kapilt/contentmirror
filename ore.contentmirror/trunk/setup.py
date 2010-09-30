@@ -12,7 +12,7 @@ setup(
     version=VERSION,
     url="http://contentmirror.googlecode.com",
     install_requires=["setuptools",
-                      "SQLAlchemy==0.5.8",
+                      "SQLAlchemy",
                       "zope.sqlalchemy",
                       "zope.component",
                       "zope.event",
@@ -38,6 +38,5 @@ setup(
     keywords="plone zope zope3",
     entry_points={
      "console_scripts": ["mirror-ddl = ore.contentmirror.ddl:main",
-                         "mirror-bulk = ore.contentmirror.bulk:main"],
-        }
+                         "mirror-bulk = ore.contentmirror.bulk:main"]},
     )

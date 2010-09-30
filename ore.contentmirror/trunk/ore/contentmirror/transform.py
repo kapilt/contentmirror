@@ -19,7 +19,7 @@ from sqlalchemy import orm
 import sqlalchemy as rdb
 from zope import interface, component
 
-from md5 import md5
+from hashlib import md5
 from datetime import datetime
 from ore.contentmirror.session import Session
 from ore.contentmirror import interfaces, schema

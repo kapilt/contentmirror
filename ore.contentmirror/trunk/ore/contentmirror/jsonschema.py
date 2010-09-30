@@ -33,7 +33,11 @@ A couple of concrete examples that we want to fulfill
  - Capturing schemata for customizing mirror front end display.
 """
 
-import simplejson
+try:
+    import simplejson as json
+except:
+    import json
+
 import os
 import sys
 
@@ -95,5 +99,5 @@ def main():
 
     registry = component.getUtility(interfaces.IPeerRegistry)
     values = map(serialize_schema, registry.items())
-    fh.write(simplejson.dumps({'types': values}))
+    fh.write(json.dumps({'types': values}))
     fh.close()

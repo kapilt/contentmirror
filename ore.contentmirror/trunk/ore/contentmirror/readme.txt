@@ -90,12 +90,12 @@ Now let's perform the transformation::
   >>> from ore.contentmirror import transform
   >>> transformer = transform.SchemaTransformer( content, metadata)
   >>> table = transformer.transform()
-  >>> for column in table.columns: print column, column.type
-    mypage.content_id Integer()
-    mypage.slug Text(length=None, convert_unicode=False, assert_unicode=None)
-    mypage.days Integer()
-    mypage.people Text(length=None, convert_unicode=False, assert_unicode=None)
-    mypage.discovered_date DateTime(timezone=False)
+  >>> for column in table.columns: print column, column.type.__class__.__name__
+    mypage.content_id Integer
+    mypage.slug Text
+    mypage.days Integer
+    mypage.people Text
+    mypage.discovered_date DateTime
 
 The default implementation of the ISchemaTransformer uses a common content
 table, to model common fields like dublin core attributes which are common to
@@ -464,11 +464,11 @@ And setup the peers and database tables for our new content class::
   >>> loader.load( MyAsset )
   >>> metadata.create_all(checkfirst=True)
   >>> table = component.getUtility( interfaces.IPeerRegistry )[ MyAsset ].transformer.table
-  >>> for column in table.columns: print column, column.type
-    myasset.content_id Integer()
-    myasset.name Text(length=None, convert_unicode=False, assert_unicode=None)
-    myasset.slug Text(length=None, convert_unicode=False, assert_unicode=None)
-    myasset.discovereddate DateTime(timezone=False)
+  >>> for column in table.columns: print column, column.type.__class__.__name__
+    myasset.content_id Integer
+    myasset.name Text
+    myasset.slug Text
+    myasset.discovereddate DateTime
 
 Let's create some related content::
 
@@ -535,7 +535,7 @@ We can see that the sqlalchemy class mapper uses a relation property for the fie
   >>> peer_factory = component.getUtility( interfaces.IPeerRegistry )[ ExampleContent ]
   >>> mapper = orm.class_mapper( peer_factory )
   >>> mapper.get_property('file_content')
-  <sqlalchemy.orm.properties.RelationProperty object at ...>
+  <sqlalchemy.orm.properties.RelationshipProperty object at ...>
     
 Let's create some content with files and serialize it::
 
@@ -551,7 +551,7 @@ Now let's verify the presence of the file in the files table:
   
   >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum],
   ...      schema.files.c.content_id == peer.content_id).execute() )
-  [(u'treatise.txt', <read-write buffer ptr ..., size 11 at ...>, u'5eb63bbbe01eeed093cb22bb8f5acdc3')]
+  [(u'treatise.txt', 'hello world', u'5eb63bbbe01eeed093cb22bb8f5acdc3')]
   
 If we modify it, what happens to the database during update::
 
@@ -573,7 +573,7 @@ And if we flush the session, we can verify the updated contents of the database:
   >>> session.flush()   
   >>> list(rdb.select( [schema.files.c.file_name, schema.files.c.content, schema.files.c.checksum, ],
   ...      schema.files.c.content_id == peer.content_id).execute() )
-  [(u'treatise.txt', <read-write buffer ptr ..., size 13 at ...>, u'5270941191198af2a01db3572f1b47e8')]
+  [(u'treatise.txt', 'hello world 2', u'5270941191198af2a01db3572f1b47e8')]
   
 If we modify the object without modifying the file content, the file
 content is not written to the database, a md5 checksum comparison is
@@ -606,13 +606,13 @@ column names, and prefixes any reserved words with 'at'::
   >>> 
   >>> transformer = transform.SchemaTransformer( ExamplePage('a'), metadata)
   >>> table = transformer.transform()
-  >>> for column in table.columns: print column, column.type
-    examplepage.content_id Integer()
-    examplepage.at_begin Text(length=None, convert_unicode=False, assert_unicode=None)
-    examplepage.at_end Text(length=None, convert_unicode=False, assert_unicode=None)
-    examplepage.at_commit Integer()    
-    examplepage.at_select Text(length=None, convert_unicode=False, assert_unicode=None)
-    examplepage.at_where DateTime(timezone=False)
+  >>> for column in table.columns: print column, column.type.__class__.__name__
+    examplepage.content_id Integer
+    examplepage.at_begin Text
+    examplepage.at_end Text
+    examplepage.at_commit Integer
+    examplepage.at_select Text
+    examplepage.at_where DateTime
   
 Custom Types
 ------------

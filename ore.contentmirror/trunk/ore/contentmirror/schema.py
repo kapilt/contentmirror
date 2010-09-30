@@ -91,7 +91,7 @@ files = rdb.Table(
                primary_key=True),
     rdb.Column("attribute", rdb.String(156), primary_key=True),
     rdb.Column("type", rdb.String(30)),
-    rdb.Column("content", rdb.Binary),
+    rdb.Column("content", rdb.LargeBinary),
     rdb.Column("path", rdb.String(300)),
     rdb.Column("file_size", rdb.Integer),
     rdb.Column("checksum", rdb.String(33)),
@@ -117,25 +117,6 @@ class Relation(object):
         self.target = target
         self.relationship = relation
 
-orm.mapper(Content, content,
-            polymorphic_on=content.c.object_type,
-            polymorphic_identity='content',
-            properties = {
-               'children': orm.relation(
-                   Content,
-                   backref=orm.backref('parent',
-                                       remote_side=[content.c.content_id])),
-               'relations': orm.relation(
-                   Relation,
-                   cascade="all, delete-orphan",
-                   primaryjoin=(content.c.content_id==relations.c.source_id),
-                   backref=orm.backref("source",
-                                       remote_side=[relations.c.source_id]))})
-#               'backrefs': orm.relation(
-#                   Relation,
-#                   primaryjoin=(content.c.content_id==relations.c.target_id),
-#                   backref=orm.backref("target",
-#                                       remote_side=[relations.c.target_id]))})
 
 class UIDFilter(object):
 
@@ -163,19 +144,50 @@ def fromUID(content_uid):
         content.c.content_uid == content_uid).first()
 
 
-orm.mapper(Relation, relations,
-           properties = {
-#               'source': orm.relation(
-#                   Content, uselist=False, backref='relations',
-#                   primaryjoin=content.c.content_id==relations.c.source_id),
+class File(object):
+    """A Database contained file. """
+
+
+def initialize_mapper():
+    orm.mapper(Content, content,
+               polymorphic_on=content.c.object_type,
+               polymorphic_identity='content',
+               properties = {
+                   'children': orm.relation(
+                       Content,
+                       backref=orm.backref(
+                           'parent',
+                           remote_side=[content.c.content_id])),
+                   'relations': orm.relation(
+                       Relation,
+                       cascade="all, delete-orphan",
+                       primaryjoin=(
+                           content.c.content_id==relations.c.source_id),
+                       backref=orm.backref(
+                           "source",
+                           remote_side=[relations.c.source_id]))})
+    #               'backrefs': orm.relation(
+    #                   Relation,
+    #                   primaryjoin=(
+    #                         content.c.content_id==relations.c.target_id),
+    #                   backref=orm.backref(
+    #                         "target",
+    #                         remote_side=[relations.c.target_id]))})
+
+
+    orm.mapper(Relation, relations,
+               properties = {
+    #               'source': orm.relation(
+    #                   Content, uselist=False, backref='relations',
+    #                   primaryjoin=(
+    #                        content.c.content_id==relations.c.source_id)),
                'target': orm.relation(
                    Content, uselist=False,
                    primaryjoin=content.c.content_id==relations.c.target_id)})
 
 
-class File(object):
-    """A Database contained file. """
+    orm.mapper(File, files,
+               polymorphic_on=files.c.type,
+               polymorphic_identity='db-file')
 
-orm.mapper(File, files,
-           polymorphic_on=files.c.type,
-           polymorphic_identity='db-file')
+initialize_mapper()

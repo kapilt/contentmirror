@@ -54,10 +54,6 @@
      <implements interface=".interfaces.IImageField"/>
   </class>
 
-  <class class="Products.Archetypes.Field.PhotoField">
-     <implements interface=".interfaces.IPhotoField"/>
-  </class>
-
   <class class="Products.Archetypes.Field.LinesField">
      <implements interface=".interfaces.ILinesField"/>
   </class>

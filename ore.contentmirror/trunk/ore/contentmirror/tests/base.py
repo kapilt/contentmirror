@@ -18,13 +18,13 @@
 Testing Infrastructure
 """
 import time
-import unittest
 import random
-import md5
+import hashlib
 import os
 import sqlalchemy
 import transaction
 
+from sqlalchemy import orm
 from cStringIO import StringIO
 
 from zope import interface, component
@@ -36,11 +36,20 @@ from ore import contentmirror
 from ore.contentmirror import (
     interfaces, transform, peer, serializer, schema, operation, session)
 
+from mocker import MockerTestCase
+
 interface.classImplements(sqlalchemy.MetaData, interfaces.IMetaData)
 
 
 def setUp(test):
     placelesssetup.setUp()
+
+    # Attempt to initialize mappers only if their not already mapped.
+    try:
+        orm.class_mapper(schema.Content)
+    except orm.exc.UnmappedClassError:
+        schema.initialize_mapper()
+
     component.provideAdapter(transform.StringTransform)
     component.provideAdapter(transform.IntegerTransform)
     component.provideAdapter(transform.FloatTransform)
@@ -68,6 +77,7 @@ def tearDown(test):
     placelesssetup.tearDown()
     transaction.abort()
     schema.metadata.drop_all(checkfirst=True)
+    orm.clear_mappers()
 
 
 def reset_db():
@@ -85,7 +95,7 @@ def test_db_uri():
     return db_uri
 
 
-class IntegrationTestCase(unittest.TestCase):
+class IntegrationTestCase(MockerTestCase):
 
     sample_content = "ore.contentmirror.tests.base.SampleContent"
     custom_content = "ore.contentmirror.tests.base.CustomContent"
@@ -113,13 +123,25 @@ class IntegrationTestCase(unittest.TestCase):
         </configure>"""
         xmlconfig(StringIO(template % text))
 
+    def capture_events(self):
+        events = []
+
+        def capture(evt):
+            events.append(evt)
+
+        from zope import event
+        event.subscribers.append(capture)
+
+        self.addCleanup(event.subscribers.remove, capture)
+        return events
+
 
 def make_uuid(*args):
     t = str(time.time() * 1000L)
     r = str(random.random()*100000000000000000L)
     data = t +' '+ r +' '+ \
            str(random.random()*100000000000000000L)+' '+ str(args)
-    uid = md5.md5(data).hexdigest()
+    uid = hashlib.md5(data).hexdigest()
     return uid
 
 
@@ -333,7 +355,6 @@ class CustomContent(object):
 
     def UID(self):
         return "21"
-
 
 
 doctest_ns = {

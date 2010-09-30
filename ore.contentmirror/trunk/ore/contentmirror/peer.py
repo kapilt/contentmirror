@@ -40,7 +40,7 @@ class PeerFactory(object):
         # With single value references creating additional foreign
         # keys to the content table, we need to distinguish the
         # join condition for the class inheritance.
-        if self.transformer.table:
+        if self.transformer.table is not None:
             # unit tests exercise a custom transformer without a table.
             join_clause = (
                 self.transformer.table.c.content_id == \

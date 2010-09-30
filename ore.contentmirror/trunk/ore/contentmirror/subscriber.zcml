@@ -34,7 +34,6 @@
      />
 
   <subscriber
-     zcml:condition="installed OFS.interfaces"
      for="OFS.interfaces.IOrderedContainer
           .interfaces.IContainerOrderChangedEvent"
      handler=".subscriber.containerReordered"

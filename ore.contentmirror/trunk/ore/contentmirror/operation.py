@@ -90,7 +90,7 @@ class RepositionOperation(Operation):
     # cancels a reposition is a delete. All others would need to be
     # applied in parallel. also the sort comparison is wrong by default
     # since we want containers after the content has been renamed.
-    precendence = -2
+    precedence = -2
 
     def process(self):
         interfaces.ISerializer(self.context).reposition()

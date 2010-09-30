@@ -3,6 +3,8 @@ import unittest
 from zope.configuration.xmlconfig import XMLConfig
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope import event
+from zope import component
+
 # plone <4
 from zope.app.container.contained import (
     ObjectAddedEvent, ObjectRemovedEvent, ObjectMovedEvent)
@@ -17,9 +19,9 @@ class EventSubcriberTest(IntegrationTestCase):
     def setUp(self):
         super(EventSubcriberTest, self).setUp()
         # plone 3 -> 4 incompatibility
-        #XMLConfig("configure.zcml", component)() # plone 4
-        import zope.app.event # side effect setups object events (plone3)
-        XMLConfig("configure.zcml", zope.app.event)()
+        XMLConfig("configure.zcml", component)() # plone 4
+        #import zope.app.event # side effect setups object events (plone3)
+        #XMLConfig("configure.zcml", zope.app.event)()
         XMLConfig("subscriber.zcml", contentmirror)()
         snippet = """
         <ore:mirror content='%s'/>

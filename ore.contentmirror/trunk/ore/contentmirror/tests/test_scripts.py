@@ -73,7 +73,7 @@ class MockApp(object):
         return cls.Portal
 
 
-class ScriptTestCase(MockerTestCase, IntegrationTestCase):
+class ScriptTestCase(IntegrationTestCase):
 
     def _setup_args(self, *args):
         original_argv = list(sys.argv)
@@ -230,7 +230,7 @@ class BulkScriptTest(ScriptTestCase):
         self._setup_args("")
         mock_exit = self.mocker.replace("sys.exit")
         mock_stdout = self.mocker.replace("sys.stdout")
-        mock_stdout.write(CONTAINS("usage:"))
+        mock_stdout.write(CONTAINS("Options:"))
         mock_exit(1)
         #self.mocker.result(None)
         self.mocker.replay()
@@ -344,7 +344,7 @@ class DDLScriptTest(ScriptTestCase):
         self._setup_args("")
         mock_exit = self.mocker.replace("sys.exit")
         mock_stdout = self.mocker.replace("sys.stdout")
-        mock_stdout.write(CONTAINS("usage:"))
+        mock_stdout.write(CONTAINS("Options:"))
         mock_exit(1)
         self.mocker.replay()
         ddl()
