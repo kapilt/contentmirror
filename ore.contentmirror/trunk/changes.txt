@@ -1,10 +1,15 @@
 Changes
 -------
 
+0.7.1
+=====
+
+ - Packaging Fix.
+
 0.7.0
 =====
 
- - Plone 4 compatibility
+ - Plone 4 compatibility.
  - SQLAlchemy 0.6 support.
 
 0.6.0
