@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-VERSION = "0.6.0"
+VERSION = "0.6.1"
 
 
 def read(*rnames):
@@ -17,18 +17,9 @@ setup(
                       "zope.component",
                       "zope.event",
                       "zope.schema"],
-#                      "zope.app.container",
-#                      "zope.app.event",
-#                      "zope.configuration"
-#                      "zope.security",
-#                      "zope.app.component",
-#                      "ZODB3",
     packages=find_packages(exclude=["*.tests"]),
     namespace_packages=["ore"],
     include_package_data=True,
-    package_data = {
-      "": ["*.txt", "*.zcml"],
-      "ore.contentmirror": ["*.zcml", "*.txt"]},
     zip_safe=False,
     author="Kapil Thangavelu",
     author_email="kapil.foss@gmail.com",
