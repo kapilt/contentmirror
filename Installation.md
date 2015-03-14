@@ -1,0 +1,125 @@
+## Installation ##
+
+Installation consists of two steps, installing the software, and configuring it for your deployment.
+
+## Prerequisites ##
+
+  * Plone 3 or above
+
+  * Database Server ( postgresql mysql oracle firebird )
+
+  * Python Database Adapters for your Database
+
+
+## Buildout Installation ##
+
+The recommended installation method for ContentMirror is via buildout by adding it as an egg dependency to your zope instance. The scripts for contentmirror also need to be specified for installation via buildout.
+
+[http://plone.org/documentation/manual/developer-manual/managing-projects-with-buildout/installing-a-third-party-product](http://plone.org/documentation/manual/developer-manual/managing-projects-with-buildout/installing-a-third-party-product)
+
+for example if you where inheriting an existing plone buildout the minimal configuration changes are as follows:
+
+```
+[instance]
+eggs += ore.contentmirror
+zcml +=
+  ore.contentmirror:meta.zcml
+  ore.contentmirror:settings.zcml
+  ore.contentmirror
+
+[zopepy]
+scripts +=
+  mirror-ddl
+  mirror-bulk
+```
+
+
+## Database Driver Installation ##
+
+You'll need the python libraries/extensions for connecting to your preferred database available from the zope runtime. You don't need the various zope database adapters products, just the python libraries for connecting to the external database. Unfortunately configuration of the various database drivers available is outside of the scope of this installation guide.  if your on a unix system, and using the system python, your package management system likely contains suitable packages for the python database libraries. On windows these are often packaged as binary installers.
+
+## Configuring ##
+
+Before ContentMirror will work, it **must** be configured. Configuration is done via ZCML ( Zope Configuration Markup Language ). The Content Mirror product contains a few zcml files in it, that load up the base system, as well a sample configuration.
+
+Inside of Content Mirror is a file called settings-example.zcml, you should rename this file to settings.zcml and make your modifications to it.
+
+The contents of this file are:
+
+```
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:ore="http://namespaces.objectrealms.net/mirror">
+
+  <!-- setup a database connection -->
+ <ore:engine url="postgres://localhost/contentmirror"
+           name="mirror-db"
+           echo="True"/>
+
+ <!-- bind the database connection to the contentmirror rdb schema -->
+ <ore:bind engine="mirror-db" metadata="ore.contentmirror.schema.metadata"/>
+
+</configure>
+```
+
+The db:engine directive is used to specify a database connection, the syntax used is that of SQLAlchemy's and is well documented there. In brief the url syntax is:
+
+database\_driver\_name://[user:password@]host[:port\_number]/database\_name
+
+common database driver names, are mysql, postgres, and sqlite.
+
+The setting-example.zcml uses the db:engine directive to setup a connection to a postgres database running on localhost with a database called content mirror. the echo parameter allows specification of whether statements should be logged to stdout, which is useful for initial installation and testing purposes. This console output is only visible if you run zope in the foreground ( ie. runzope, zopectl fg, or instance fg ).
+
+You should modify the db:engine url to connect to your target database.
+
+
+
+## Configuring Custom Types ##
+
+If you have custom content types or 3rd party content types your using your site, you can have them mirrored by adding the following zcml per custom content class in settings.zcml:
+
+```
+<ore:mirror content="Products.ATContentTypes.content.document.ATDocument" />
+```
+
+if you need to you can also specify custom serializer and transformer components to use with your class. Content Mirror already has builtin support for the default Plone Content Types. The above zcml line is sufficient for any custom content type that uses the default archetypes fields types.
+
+## Database Schema Setup ##
+
+Next you'll need to generate the SQL DDL/Schema file for your target database. Content Mirror provides a script for this purpose. This script needs to be executed with the Zope environment loaded, in order to determine which content types are to be mirrored.
+
+assuming your running via a buildout you can do the following:
+```
+$ ./bin/instance run ./bin/mirror-ddl mysql > mirror.sql
+```
+
+the ddl.py script takes one parameter, the name of the target database to deploy to, names are those available as SQLAlchemy database driver names ie. ( postgres, mysql, sqlite, etc.)
+
+You should load this file into your target database. ie for mysql:
+
+```
+$ mysql -u dbowner contentmirror < mirror.sql
+```
+
+this will connect to the contentmirror database as the dbowner user and execute the content of mirror.sql, which will create the database tables needed.
+
+for postgres:
+
+```
+$ pgsql contentmirror < mirror.sql
+```
+
+## Bulk Loading an Existing Site ##
+
+If you have an existing site, it's recommended to sync the current state of the portal to the database en mass, rather than wait for the mirroring process to copy it to the database as content changes.
+
+Content Mirror provides another script for this purpose, mirror-bulk. It takes one required argument, the path to the portal in the zodb. ie if i had a plone site in zope located at /mysite-testing i could invoke the bulk script on the portal with the following (in a buildout setup):
+
+```
+$ ./bin/instance run ./bin/mirror-bulk mysite-testing
+```
+
+mirror-bulk has several additional options for incremental synchronization, selecting a database to sync to from the command line, or just serializing particular content types, or content within a particular folder. To see all of the options the script's usage option can be invoked.
+
+```
+  ./bin/mirror-bulk --help
+```
